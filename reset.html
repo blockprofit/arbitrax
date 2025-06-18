@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Restablecer contraseña</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-image: url('fondodepantallainicio.jpeg');
+      background-size: cover;
+      background-position: center;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    .reset-container {
+      background: rgba(0, 0, 0, 0.75);
+      padding: 30px 25px;
+      border-radius: 16px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+    }
+
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    input {
+      background: #fff;
+      color: #000;
+    }
+
+    button {
+      background: #00c85a;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="reset-container">
+    <h2>Restablecer Contraseña</h2>
+    <div id="formReset">
+      <input type="password" id="newPass" placeholder="Nueva contraseña" />
+      <input type="password" id="repeatPass" placeholder="Repetir contraseña" />
+      <button onclick="resetPassword()">Guardar nueva contraseña</button>
+    </div>
+    <div id="successMsg" class="hidden">
+      <p>Contraseña actualizada correctamente.</p>
+      <button onclick="location.href='index.html'">Ir al login</button>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Esperamos la sesión de recuperación
+    let recovering = false;
+    client.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY" && session) {
+        recovering = true;
+      }
+    });
+
+    async function resetPassword() {
+      const pass1 = document.getElementById("newPass").value;
+      const pass2 = document.getElementById("repeatPass").value;
+
+      if (pass1 !== pass2) {
+        return alert("Las contraseñas no coinciden.");
+      }
+
+      const { data: sessionData } = await client.auth.getSession();
+
+      if (!sessionData || !sessionData.session) {
+        return alert("No se detectó sesión activa para restablecer contraseña.");
+      }
+
+      const { error } = await client.auth.updateUser({ password: pass1 });
+      if (error) {
+        alert("Error al actualizar contraseña: " + error.message);
+      } else {
+        document.getElementById("formReset").classList.add("hidden");
+        document.getElementById("successMsg").classList.remove("hidden");
+      }
+    }
+  </script>
+</body>
+</html>

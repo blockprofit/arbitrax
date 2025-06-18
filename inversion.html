@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nivel de Inversión</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+  <!-- ✅ Se agregó Font Awesome para que funcionen los íconos -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-image: url('fondodepantallaprincipal1.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: white;
+      min-height: 100vh;
+    }
+    .top-bar {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .menu-btn {
+      font-size: 24px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: white;
+    }
+    .menu {
+      display: none;
+      flex-direction: column;
+      position: absolute;
+      top: 60px;
+      left: 20px;
+      background: rgba(0, 0, 0, 0.9);
+      padding: 10px;
+      border-radius: 10px;
+      width: 240px;
+      z-index: 99;
+    }
+    .menu button {
+      background: none;
+      border: none;
+      color: white;
+      padding: 10px;
+      text-align: left;
+      width: 100%;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .menu button i {
+      margin-right: 8px;
+    }
+    .menu button:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 12px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .mensaje-inversion {
+      text-align: center;
+      background: rgba(0, 168, 255, 0.85);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 18px;
+      max-width: 600px;
+      margin: 0 auto 30px auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+    .cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+    .card {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 12px;
+      padding: 20px;
+      width: 220px;
+      text-align: center;
+      backdrop-filter: blur(8px);
+    }
+    .card h3 {
+      font-size: 20px;
+      margin-bottom: 10px;
+      padding: 8px;
+      border-radius: 8px;
+    }
+    .card:nth-child(1) h3 { background: #1E88E5; color: #fff; }
+    .card:nth-child(2) h3 { background: #FFB300; color: #000; }
+    .card:nth-child(3) h3 { background: #43A047; color: #fff; }
+    .card:nth-child(4) h3 { background: #8E24AA; color: #fff; }
+    .card label {
+      display: block;
+      margin: 8px 0;
+    }
+    .card button {
+      margin-top: 10px;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #00a8ff;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .card button:hover {
+      background: #007acc;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <button class="menu-btn" onclick="toggleMenu()">☰</button>
+    <strong>Nivel de inversión</strong>
+  </div>
+
+  <!-- ✅ Menú con íconos corregido -->
+  <div class="menu" id="mainMenu">
+    <button onclick="window.location.href='principal.html#welcome'"><i class="fas fa-home"></i> Inicio</button>
+    <button onclick="window.location.href='principal.html#perfil'"><i class="fas fa-user"></i> Perfil</button>
+    <button onclick="window.location.href='inversion.html'"><i class="fas fa-chart-line"></i> Nivel de inversión</button>
+    <button onclick="window.location.href='deposito.html'"><i class="fas fa-wallet"></i> Depósito</button>
+    <button onclick="window.location.href='retiro.html'"><i class="fas fa-hand-holding-usd"></i> Retiro</button>
+    <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Programa de referidos</button>
+    <button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>
+    <button onclick="window.location.href='preguntasfrecuentes.html'"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>
+    <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-contract"></i> Términos y condiciones</button>
+    <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
+  </div>
+
+  <div class="container">
+    <h2>Selecciona tu nivel de inversión</h2>
+    <div class="mensaje-inversion">OBTÉN ENTRE UN 60% HASTA 180% DE TU INVERSIÓN</div>
+
+    <div class="cards">
+      <div class="card">
+        <h3>Básico</h3>
+        <label><input type="radio" name="plan-Básico" value="ARS" checked> 20.000 ARS</label>
+        <label><input type="radio" name="plan-Básico" value="USDT"> 17 USDT</label>
+        <p>Interés semanal: 5% - 15%<br>RETIROS CADA 7 DÍAS</p>
+        <button onclick="seleccionar('Básico')">Seleccionar</button>
+      </div>
+      <div class="card">
+        <h3>Medio</h3>
+        <label><input type="radio" name="plan-Medio" value="ARS" checked> 50.000 ARS</label>
+        <label><input type="radio" name="plan-Medio" value="USDT"> 42 USDT</label>
+        <p>Interés semanal: 10% - 15%<br>RETIROS CADA 7 DÍAS</p>
+        <button onclick="seleccionar('Medio')">Seleccionar</button>
+      </div>
+      <div class="card">
+        <h3>Avanzado</h3>
+        <label><input type="radio" name="plan-Avanzado" value="ARS" checked> 100.000 ARS</label>
+        <label><input type="radio" name="plan-Avanzado" value="USDT"> 84 USDT</label>
+        <p>Interés semanal: 15%<br>RETIROS CADA 7 DÍAS</p>
+        <button onclick="seleccionar('Avanzado')">Seleccionar</button>
+      </div>
+      <div class="card">
+        <h3>Profesional</h3>
+        <label><input type="radio" name="plan-Avanzado Pro" value="ARS" checked> 500.000 ARS</label>
+        <label><input type="radio" name="plan-Avanzado Pro" value="USDT"> 417 USDT</label>
+        <p>15% + premios<br>RETIROS CADA 7 DÍAS</p>
+        <button onclick="seleccionar('Avanzado Pro')">Seleccionar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let currentUserId = null;
+
+    async function validarSesion() {
+      const { data: { session } } = await client.auth.getSession();
+      if (!session) return window.location.href = "index.html";
+      currentUserId = session.user.id;
+    }
+
+    async function seleccionar(nivel) {
+      const moneda = document.querySelector(`input[name="plan-${nivel}"]:checked`).value;
+      const monto = {
+        "Básico": moneda === "ARS" ? 20000 : 17,
+        "Medio": moneda === "ARS" ? 50000 : 42,
+        "Avanzado": moneda === "ARS" ? 100000 : 84,
+        "Avanzado Pro": moneda === "ARS" ? 500000 : 417
+      }[nivel];
+
+      await client.from("profiles").update({ nivel }).eq("id", currentUserId);
+      localStorage.setItem("tipoMoneda", moneda);
+      localStorage.setItem("montoInversion", monto);
+      window.location.href = "deposito.html";
+    }
+
+    function toggleMenu() {
+      const menu = document.getElementById("mainMenu");
+      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+    }
+
+    async function logout() {
+      await client.auth.signOut();
+      window.location.href = "index.html";
+    }
+
+    validarSesion();
+  </script>
+</body>
+</html>

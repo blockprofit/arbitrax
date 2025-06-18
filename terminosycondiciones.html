@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Términos y Condiciones</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-image: url('fondodepantallaprincipal1.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+      color: white;
+      display: flex;
+    }
+
+    .menu-toggle {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 1001;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 10px 15px;
+      border-radius: 6px;
+    }
+
+    .sidebar {
+      width: 230px;
+      background-color: rgba(0, 0, 0, 0.85);
+      height: 100vh;
+      padding-top: 60px;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+    }
+
+    .sidebar.active {
+      transform: translateX(0%);
+    }
+
+    .sidebar button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 15px;
+      padding: 12px 20px;
+      text-align: left;
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      align-items: center;
+    }
+
+    .sidebar button:hover,
+    .sidebar button.active {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar button i {
+      margin-right: 12px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .content {
+      flex: 1;
+      padding: 30px;
+      margin-left: 0;
+      width: 100%;
+    }
+
+    section {
+      max-width: 900px;
+      margin: 80px auto 40px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #00a8ff;
+    }
+
+    p, li {
+      font-size: 16px;
+      line-height: 1.7;
+      margin-bottom: 16px;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    .footer {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    a {
+      color: #00a8ff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
+
+  <div class="sidebar" id="sidebar">
+    <button onclick="window.location.href='principal.html#welcome'"><i class="fas fa-home"></i> Inicio</button>
+    <button onclick="window.location.href='principal.html#perfil'"><i class="fas fa-user"></i> Perfil</button>
+    <button onclick="window.location.href='inversion.html'"><i class="fas fa-chart-line"></i> Nivel de inversión</button>
+    <button onclick="window.location.href='deposito.html'"><i class="fas fa-wallet"></i> Depósito</button>
+    <button onclick="window.location.href='retiro.html'"><i class="fas fa-arrow-circle-up"></i> Retiro</button>
+    <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Programa de referidos</button>
+    <button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>
+    <button onclick="window.location.href='preguntasfrecuentes.html'"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>
+    <button class="active"><i class="fas fa-file-alt"></i> Términos y condiciones</button>
+    <button onclick="logout()"><i class="fas fa-power-off"></i> Cerrar sesión</button>
+  </div>
+
+  <div class="content" onclick="closeSidebar()">
+    <section>
+      <h1>Términos y Condiciones</h1>
+
+      <p>Al acceder, registrarte y utilizar esta plataforma, aceptás sin restricciones los presentes términos y condiciones, los cuales regulan la participación del usuario en los servicios ofrecidos: inversión en criptomonedas, minería digital, arbitraje automatizado, programas de referidos y sorteos promocionales. Estos términos constituyen un acuerdo legal entre el usuario y la plataforma.</p>
+
+      <p><strong>Uso de la plataforma</strong></p>
+      <ul>
+        <li>La plataforma actúa como intermediario digital que canaliza inversiones hacia actividades automatizadas vinculadas a criptoactivos.</li>
+        <li>La participación está sujeta a confirmación de identidad, validación de perfil y cumplimiento de los requisitos mínimos para cada función.</li>
+        <li>Los usuarios deben mantener sus credenciales de acceso seguras. La empresa no se responsabiliza por accesos no autorizados causados por negligencia del usuario.</li>
+      </ul>
+
+      <p><strong>Riesgos y rendimientos</strong></p>
+      <ul>
+        <li>Las inversiones realizadas en la plataforma están sujetas a riesgo de mercado. No existe garantía de retorno fijo, y los valores pueden variar sin previo aviso.</li>
+        <li>Los porcentajes anunciados como rendimiento semanal son estimaciones basadas en históricos de operaciones, pero no constituyen promesas ni contratos de resultados.</li>
+        <li>El usuario reconoce que toda inversión conlleva riesgo, y exime expresamente a la empresa de cualquier responsabilidad por pérdidas parciales o totales del capital invertido.</li>
+      </ul>
+
+      <p><strong>Limitación de responsabilidad</strong></p>
+      <ul>
+        <li>La empresa no será responsable por interrupciones de servicio, caídas de servidores, ataques informáticos, fallos de terceros proveedores ni disposiciones regulatorias que afecten la operativa.</li>
+        <li>No nos hacemos responsables por decisiones individuales, fluctuaciones de mercado, ni por recomendaciones interpretadas por el usuario como asesoramiento financiero.</li>
+        <li>El usuario asume la plena responsabilidad del uso que hace de la plataforma y sus decisiones de inversión.</li>
+      </ul>
+
+      <p><strong>Modificaciones del servicio</strong></p>
+      <ul>
+        <li>La empresa se reserva el derecho de modificar, suspender o eliminar funcionalidades sin previo aviso.</li>
+        <li>Estos términos pueden ser actualizados en cualquier momento, y el uso continuado de la plataforma implica la aceptación de los mismos.</li>
+        <li>Está prohibido el uso de múltiples cuentas por un mismo individuo, el uso abusivo del sistema de referidos o cualquier intento de manipular el funcionamiento de la plataforma.</li>
+      </ul>
+
+      <p><strong>Participación en sorteos</strong></p>
+      <ul>
+        <li>La participación en sorteos está reservada para usuarios que cumplan con los criterios establecidos (por ejemplo, referidos activos).</li>
+        <li>La decisión sobre la elegibilidad y premiación es exclusivamente del administrador y no está sujeta a apelación.</li>
+        <li>Los premios pueden ser modificados o cancelados sin previo aviso en función del rendimiento de la plataforma.</li>
+      </ul>
+
+      <p><strong>Jurisdicción</strong></p>
+      <ul>
+        <li>Este servicio no constituye una entidad financiera regulada. Su uso es voluntario y bajo la exclusiva responsabilidad del usuario.</li>
+        <li>Cada usuario es responsable de cumplir con la legislación fiscal y financiera vigente en su país de residencia.</li>
+      </ul>
+
+      <p><strong>Contacto y soporte</strong></p>
+      <ul>
+        <li>El único canal oficial de soporte es a través de la sección "Soporte" dentro de la plataforma, o mediante Telegram en los enlaces proporcionados.</li>
+        <li>No se brinda atención fuera de los canales oficiales. Las dudas o reclamos enviados por vías externas podrán no ser respondidos.</li>
+      </ul>
+
+      <p>Al continuar usando esta plataforma, el usuario manifiesta haber comprendido todos los puntos expuestos, reconociendo la autonomía de sus decisiones y deslindando de toda responsabilidad legal a la empresa, su personal, socios, proveedores y colaboradores.</p>
+
+      <div class="footer">
+        Última actualización: junio 2025<br>
+        <a href="principal.html#welcome">← Volver al inicio</a>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("active");
+    }
+
+    function closeSidebar() {
+      document.getElementById("sidebar").classList.remove("active");
+    }
+
+    async function logout() {
+      await supabase.auth.signOut();
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>

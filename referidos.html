@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Programa de Referidos</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-image: url('fondodepantallaprincipal1.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: white;
+      margin: 0;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .menu-toggle {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 1001;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 10px 15px;
+      border-radius: 6px;
+    }
+
+    .sidebar {
+      width: 230px;
+      background-color: rgba(0, 0, 0, 0.85);
+      height: 100vh;
+      padding-top: 60px;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+    }
+
+    .sidebar.active {
+      transform: translateX(0%);
+    }
+
+    .sidebar button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 15px;
+      padding: 12px 20px;
+      text-align: left;
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      align-items: center;
+    }
+
+    .sidebar button:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar button i {
+      margin-right: 12px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .content {
+      flex: 1;
+      padding: 30px;
+      margin-left: 0;
+      width: 100%;
+    }
+
+    h2, h3 {
+      text-align: center;
+    }
+
+    .formulario {
+      max-width: 500px;
+      margin: 20px auto;
+      text-align: center;
+    }
+
+    .formulario input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: none;
+      background: #fff;
+      color: #000;
+    }
+
+    .formulario button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background: #00a8ff;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .formulario button:hover {
+      background: #007acc;
+    }
+
+    .cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 12px;
+      padding: 20px;
+      width: 200px;
+      text-align: center;
+      backdrop-filter: blur(4px);
+    }
+
+    .historial {
+      max-width: 700px;
+      margin: 40px auto;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      color: white;
+      font-size: 15px;
+    }
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      text-align: center;
+    }
+
+    th {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .credit {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 12px;
+    }
+
+    .credit a {
+      color: #ccc;
+      text-decoration: none;
+    }
+
+    .volver {
+      display: block;
+      text-align: center;
+      margin: 30px auto 10px;
+      font-size: 16px;
+      color: #00a8ff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .volver:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
+
+  <div class="sidebar" id="sidebar">
+    <button onclick="window.location.href='principal.html#welcome'"><i class="fas fa-home"></i> Inicio</button>
+    <button onclick="window.location.href='principal.html#perfil'"><i class="fas fa-user"></i> Perfil</button>
+    <button onclick="window.location.href='inversion.html'"><i class="fas fa-chart-line"></i> Nivel de inversión</button>
+    <button onclick="window.location.href='deposito.html'"><i class="fas fa-wallet"></i> Depósito</button>
+    <button onclick="window.location.href='retiro.html'"><i class="fas fa-arrow-circle-up"></i> Retiro</button>
+    <button class="active"><i class="fas fa-users"></i> Programa de referidos</button>
+    <button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>
+    <button onclick="window.location.href='preguntasfrecuentes.html'"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>
+    <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-alt"></i> Términos y condiciones</button>
+    <button onclick="logout()"><i class="fas fa-power-off"></i> Cerrar sesión</button>
+  </div>
+
+  <div class="content" onclick="closeSidebar()">
+    <h2>Programa de Referidos</h2>
+
+    <div class="formulario">
+      <p>Compartí tu enlace de invitación:</p>
+      <input type="text" id="linkReferido" readonly />
+      <button onclick="copiarTexto('linkReferido')">Copiar enlace</button>
+    </div>
+
+    <h3>Referidos completados: <span id="referidosCompletados">0</span></h3>
+
+    <div class="cards">
+      <div class="card"><h3>5 Referidos</h3><p>20.000 ARS o 17 USDT</p></div>
+      <div class="card"><h3>10 Referidos</h3><p>80.000 ARS o 60 USDT</p></div>
+      <div class="card"><h3>20 Referidos</h3><p>100.000 ARS o 80 USDT</p></div>
+      <div class="card"><h3>50 Referidos</h3><p>250.000 ARS o 200 USDT</p></div>
+    </div>
+
+    <div class="historial">
+      <h3>Últimos referidos registrados</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Correo</th>
+            <th>Fecha</th>
+            <th>Completado</th>
+          </tr>
+        </thead>
+        <tbody id="tablaReferidos">
+          <tr><td colspan="3">Cargando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <a href="principal.html" class="volver">← Volver al menú principal</a>
+    <div class="credit">Imagen de fondo: fondodepantallaprincipal1.jpeg</div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let currentUserId = null;
+
+    async function iniciar() {
+      const { data: { session }, error } = await client.auth.getSession();
+      if (error || !session) {
+        alert("Sesión expirada. Iniciá sesión nuevamente.");
+        window.location.href = "index.html";
+        return;
+      }
+
+      currentUserId = session.user.id;
+
+      const origin = window.location.origin;
+      const link = `${origin}/index.html?ref=${currentUserId}`;
+      document.getElementById("linkReferido").value = link;
+
+      const { data: referidos, error: refError } = await client
+        .from("referidos")
+        .select("id")
+        .eq("referido_por", currentUserId)
+        .eq("completado", true);
+
+      document.getElementById("referidosCompletados").innerText = referidos?.length || 0;
+
+      await cargarHistorial();
+    }
+
+    async function cargarHistorial() {
+      const { data, error } = await client
+        .from("referidos")
+        .select("email, created_at, completado")
+        .eq("referido_por", currentUserId)
+        .order("created_at", { ascending: false })
+        .limit(10);
+
+      const tbody = document.getElementById("tablaReferidos");
+      tbody.innerHTML = "";
+
+      if (error || !data?.length) {
+        tbody.innerHTML = `<tr><td colspan="3">No hay registros aún.</td></tr>`;
+        return;
+      }
+
+      data.forEach(ref => {
+        const fecha = new Date(ref.created_at).toLocaleDateString('es-AR');
+        const fila = `<tr>
+          <td>${ref.email || "Sin email"}</td>
+          <td>${fecha}</td>
+          <td>${ref.completado ? "✅" : "❌"}</td>
+        </tr>`;
+        tbody.innerHTML += fila;
+      });
+    }
+
+    function copiarTexto(id) {
+      const texto = document.getElementById(id).value;
+      navigator.clipboard.writeText(texto).then(() => {
+        alert("✅ Enlace copiado al portapapeles.");
+      });
+    }
+
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("active");
+    }
+
+    function closeSidebar() {
+      document.getElementById("sidebar").classList.remove("active");
+    }
+
+    async function logout() {
+      await client.auth.signOut();
+      window.location.href = "index.html";
+    }
+
+    iniciar();
+  </script>
+</body>
+</html>

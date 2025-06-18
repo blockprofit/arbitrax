@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Preguntas Frecuentes</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-image: url('fondodepantallaprincipal1.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+      color: white;
+      display: flex;
+    }
+
+    .menu-toggle {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 1001;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 10px 15px;
+      border-radius: 6px;
+    }
+
+    .sidebar {
+      width: 230px;
+      background-color: rgba(0, 0, 0, 0.85);
+      height: 100vh;
+      padding-top: 60px;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+    }
+
+    .sidebar.active {
+      transform: translateX(0%);
+    }
+
+    .sidebar button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 15px;
+      padding: 12px 20px;
+      text-align: left;
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      align-items: center;
+    }
+
+    .sidebar button:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar button i {
+      margin-right: 12px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .content {
+      flex: 1;
+      padding: 30px;
+      margin-left: 0;
+      width: 100%;
+    }
+
+    .contenido {
+      max-width: 900px;
+      margin: 80px auto 40px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 20px 30px;
+      border-radius: 12px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    details {
+      margin-bottom: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 10px 15px;
+      cursor: pointer;
+    }
+
+    summary {
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    details[open] summary {
+      color: #00c3ff;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
+
+  <div class="sidebar" id="sidebar">
+    <button onclick="window.location.href='principal.html#welcome'"><i class="fas fa-home"></i> Inicio</button>
+    <button onclick="window.location.href='principal.html#perfil'"><i class="fas fa-user"></i> Perfil</button>
+    <button onclick="window.location.href='inversion.html'"><i class="fas fa-chart-line"></i> Nivel de inversión</button>
+    <button onclick="window.location.href='deposito.html'"><i class="fas fa-wallet"></i> Depósito</button>
+    <button onclick="window.location.href='retiro.html'"><i class="fas fa-arrow-circle-up"></i> Retiro</button>
+    <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Programa de referidos</button>
+    <button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>
+    <button class="active"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>
+    <button onclick="window.location.href='operaciones.html'"><i class="fas fa-robot"></i> Operaciones automáticas</button>
+    <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-alt"></i> Términos y condiciones</button>
+    <button onclick="logout()"><i class="fas fa-power-off"></i> Cerrar sesión</button>
+  </div>
+
+  <div class="content" onclick="closeSidebar()">
+    <div class="contenido">
+      <h2>Preguntas Frecuentes</h2>
+
+      <details><summary>¿Qué es esta plataforma?</summary><p>Es un sistema de inversión que combina minería de criptomonedas y arbitraje, ofreciendo rendimientos semanales según el nivel de inversión.</p></details>
+      <details><summary>¿Cómo puedo empezar a invertir?</summary><p>Registrate, completá tu perfil, elegí un plan de inversión y realizá un depósito según el monto indicado.</p></details>
+      <details><summary>¿Qué métodos de pago aceptan?</summary><p>Aceptamos depósitos en ARS vía CVU y en USDT (BEP20).</p></details>
+      <details><summary>¿Cuándo recibiré mis ganancias?</summary><p>Los pagos se procesan automáticamente cada 7 días desde tu primer depósito confirmado.</p></details>
+      <details><summary>¿Puedo retirar en cualquier momento?</summary><p>Los retiros pueden solicitarse en cualquier momento, pero se procesan semanalmente tras la validación.</p></details>
+      <details><summary>¿Dónde veo mi historial de depósitos?</summary><p>En la sección "Depósito", al final del formulario, podrás ver tu historial completo.</p></details>
+      <details><summary>¿Dónde veo mi historial de retiros?</summary><p>En la sección "Retiro", al final encontrarás tu historial con fechas, monto y estado.</p></details>
+      <details><summary>¿Qué pasa si ingreso un dato erróneo?</summary><p>Podés corregirlo desde tu perfil. Si el error afecta un retiro o depósito, contactanos.</p></details>
+      <details><summary>¿Hay un monto mínimo para invertir?</summary><p>Sí, el plan básico comienza en 20.000 ARS o 17 USDT.</p></details>
+      <details><summary>¿El sistema de referidos da bonificaciones?</summary><p>Sí, al alcanzar metas de referidos (5, 10, 20, 50), podés recibir recompensas validadas por el administrador.</p></details>
+      <details><summary>¿Es obligatorio referir personas?</summary><p>No. Referir personas es opcional, pero te permite acceder a recompensas adicionales.</p></details>
+      <details><summary>¿Dónde encuentro mi enlace de referido?</summary><p>En la sección "Programa de referidos" verás tu enlace personalizado con tu ID.</p></details>
+      <details><summary>¿Qué tipo de interés genera cada plan?</summary><p>Los planes van del 5% al 15% semanal, dependiendo del nivel y condiciones del mercado.</p></details>
+      <details><summary>¿Puedo cambiar mi plan de inversión?</summary><p>Podés hacerlo una vez que tu ciclo actual termine o al hacer una nueva inversión mayor.</p></details>
+      <details><summary>¿Qué tan rápido se confirma un depósito?</summary><p>Los depósitos suelen confirmarse dentro de las 2 a 24 horas. Los pagos en USDT suelen validarse más rápido que los de ARS.</p></details>
+      <details><summary>¿Cómo contacto al soporte?</summary><p>Podés escribirnos directamente por Telegram o desde la opción "Soporte" en la pantalla de inicio.</p></details>
+      <details><summary>¿Cómo retiro en USDT?</summary><p>Seleccioná el tipo de retiro como USDT (BEP20) y completá la dirección al solicitarlo.</p></details>
+      <details><summary>¿Hay penalidades por retirar antes de los 7 días?</summary><p>No. Pero los intereses se calculan cada 7 días, por lo que podrías recibir menos si lo hacés antes.</p></details>
+      <details><summary>¿La plataforma es segura?</summary><p>Implementamos autenticación segura, respaldo de datos y trabajamos con Supabase para el manejo de usuarios.</p></details>
+      <details><summary>¿Qué pasa si pierdo el acceso a mi cuenta?</summary><p>Usá la opción "Recuperar contraseña" desde la página de inicio o contactanos si el problema persiste.</p></details>
+      <details><summary>¿Cuánto puedo ganar como máximo?</summary><p>El retorno semanal depende del plan, pero puede llegar hasta un 180% acumulado según el capital y el tiempo.</p></details>
+      <details><summary>¿Puedo usar dólares físicos para invertir?</summary><p>No directamente. Debés convertirlos a USDT (BEP20) y transferirlos a la dirección indicada.</p></details>
+      <details><summary>¿Se puede invertir más de una vez?</summary><p>Sí, podés realizar depósitos múltiples y seguir acumulando ganancias semanales.</p></details>
+      <details><summary>¿Qué garantía tengo de pago?</summary><p>La plataforma se basa en un modelo transparente y pagos automatizados. El cumplimiento depende también del correcto uso del sistema.</p></details>
+      <details><summary>¿Puedo usar una wallet externa?</summary><p>Sí. Para USDT (BEP20), podés usar wallets como TrustWallet, Metamask o Binance.</p></details>
+      <details><summary>¿Dónde se realiza la minería?</summary><p>Trabajamos con nodos de minería en diferentes regiones y servidores con alta disponibilidad.</p></details>
+      <details><summary>¿Qué es el arbitraje?</summary><p>Es una estrategia que permite comprar criptomonedas en un mercado y venderlas en otro aprovechando diferencias de precio.</p></details>
+      <details><summary>¿Cómo sé que recibí el pago?</summary><p>Te llegará una notificación y también podés verificarlo en tu historial de retiros.</p></details>
+      <details><summary>¿Qué datos necesito para registrarme?</summary><p>Sólo tu email y una contraseña. Luego podés completar el resto del perfil.</p></details>
+      <details><summary>¿Puedo tener más de una cuenta?</summary><p>No se recomienda. El sistema detecta cuentas duplicadas y puede restringirlas.</p></details>
+
+      <!-- NUEVA PREGUNTA AGREGADA -->
+      <details open>
+        <summary>¿Qué son las operaciones automáticas?</summary>
+        <p>Las operaciones automáticas muestran en tiempo real las inversiones diarias realizadas por la plataforma. Esto incluye estrategias como arbitraje entre exchanges, staking, participación en fondos DeFi, compra temporal de activos digitales y minería inteligente. La sección "Operaciones automáticas" estará visible en el menú y se actualizará a diario para mantener informados a todos los usuarios sobre cómo se está utilizando el capital invertido.</p>
+      </details>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("active");
+    }
+
+    function closeSidebar() {
+      document.getElementById("sidebar").classList.remove("active");
+    }
+
+    async function logout() {
+      await client.auth.signOut();
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>

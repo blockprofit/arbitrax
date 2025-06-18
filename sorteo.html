@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sorteo</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-image: url('fondodepantallaprincipal1.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+      color: white;
+      display: flex;
+    }
+
+    .menu-toggle {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 1001;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 10px 15px;
+      border-radius: 6px;
+    }
+
+    .sidebar {
+      width: 230px;
+      background-color: rgba(0, 0, 0, 0.85);
+      height: 100vh;
+      padding-top: 60px;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+    }
+
+    .sidebar.active {
+      transform: translateX(0%);
+    }
+
+    .sidebar button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 15px;
+      padding: 12px 20px;
+      text-align: left;
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      align-items: center;
+    }
+
+    .sidebar button:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar button i {
+      margin-right: 12px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .content {
+      flex: 1;
+      padding: 30px;
+      margin-left: 0;
+      width: 100%;
+    }
+
+    .contenido {
+      max-width: 600px;
+      margin: 80px auto 40px;
+      background: rgba(0,0,0,0.6);
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .info {
+      font-size: 18px;
+      margin: 15px 0;
+    }
+
+    .estado {
+      font-weight: bold;
+      font-size: 20px;
+      color: #00ffcc;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
+
+  <div class="sidebar" id="sidebar">
+    <button onclick="window.location.href='principal.html#welcome'"><i class="fas fa-home"></i> Inicio</button>
+    <button onclick="window.location.href='principal.html#perfil'"><i class="fas fa-user"></i> Perfil</button>
+    <button onclick="window.location.href='inversion.html'"><i class="fas fa-chart-line"></i> Nivel de inversión</button>
+    <button onclick="window.location.href='deposito.html'"><i class="fas fa-wallet"></i> Depósito</button>
+    <button onclick="window.location.href='retiro.html'"><i class="fas fa-arrow-circle-up"></i> Retiro</button>
+    <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Programa de referidos</button>
+    <button class="active"><i class="fas fa-gift"></i> Sorteo</button>
+    <button onclick="window.location.href='preguntasfrecuentes.html'"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>
+    <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-alt"></i> Términos y condiciones</button>
+    <button onclick="logout()"><i class="fas fa-power-off"></i> Cerrar sesión</button>
+  </div>
+
+  <div class="content" onclick="closeSidebar()">
+    <div class="contenido">
+      <h2>Participación en el Sorteo</h2>
+      <div class="info">Tu correo: <span id="correoUsuario">Cargando...</span></div>
+      <div class="estado" id="estadoSorteo">Verificando participación...</div>
+      <div class="info">📅 Fecha del sorteo: <span id="fechaSorteo">-</span></div>
+      <div class="info">💰 Monto del sorteo: <span id="montoSorteo">-</span></div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let currentUserId = null;
+
+    async function init() {
+      const { data: { session }, error } = await client.auth.getSession();
+      if (error || !session) return window.location.href = "index.html";
+
+      const email = session.user.email;
+      currentUserId = session.user.id;
+      document.getElementById("correoUsuario").textContent = email;
+
+      await verificarParticipacion();
+      await cargarSorteoConfig();
+    }
+
+    async function verificarParticipacion() {
+      const { data, error } = await client
+        .from("sorteo_participantes")
+        .select("califica")
+        .eq("usuario_id", currentUserId)
+        .single();
+
+      if (error || !data) {
+        document.getElementById("estadoSorteo").textContent = "❌ No califica para el sorteo.";
+      } else {
+        document.getElementById("estadoSorteo").textContent = data.califica
+          ? "✅ Calificás para el sorteo."
+          : "❌ No califica para el sorteo.";
+      }
+    }
+
+    async function cargarSorteoConfig() {
+      const { data, error } = await client.from("sorteo_config").select("*").limit(1).single();
+      if (data) {
+        document.getElementById("fechaSorteo").textContent = new Date(data.fecha).toLocaleDateString('es-AR');
+        document.getElementById("montoSorteo").textContent = `${data.monto} ARS o USDT`;
+      }
+    }
+
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("active");
+    }
+
+    function closeSidebar() {
+      document.getElementById("sidebar").classList.remove("active");
+    }
+
+    async function logout() {
+      await client.auth.signOut();
+      window.location.href = "index.html";
+    }
+
+    init();
+  </script>
+
+</body>
+</html>
