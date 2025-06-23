@@ -49,17 +49,27 @@
       margin-bottom: 20px;
     }
 
-    .info, .historial {
-      margin-bottom: 25px;
+    .mensaje {
+      background: rgba(0, 255, 204, 0.15);
+      border-left: 4px solid #00ffc8;
+      padding: 15px;
+      margin-bottom: 30px;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      border-radius: 8px;
+      color: #00ffc8;
     }
 
     .formulario {
       display: flex;
       flex-direction: column;
+      gap: 12px;
     }
 
     .formulario button {
-      padding: 12px;
+      padding: 14px;
+      font-size: 16px;
       background: #00a8ff;
       color: white;
       border: none;
@@ -70,6 +80,10 @@
 
     .formulario button:hover {
       background: #007acc;
+    }
+
+    .historial {
+      margin-top: 40px;
     }
 
     table {
@@ -113,13 +127,17 @@
   </div>
 
   <div class="container">
-    <h2>Participar en la Mini Pool</h2>
-    <div class="info">
-      <p>Podés duplicar tu inversión en 7 días. El 50% de lo recaudado se destina a premios y el 50% a la plataforma.</p>
+    <h2>Entrá en la Mini Pool</h2>
+
+    <div class="mensaje">
+      Participá hoy y obtené hasta un 80% extra de ganancia en solo 7 días.<br>
+      ¡La oportunidad que esperabas para multiplicar tus resultados!
     </div>
 
     <div class="formulario">
-      <button onclick="participarEnMiniPool()">Ingresar según tu nivel</button>
+      <button onclick="participar(2000)">Ingresar con $2.000 (Básico)</button>
+      <button onclick="participar(5000)">Ingresar con $5.000 (Medio)</button>
+      <button onclick="participar(10000)">Ingresar con $10.000 (Avanzado)</button>
     </div>
 
     <div class="historial">
@@ -137,7 +155,7 @@
     const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    let currentUserId = null, currentEmail = null, currentNombre = null, currentNivel = null;
+    let currentUserId = null, currentEmail = null, currentNombre = null;
 
     async function iniciar() {
       const { data: { session }, error } = await client.auth.getSession();
@@ -147,33 +165,26 @@
 
       const { data, error: perfilError } = await client.from("profiles").select("*").eq("id", currentUserId).single();
       if (data) {
-        currentNombre = data.nombres + " " + data.apellido;
-        currentNivel = data.nivel?.toLowerCase();
+        currentNombre = (data.nombres || '') + " " + (data.apellido || '');
       }
 
       cargarHistorial();
     }
 
-    async function participarEnMiniPool() {
-      if (!currentNivel) return alert("Tu perfil no está completo o no tenés nivel de inversión asignado.");
-
-      let monto = 0;
-      if (currentNivel === "básico") monto = 2000;
-      else if (currentNivel === "medio") monto = 5000;
-      else if (currentNivel === "avanzado") monto = 10000;
-      else return alert("Nivel de inversión inválido.");
+    async function participar(monto) {
+      if (!currentUserId || !currentNombre) return alert("Tu perfil no está completo.");
 
       await client.from("mini_pool").insert({
         usuario_id: currentUserId,
         nombre: currentNombre,
         email: currentEmail,
-        nivel: currentNivel,
+        nivel: "pendiente", // por ahora
         monto,
         fecha_entrada: new Date().toISOString(),
         estado_pago: "pendiente"
       });
 
-      alert("✅ Te registraste en la Mini Pool correctamente.");
+      alert(`✅ Registrado con $${monto}. Ganarás $${Math.round(monto * 0.8)} extra en 7 días.`);
       cargarHistorial();
     }
 
