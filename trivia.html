@@ -160,6 +160,7 @@
 </head>
 <body>
   <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+
   <div class="sidebar" id="sidebar">
     <button onclick="window.location.href='principal.html#welcome'"><i class="fas fa-home"></i> Inicio</button>
     <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Referidos</button>
@@ -171,19 +172,19 @@
 
   <div class="main">
     <h1 style="text-align:center; margin-bottom: 40px; font-weight: 900; font-size: 2rem; color:#00c3ff;">
-      Gana entre un <strong>×5</strong> y hasta un <strong>×10</strong> de tu apuesta
+      GANA ENTRE UN ×5 Y HASTA UN ×10 DE TU APUESTA
     </h1>
 
     <div id="nivelesContainer" class="niveles-container">
-      <div class="nivel-card" data-nivel="basico" data-preguntas="10" data-tiempo="15">
+      <div class="nivel-card" data-nivel="basico" data-tiempo="15">
         <div class="nivel-titulo">Nivel Básico</div>
         <div class="nivel-entrada">Entrada: 2.000 ARS</div>
       </div>
-      <div class="nivel-card" data-nivel="medio" data-preguntas="12" data-tiempo="20">
+      <div class="nivel-card" data-nivel="medio" data-tiempo="20">
         <div class="nivel-titulo">Nivel Medio</div>
         <div class="nivel-entrada">Entrada: 5.000 ARS</div>
       </div>
-      <div class="nivel-card" data-nivel="avanzado" data-preguntas="15" data-tiempo="20">
+      <div class="nivel-card" data-nivel="avanzado" data-tiempo="20">
         <div class="nivel-titulo">Nivel Avanzado</div>
         <div class="nivel-entrada">Entrada: 10.000 ARS</div>
       </div>
@@ -192,66 +193,63 @@
     <button id="btnIniciar" class="btn-iniciar" disabled>Iniciar Trivia</button>
 
     <div class="pregunta" id="triviaBox" style="display:none">
-      <div class="temporizador">Tiempo: <span id="tiempo">30</span>s</div>
+      <div class="temporizador">Tiempo: <span id="tiempo">0</span>s</div>
       <div class="pregunta-texto" id="preguntaText">Pregunta aquí</div>
       <div class="opciones" id="opcionesBox"></div>
     </div>
 
     <div id="resultadoFinal" class="resultado" style="display:none;"></div>
   </div>
-<script>
+
+  <script>
     const preguntasBasico = [
-      { pregunta: "¿Qué criptomoneda fue la primera en existir?", opciones: ["Ethereum", "Bitcoin", "Dogecoin"], respuesta: "Bitcoin" },
-      { pregunta: "¿Qué es un wallet?", opciones: ["Un exchange", "Una billetera digital", "Un token"], respuesta: "Una billetera digital" },
-      { pregunta: "¿Cuál es la capital de Argentina?", opciones: ["Lima", "Buenos Aires", "Montevideo"], respuesta: "Buenos Aires" },
-      { pregunta: "¿Cuánto es 2 + 2?", opciones: ["3", "4", "5"], respuesta: "4" },
-      { pregunta: "¿Cuál es el océano más grande?", opciones: ["Atlántico", "Pacífico", "Índico"], respuesta: "Pacífico" },
-      { pregunta: "¿Qué animal ladra?", opciones: ["Gato", "Perro", "Pájaro"], respuesta: "Perro" },
-      { pregunta: "¿Qué día se celebra Navidad?", opciones: ["31 de octubre", "25 de diciembre", "1 de enero"], respuesta: "25 de diciembre" },
-      { pregunta: "¿Qué país tiene forma de bota?", opciones: ["España", "Brasil", "Italia"], respuesta: "Italia" },
-      { pregunta: "¿En qué continente está Egipto?", opciones: ["Asia", "África", "Europa"], respuesta: "África" },
-      { pregunta: "¿Qué planeta es el más cercano al sol?", opciones: ["Venus", "Mercurio", "Marte"], respuesta: "Mercurio" }
+      { pregunta: "¿Qué es Bitcoin?", opciones: ["Un banco", "Una criptomoneda", "Una app", "Una empresa"], respuesta: "Una criptomoneda" },
+      { pregunta: "¿Qué es un wallet?", opciones: ["Una moneda", "Una billetera digital", "Una app de comida"], respuesta: "Una billetera digital" },
+      { pregunta: "¿Qué es una blockchain?", opciones: ["Una cadena de bloques", "Una app", "Un token"], respuesta: "Una cadena de bloques" },
+      { pregunta: "¿Qué es Ethereum?", opciones: ["Un país", "Una criptomoneda", "Un banco"], respuesta: "Una criptomoneda" },
+      { pregunta: "¿Qué es USDT?", opciones: ["Una stablecoin", "Una acción", "Un juego"], respuesta: "Una stablecoin" },
+      { pregunta: "¿Qué se necesita para invertir?", opciones: ["Conexión WiFi", "Un wallet", "Una tarjeta"], respuesta: "Un wallet" },
+      { pregunta: "¿Qué es un token?", opciones: ["Una criptomoneda", "Una cadena", "Un billete"], respuesta: "Una criptomoneda" },
+      { pregunta: "¿Qué significa minar?", opciones: ["Crear bloques", "Jugar online", "Gastar energía"], respuesta: "Crear bloques" },
+      { pregunta: "¿Qué red usamos para USDT?", opciones: ["TRC20", "BEP20", "ERC20"], respuesta: "BEP20" },
+      { pregunta: "¿Qué hace un exchange?", opciones: ["Guarda fotos", "Intercambia criptos", "Vende autos"], respuesta: "Intercambia criptos" }
     ];
 
     const preguntasMedio = [
-      { pregunta: "¿Qué red utiliza USDT en esta plataforma?", opciones: ["ERC20", "BEP20", "TRC20"], respuesta: "BEP20" },
-      { pregunta: "¿Qué es un NFT?", opciones: ["Un activo digital único", "Una blockchain", "Una moneda"], respuesta: "Un activo digital único" },
-      { pregunta: "¿Quién inventó Bitcoin?", opciones: ["Vitalik Buterin", "Elon Musk", "Satoshi Nakamoto"], respuesta: "Satoshi Nakamoto" },
-      { pregunta: "¿Qué es un exchange?", opciones: ["Casa de cambio", "Token", "Contrato"], respuesta: "Casa de cambio" },
-      { pregunta: "¿Qué significa 'HODL'?", opciones: ["Vender rápido", "Mantener", "Minar"], respuesta: "Mantener" },
-      { pregunta: "¿Qué es un smart contract?", opciones: ["Contrato físico", "Contrato digital autoejecutable", "Wallet"], respuesta: "Contrato digital autoejecutable" },
-      { pregunta: "¿Qué es la blockchain?", opciones: ["Cadena de bloques", "Token", "Wallet"], respuesta: "Cadena de bloques" },
-      { pregunta: "¿Qué es la minería de criptomonedas?", opciones: ["Crear bloques", "Comprar monedas", "Validar transacciones"], respuesta: "Validar transacciones" },
-      { pregunta: "¿Qué significa DeFi?", opciones: ["Finanzas descentralizadas", "Dinero fiduciario", "Intercambio fijo"], respuesta: "Finanzas descentralizadas" },
-      { pregunta: "¿Qué es una cold wallet?", opciones: ["Wallet física offline", "Token", "Intercambio"], respuesta: "Wallet física offline" },
-      { pregunta: "¿Qué representa un token?", opciones: ["Valor digital en blockchain", "Una cuenta bancaria", "Dinero físico"], respuesta: "Valor digital en blockchain" },
-      { pregunta: "¿Qué red es conocida por contratos inteligentes?", opciones: ["Bitcoin", "Ethereum", "Litecoin"], respuesta: "Ethereum" }
+      { pregunta: "¿Qué es un NFT?", opciones: ["Un token único", "Un juego", "Una red"], respuesta: "Un token único" },
+      { pregunta: "¿Qué es staking?", opciones: ["Apostar", "Guardar criptos para interés", "Jugar"], respuesta: "Guardar criptos para interés" },
+      { pregunta: "¿Qué significa DeFi?", opciones: ["Fiat Digital", "Finanzas Descentralizadas", "Dinero Fácil"], respuesta: "Finanzas Descentralizadas" },
+      { pregunta: "¿Qué red se usa para transacciones rápidas?", opciones: ["Ethereum", "Solana", "Bitcoin"], respuesta: "Solana" },
+      { pregunta: "¿Qué es BEP20?", opciones: ["Un juego", "Un estándar de Binance", "Un NFT"], respuesta: "Un estándar de Binance" },
+      { pregunta: "¿Cuál es el símbolo de Ethereum?", opciones: ["ETH", "ETC", "ETN"], respuesta: "ETH" },
+      { pregunta: "¿Qué hace un smart contract?", opciones: ["Contrata personas", "Ejecuta condiciones", "Crea música"], respuesta: "Ejecuta condiciones" },
+      { pregunta: "¿Qué significa criptoactivo?", opciones: ["Un activo físico", "Activo digital", "Token falso"], respuesta: "Activo digital" },
+      { pregunta: "¿Dónde se guardan los NFT?", opciones: ["En billetera", "En correo", "En banco"], respuesta: "En billetera" },
+      { pregunta: "¿Qué es una DAO?", opciones: ["Una organización descentralizada", "Un exchange", "Una stablecoin"], respuesta: "Una organización descentralizada" },
+      { pregunta: "¿Qué es un gas fee?", opciones: ["Impuesto de gobierno", "Costo por transacción", "Propina"], respuesta: "Costo por transacción" },
+      { pregunta: "¿Qué es una llave privada?", opciones: ["Tu contraseña", "Un código público", "Una app"], respuesta: "Tu contraseña" }
     ];
 
     const preguntasAvanzado = [
-      { pregunta: "¿Qué algoritmo usa Bitcoin?", opciones: ["SHA-256", "Scrypt", "MD5"], respuesta: "SHA-256" },
-      { pregunta: "¿Qué es un DAO?", opciones: ["Organización Autónoma Descentralizada", "Token ERC20", "Exchange"], respuesta: "Organización Autónoma Descentralizada" },
-      { pregunta: "¿Qué es un fork en blockchain?", opciones: ["Cambio de protocolo", "Falla de red", "Wallet nueva"], respuesta: "Cambio de protocolo" },
-      { pregunta: "¿Qué es staking?", opciones: ["Bloquear criptos para recompensa", "Gastar tokens", "Vender NFTs"], respuesta: "Bloquear criptos para recompensa" },
-      { pregunta: "¿Qué es un oracle?", opciones: ["Fuente externa de datos", "Blockchain privada", "Token DeFi"], respuesta: "Fuente externa de datos" },
-      { pregunta: "¿Qué lenguaje se usa en contratos Ethereum?", opciones: ["Solidity", "Python", "JavaScript"], respuesta: "Solidity" },
-      { pregunta: "¿Qué es un token ERC-20?", opciones: ["Estándar de tokens en Ethereum", "Una wallet", "Un exchange"], respuesta: "Estándar de tokens en Ethereum" },
-      { pregunta: "¿Qué es un gas fee?", opciones: ["Costo de transacción", "Token de red", "Tipo de wallet"], respuesta: "Costo de transacción" },
-      { pregunta: "¿Qué es la interoperabilidad?", opciones: ["Comunicación entre blockchains", "Velocidad de red", "Fork de red"], respuesta: "Comunicación entre blockchains" },
-      { pregunta: "¿Qué es una sidechain?", opciones: ["Cadena auxiliar conectada", "Una wallet fría", "Token paralelo"], respuesta: "Cadena auxiliar conectada" },
-      { pregunta: "¿Qué tipo de consenso usa Ethereum 2.0?", opciones: ["Proof of Stake", "Proof of Work", "Proof of Burn"], respuesta: "Proof of Stake" },
-      { pregunta: "¿Qué plataforma permite crear NFTs fácilmente?", opciones: ["OpenSea", "Binance", "PancakeSwap"], respuesta: "OpenSea" },
-      { pregunta: "¿Qué es un rug pull?", opciones: ["Estafa donde los creadores desaparecen", "Token legítimo", "Fork exitoso"], respuesta: "Estafa donde los creadores desaparecen" },
-      { pregunta: "¿Qué es TVL?", opciones: ["Valor total bloqueado en DeFi", "Velocidad de transacción", "Token volátil limitado"], respuesta: "Valor total bloqueado en DeFi" },
-      { pregunta: "¿Qué red es más usada para DeFi?", opciones: ["Ethereum", "Dogecoin", "Bitcoin"], respuesta: "Ethereum" }
+      { pregunta: "¿Qué es un fork?", opciones: ["Cambio en blockchain", "App duplicada", "Wallet física"], respuesta: "Cambio en blockchain" },
+      { pregunta: "¿Qué red usa contratos rápidos?", opciones: ["Ethereum", "Cardano", "Solana"], respuesta: "Solana" },
+      { pregunta: "¿Qué es una testnet?", opciones: ["Red de pruebas", "Red lenta", "Red ilegal"], respuesta: "Red de pruebas" },
+      { pregunta: "¿Qué hace un oráculo en DeFi?", opciones: ["Da datos externos", "Minar", "Enviar tokens"], respuesta: "Da datos externos" },
+      { pregunta: "¿Qué es un rug pull?", opciones: ["Estafa", "Token valioso", "Minería"], respuesta: "Estafa" },
+      { pregunta: "¿Qué significa Layer 2?", opciones: ["Capa extra para velocidad", "Segunda app", "Token duplicado"], respuesta: "Capa extra para velocidad" },
+      { pregunta: "¿Qué es yield farming?", opciones: ["Cultivar tokens", "Recompensas por staking", "NFTs"], respuesta: "Recompensas por staking" },
+      { pregunta: "¿Qué es la liquidez?", opciones: ["Cantidad disponible", "Red lenta", "App"], respuesta: "Cantidad disponible" },
+      { pregunta: "¿Qué es una seed phrase?", opciones: ["Frase para recuperar wallet", "Clave de red", "Nombre NFT"], respuesta: "Frase para recuperar wallet" },
+      { pregunta: "¿Qué significa HODL?", opciones: ["Mantener criptos", "Vender urgente", "Hackear"], respuesta: "Mantener criptos" },
+      { pregunta: "¿Qué es un bridge?", opciones: ["Puente entre blockchains", "Wallet", "Token estable"], respuesta: "Puente entre blockchains" },
+      { pregunta: "¿Qué es una cold wallet?", opciones: ["Offline segura", "App web", "Token"], respuesta: "Offline segura" },
+      { pregunta: "¿Qué es una hot wallet?", opciones: ["Wallet conectada", "Frase secreta", "Bridge"], respuesta: "Wallet conectada" },
+      { pregunta: "¿Qué protocolo usa BEP20?", opciones: ["Binance Smart Chain", "Ethereum", "Solana"], respuesta: "Binance Smart Chain" },
+      { pregunta: "¿Qué hace un DAO token?", opciones: ["Voto en DAO", "NFT", "Gas Fee"], respuesta: "Voto en DAO" }
     ];
 
-    let preguntas = [];
-    let actual = 0;
-    let tiempo = 0;
-    let timer = null;
-    let correctas = 0;
-
+    let preguntas = [], actual = 0, tiempo = 0, timer = null, correctas = 0;
+    let nivelSeleccionado = null;
     const nivelesContainer = document.getElementById('nivelesContainer');
     const btnIniciar = document.getElementById('btnIniciar');
     const triviaBox = document.getElementById('triviaBox');
@@ -259,9 +257,6 @@
     const opcionesBox = document.getElementById('opcionesBox');
     const tiempoDisplay = document.getElementById('tiempo');
     const resultadoFinal = document.getElementById('resultadoFinal');
-
-    let nivelSeleccionado = null;
-    let tiempoPorPregunta = 15;
 
     nivelesContainer.addEventListener('click', e => {
       const card = e.target.closest('.nivel-card');
@@ -273,7 +268,6 @@
       card.style.background = "#00c3ff";
       card.style.color = "black";
       nivelSeleccionado = card.getAttribute('data-nivel');
-      tiempoPorPregunta = parseInt(card.getAttribute('data-tiempo'));
       btnIniciar.disabled = false;
     });
 
@@ -283,12 +277,10 @@
       else if (nivelSeleccionado === 'medio') preguntas = preguntasMedio;
       else if (nivelSeleccionado === 'avanzado') preguntas = preguntasAvanzado;
       else return;
-
       actual = 0;
       correctas = 0;
       nivelesContainer.style.display = 'none';
       btnIniciar.style.display = 'none';
-      resultadoFinal.style.display = 'none';
       triviaBox.style.display = 'block';
       mostrarPregunta();
     });
@@ -309,7 +301,7 @@
         };
         opcionesBox.appendChild(btn);
       });
-      tiempo = tiempoPorPregunta;
+      tiempo = 15;
       tiempoDisplay.textContent = tiempo;
       clearInterval(timer);
       timer = setInterval(() => {
@@ -326,7 +318,23 @@
     function terminarTrivia() {
       triviaBox.style.display = 'none';
       resultadoFinal.style.display = 'block';
-      resultadoFinal.innerHTML = `¡Trivia finalizada!<br>Respuestas correctas: ${correctas} de ${preguntas.length}.<br>Gracias por participar.`;
+      resultadoFinal.innerHTML = `
+        🎉 <strong>¡Felicidades!</strong><br><br>
+        Arbitrax premia tu conocimiento.<br>
+        Respuestas correctas: ${correctas} de ${preguntas.length}.<br><br>
+        Volverás al inicio en 10 segundos...
+      `;
+      setTimeout(() => {
+        resultadoFinal.style.display = 'none';
+        nivelesContainer.style.display = 'flex';
+        btnIniciar.style.display = 'block';
+        btnIniciar.disabled = true;
+        nivelSeleccionado = null;
+        document.querySelectorAll('.nivel-card').forEach(c => {
+          c.style.background = "rgba(0, 195, 255, 0.2)";
+          c.style.color = "white";
+        });
+      }, 10000);
     }
 
     function toggleMenu() {
@@ -334,7 +342,7 @@
     }
 
     function logout() {
-      alert('Sesión cerrada');
+      alert('Cerrando sesión...');
       window.location.href = 'index.html';
     }
   </script>
