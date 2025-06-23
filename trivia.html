@@ -14,7 +14,6 @@
       color: white;
       min-height: 100vh;
     }
-
     .menu-toggle {
       position: fixed;
       top: 15px;
@@ -26,7 +25,6 @@
       border-radius: 6px;
       z-index: 1000;
     }
-
     .sidebar {
       width: 230px;
       background-color: rgba(0, 0, 0, 0.9);
@@ -38,9 +36,7 @@
       z-index: 999;
       padding-top: 60px;
     }
-
     .sidebar.active { left: 0; }
-
     .sidebar button {
       background: none;
       border: none;
@@ -54,19 +50,15 @@
       gap: 12px;
       cursor: pointer;
     }
-
     .sidebar button:hover {
       background-color: rgba(255, 255, 255, 0.1);
     }
-
     .main {
       margin-left: 0;
       padding: 100px 20px 30px;
       max-width: 800px;
       margin: auto;
     }
-
-    /* Niveles en recuadros */
     .niveles-container {
       display: flex;
       justify-content: space-around;
@@ -74,7 +66,6 @@
       margin-bottom: 40px;
       flex-wrap: wrap;
     }
-
     .nivel-card {
       background: rgba(0, 195, 255, 0.2);
       border: 2px solid #00c3ff;
@@ -86,24 +77,20 @@
       transition: background 0.3s, transform 0.3s;
       user-select: none;
     }
-
     .nivel-card:hover {
       background: #00c3ff;
       color: #000;
       transform: scale(1.05);
     }
-
     .nivel-titulo {
       font-size: 1.5rem;
       font-weight: bold;
       margin-bottom: 12px;
     }
-
     .nivel-entrada {
       font-size: 1.2rem;
       margin-bottom: 8px;
     }
-
     .btn-iniciar {
       display: block;
       margin: 0 auto;
@@ -118,19 +105,15 @@
       user-select: none;
       transition: background 0.3s;
     }
-
     .btn-iniciar:hover {
       background: #0099cc;
     }
-
-    /* Trivia Box */
     .pregunta {
       background: rgba(0,0,0,0.7);
       padding: 25px;
       border-radius: 12px;
       margin-top: 30px;
     }
-
     .temporizador {
       font-size: 24px;
       font-weight: bold;
@@ -138,18 +121,15 @@
       margin-bottom: 20px;
       color: #00ffcc;
     }
-
     .pregunta-texto {
       font-size: 1.4rem;
       margin-bottom: 25px;
     }
-
     .opciones {
       display: flex;
       flex-direction: column;
       gap: 15px;
     }
-
     .opciones button {
       background: #222;
       color: white;
@@ -162,13 +142,10 @@
       transition: background 0.3s, color 0.3s;
       text-align: center;
     }
-
     .opciones button:hover {
       background: #00c3ff;
       color: black;
     }
-
-    /* Resultado final */
     .resultado {
       text-align: center;
       margin-top: 40px;
@@ -182,9 +159,7 @@
   </style>
 </head>
 <body>
-
   <div class="menu-toggle" onclick="toggleMenu()">☰</div>
-
   <div class="sidebar" id="sidebar">
     <button onclick="window.location.href='principal.html#welcome'"><i class="fas fa-home"></i> Inicio</button>
     <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Referidos</button>
@@ -195,7 +170,6 @@
   </div>
 
   <div class="main">
-
     <h1 style="text-align:center; margin-bottom: 40px; font-weight: 900; font-size: 2rem; color:#00c3ff;">
       Gana entre un <strong>×5</strong> y hasta un <strong>×10</strong> de tu apuesta
     </h1>
@@ -205,7 +179,7 @@
         <div class="nivel-titulo">Nivel Básico</div>
         <div class="nivel-entrada">Entrada: 2.000 ARS</div>
       </div>
-      <div class="nivel-card" data-nivel="medio" data-preguntas="15" data-tiempo="20">
+      <div class="nivel-card" data-nivel="medio" data-preguntas="12" data-tiempo="20">
         <div class="nivel-titulo">Nivel Medio</div>
         <div class="nivel-entrada">Entrada: 5.000 ARS</div>
       </div>
@@ -224,29 +198,52 @@
     </div>
 
     <div id="resultadoFinal" class="resultado" style="display:none;"></div>
-
   </div>
-
-  <script>
-    let preguntasBasico = [
+<script>
+    const preguntasBasico = [
       { pregunta: "¿Qué criptomoneda fue la primera en existir?", opciones: ["Ethereum", "Bitcoin", "Dogecoin"], respuesta: "Bitcoin" },
-      { pregunta: "¿Qué es un wallet?", opciones: ["Un tipo de exchange", "Una billetera digital", "Un token"], respuesta: "Una billetera digital" },
-      { pregunta: "¿De qué color es el cielo?", opciones: ["Azul", "Rojo", "Verde"], respuesta: "Azul" },
-      // Agrega más preguntas si quieres
+      { pregunta: "¿Qué es un wallet?", opciones: ["Un exchange", "Una billetera digital", "Un token"], respuesta: "Una billetera digital" },
+      { pregunta: "¿Cuál es la capital de Argentina?", opciones: ["Lima", "Buenos Aires", "Montevideo"], respuesta: "Buenos Aires" },
+      { pregunta: "¿Cuánto es 2 + 2?", opciones: ["3", "4", "5"], respuesta: "4" },
+      { pregunta: "¿Cuál es el océano más grande?", opciones: ["Atlántico", "Pacífico", "Índico"], respuesta: "Pacífico" },
+      { pregunta: "¿Qué animal ladra?", opciones: ["Gato", "Perro", "Pájaro"], respuesta: "Perro" },
+      { pregunta: "¿Qué día se celebra Navidad?", opciones: ["31 de octubre", "25 de diciembre", "1 de enero"], respuesta: "25 de diciembre" },
+      { pregunta: "¿Qué país tiene forma de bota?", opciones: ["España", "Brasil", "Italia"], respuesta: "Italia" },
+      { pregunta: "¿En qué continente está Egipto?", opciones: ["Asia", "África", "Europa"], respuesta: "África" },
+      { pregunta: "¿Qué planeta es el más cercano al sol?", opciones: ["Venus", "Mercurio", "Marte"], respuesta: "Mercurio" }
     ];
 
-    let preguntasMedio = [
-      { pregunta: "¿Qué red utiliza USDT en esta plataforma?", opciones: ["ERC20", "TRC20", "BEP20"], respuesta: "BEP20" },
-      { pregunta: "¿Qué es un NFT?", opciones: ["Un activo digital único", "Una criptomoneda", "Una blockchain"], respuesta: "Un activo digital único" },
-      { pregunta: "¿Qué es la blockchain?", opciones: ["Una cadena de bloques", "Una criptomoneda", "Un token"], respuesta: "Una cadena de bloques" },
-      // Más preguntas si quieres
+    const preguntasMedio = [
+      { pregunta: "¿Qué red utiliza USDT en esta plataforma?", opciones: ["ERC20", "BEP20", "TRC20"], respuesta: "BEP20" },
+      { pregunta: "¿Qué es un NFT?", opciones: ["Un activo digital único", "Una blockchain", "Una moneda"], respuesta: "Un activo digital único" },
+      { pregunta: "¿Quién inventó Bitcoin?", opciones: ["Vitalik Buterin", "Elon Musk", "Satoshi Nakamoto"], respuesta: "Satoshi Nakamoto" },
+      { pregunta: "¿Qué es un exchange?", opciones: ["Casa de cambio", "Token", "Contrato"], respuesta: "Casa de cambio" },
+      { pregunta: "¿Qué significa 'HODL'?", opciones: ["Vender rápido", "Mantener", "Minar"], respuesta: "Mantener" },
+      { pregunta: "¿Qué es un smart contract?", opciones: ["Contrato físico", "Contrato digital autoejecutable", "Wallet"], respuesta: "Contrato digital autoejecutable" },
+      { pregunta: "¿Qué es la blockchain?", opciones: ["Cadena de bloques", "Token", "Wallet"], respuesta: "Cadena de bloques" },
+      { pregunta: "¿Qué es la minería de criptomonedas?", opciones: ["Crear bloques", "Comprar monedas", "Validar transacciones"], respuesta: "Validar transacciones" },
+      { pregunta: "¿Qué significa DeFi?", opciones: ["Finanzas descentralizadas", "Dinero fiduciario", "Intercambio fijo"], respuesta: "Finanzas descentralizadas" },
+      { pregunta: "¿Qué es una cold wallet?", opciones: ["Wallet física offline", "Token", "Intercambio"], respuesta: "Wallet física offline" },
+      { pregunta: "¿Qué representa un token?", opciones: ["Valor digital en blockchain", "Una cuenta bancaria", "Dinero físico"], respuesta: "Valor digital en blockchain" },
+      { pregunta: "¿Qué red es conocida por contratos inteligentes?", opciones: ["Bitcoin", "Ethereum", "Litecoin"], respuesta: "Ethereum" }
     ];
 
-    let preguntasAvanzado = [
-      { pregunta: "¿Qué es un smart contract?", opciones: ["Un contrato físico", "Un contrato digital autoejecutable", "Una wallet"], respuesta: "Un contrato digital autoejecutable" },
-      { pregunta: "¿Qué significa DeFi?", opciones: ["Finanzas descentralizadas", "Dinero fiduciario", "Un exchange"], respuesta: "Finanzas descentralizadas" },
-      { pregunta: "¿Qué es mining?", opciones: ["Minería de criptomonedas", "Un exchange", "Un token"], respuesta: "Minería de criptomonedas" },
-      // Más preguntas si quieres
+    const preguntasAvanzado = [
+      { pregunta: "¿Qué algoritmo usa Bitcoin?", opciones: ["SHA-256", "Scrypt", "MD5"], respuesta: "SHA-256" },
+      { pregunta: "¿Qué es un DAO?", opciones: ["Organización Autónoma Descentralizada", "Token ERC20", "Exchange"], respuesta: "Organización Autónoma Descentralizada" },
+      { pregunta: "¿Qué es un fork en blockchain?", opciones: ["Cambio de protocolo", "Falla de red", "Wallet nueva"], respuesta: "Cambio de protocolo" },
+      { pregunta: "¿Qué es staking?", opciones: ["Bloquear criptos para recompensa", "Gastar tokens", "Vender NFTs"], respuesta: "Bloquear criptos para recompensa" },
+      { pregunta: "¿Qué es un oracle?", opciones: ["Fuente externa de datos", "Blockchain privada", "Token DeFi"], respuesta: "Fuente externa de datos" },
+      { pregunta: "¿Qué lenguaje se usa en contratos Ethereum?", opciones: ["Solidity", "Python", "JavaScript"], respuesta: "Solidity" },
+      { pregunta: "¿Qué es un token ERC-20?", opciones: ["Estándar de tokens en Ethereum", "Una wallet", "Un exchange"], respuesta: "Estándar de tokens en Ethereum" },
+      { pregunta: "¿Qué es un gas fee?", opciones: ["Costo de transacción", "Token de red", "Tipo de wallet"], respuesta: "Costo de transacción" },
+      { pregunta: "¿Qué es la interoperabilidad?", opciones: ["Comunicación entre blockchains", "Velocidad de red", "Fork de red"], respuesta: "Comunicación entre blockchains" },
+      { pregunta: "¿Qué es una sidechain?", opciones: ["Cadena auxiliar conectada", "Una wallet fría", "Token paralelo"], respuesta: "Cadena auxiliar conectada" },
+      { pregunta: "¿Qué tipo de consenso usa Ethereum 2.0?", opciones: ["Proof of Stake", "Proof of Work", "Proof of Burn"], respuesta: "Proof of Stake" },
+      { pregunta: "¿Qué plataforma permite crear NFTs fácilmente?", opciones: ["OpenSea", "Binance", "PancakeSwap"], respuesta: "OpenSea" },
+      { pregunta: "¿Qué es un rug pull?", opciones: ["Estafa donde los creadores desaparecen", "Token legítimo", "Fork exitoso"], respuesta: "Estafa donde los creadores desaparecen" },
+      { pregunta: "¿Qué es TVL?", opciones: ["Valor total bloqueado en DeFi", "Velocidad de transacción", "Token volátil limitado"], respuesta: "Valor total bloqueado en DeFi" },
+      { pregunta: "¿Qué red es más usada para DeFi?", opciones: ["Ethereum", "Dogecoin", "Bitcoin"], respuesta: "Ethereum" }
     ];
 
     let preguntas = [];
@@ -254,10 +251,6 @@
     let tiempo = 0;
     let timer = null;
     let correctas = 0;
-
-    let nivelSeleccionado = null;
-    let numPreguntasNivel = 0;
-    let tiempoPorPregunta = 15;
 
     const nivelesContainer = document.getElementById('nivelesContainer');
     const btnIniciar = document.getElementById('btnIniciar');
@@ -267,62 +260,41 @@
     const tiempoDisplay = document.getElementById('tiempo');
     const resultadoFinal = document.getElementById('resultadoFinal');
 
+    let nivelSeleccionado = null;
+    let tiempoPorPregunta = 15;
+
     nivelesContainer.addEventListener('click', e => {
       const card = e.target.closest('.nivel-card');
       if (!card) return;
-
       document.querySelectorAll('.nivel-card').forEach(c => {
         c.style.background = "rgba(0, 195, 255, 0.2)";
         c.style.color = "white";
       });
-
       card.style.background = "#00c3ff";
       card.style.color = "black";
-
       nivelSeleccionado = card.getAttribute('data-nivel');
-      numPreguntasNivel = parseInt(card.getAttribute('data-preguntas'), 10);
-      tiempoPorPregunta = parseInt(card.getAttribute('data-tiempo'), 10);
-
+      tiempoPorPregunta = parseInt(card.getAttribute('data-tiempo'));
       btnIniciar.disabled = false;
     });
 
     btnIniciar.addEventListener('click', () => {
-      if (!nivelSeleccionado) {
-        alert('Selecciona un nivel primero.');
-        return;
-      }
-      iniciarTriviaReal(nivelSeleccionado);
-    });
-
-    function iniciarTriviaReal(nivel) {
-      nivelSeleccionado = nivel;
-
-      if (nivel === 'basico') {
-        preguntas = preguntasBasico.slice(0, numPreguntasNivel);
-      } else if (nivel === 'medio') {
-        preguntas = preguntasMedio.slice(0, numPreguntasNivel);
-      } else if (nivel === 'avanzado') {
-        preguntas = preguntasAvanzado.slice(0, numPreguntasNivel);
-      } else {
-        alert('Nivel no reconocido.');
-        return;
-      }
-
-      document.getElementById('nivelesContainer').style.display = 'none';
-      btnIniciar.style.display = 'none';
-      resultadoFinal.style.display = 'none';
-      triviaBox.style.display = 'block';
+      if (!nivelSeleccionado) return;
+      if (nivelSeleccionado === 'basico') preguntas = preguntasBasico;
+      else if (nivelSeleccionado === 'medio') preguntas = preguntasMedio;
+      else if (nivelSeleccionado === 'avanzado') preguntas = preguntasAvanzado;
+      else return;
 
       actual = 0;
       correctas = 0;
+      nivelesContainer.style.display = 'none';
+      btnIniciar.style.display = 'none';
+      resultadoFinal.style.display = 'none';
+      triviaBox.style.display = 'block';
       mostrarPregunta();
-    }
+    });
 
     function mostrarPregunta() {
-      if (actual >= preguntas.length) {
-        terminarTrivia();
-        return;
-      }
+      if (actual >= preguntas.length) return terminarTrivia();
       const p = preguntas[actual];
       preguntaText.textContent = `${actual + 1}. ${p.pregunta}`;
       opcionesBox.innerHTML = '';
@@ -331,9 +303,7 @@
         btn.textContent = opcion;
         btn.onclick = () => {
           clearInterval(timer);
-          if (opcion === p.respuesta) {
-            correctas++;
-          }
+          if (opcion === p.respuesta) correctas++;
           actual++;
           mostrarPregunta();
         };
@@ -341,7 +311,6 @@
       });
       tiempo = tiempoPorPregunta;
       tiempoDisplay.textContent = tiempo;
-
       clearInterval(timer);
       timer = setInterval(() => {
         tiempo--;
@@ -357,23 +326,17 @@
     function terminarTrivia() {
       triviaBox.style.display = 'none';
       resultadoFinal.style.display = 'block';
-      resultadoFinal.innerHTML = `¡Has terminado la trivia!<br>Respuestas correctas: ${correctas} de ${preguntas.length}.<br><br>Gracias por participar.`;
-      // Reiniciar para poder jugar de nuevo
-      btnIniciar.style.display = 'block';
-      document.getElementById('nivelesContainer').style.display = 'flex';
-      btnIniciar.disabled = true;
-      nivelSeleccionado = null;
+      resultadoFinal.innerHTML = `¡Trivia finalizada!<br>Respuestas correctas: ${correctas} de ${preguntas.length}.<br>Gracias por participar.`;
     }
 
-    // Función para toggle menú sidebar
     function toggleMenu() {
       document.getElementById("sidebar").classList.toggle("active");
     }
 
-    async function logout() {
-      alert('Cerrando sesión...');
+    function logout() {
+      alert('Sesión cerrada');
+      window.location.href = 'index.html';
     }
   </script>
-
 </body>
 </html>
