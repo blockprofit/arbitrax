@@ -7,103 +7,86 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-image: url('fondodepantallaprincipal1.jpeg');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      color: white;
       margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: url('fondodepantallaprincipal1.jpeg') no-repeat center center;
+      background-size: cover;
+      color: white;
       padding-top: 80px;
       min-height: 100vh;
     }
+
     .top-bar {
-      background: rgba(0, 0, 0, 0.7);
-      padding: 15px 20px;
       position: fixed;
       top: 0;
       width: 100%;
-      z-index: 100;
+      background: rgba(0, 0, 0, 0.75);
+      padding: 15px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-    }
-    .menu-btn {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 24px;
-      cursor: pointer;
-    }
-    .menu {
-      display: none;
-      flex-direction: column;
-      position: absolute;
-      top: 60px;
-      left: 20px;
-      background: rgba(0, 0, 0, 0.95);
-      padding: 10px;
-      border-radius: 10px;
-      width: 240px;
-      z-index: 101;
-    }
-    .menu button {
-      background: none;
-      border: none;
-      color: white;
-      padding: 10px;
-      text-align: left;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    .menu button:hover {
-      background: rgba(255,255,255,0.1);
+      z-index: 100;
     }
 
-    .contenido {
+    .menu-btn {
+      font-size: 24px;
+      color: white;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .container {
       max-width: 600px;
       margin: auto;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.7);
       padding: 30px;
       border-radius: 12px;
-      text-align: center;
     }
 
-    .historial {
-      margin-top: 30px;
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .info, .historial {
+      margin-bottom: 25px;
+    }
+
+    .formulario {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .formulario button {
+      padding: 12px;
+      background: #00a8ff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .formulario button:hover {
+      background: #007acc;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
+      color: white;
       margin-top: 10px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 8px;
-      overflow: hidden;
     }
 
     th, td {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
       padding: 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.2);
       text-align: center;
     }
 
     th {
-      background-color: rgba(0,0,0,0.5);
-    }
-
-    button.unirse {
-      background: #00a8ff;
-      padding: 12px 24px;
-      border: none;
-      border-radius: 8px;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    button.unirse:hover {
-      background: #007acc;
+      background: rgba(255, 255, 255, 0.1);
     }
   </style>
 </head>
@@ -114,7 +97,7 @@
     <strong>Mini Pool</strong>
   </div>
 
-  <div class="menu" id="mainMenu">
+  <div id="mainMenu" class="menu" style="display:none; position:absolute; top:60px; left:20px; background:rgba(0,0,0,0.95); padding:10px; border-radius:10px; z-index:101;">
     <button onclick="window.location.href='principal.html#welcome'">Inicio</button>
     <button onclick="window.location.href='principal.html#perfil'">Perfil</button>
     <button onclick="window.location.href='inversion.html'">Nivel de inversión</button>
@@ -129,23 +112,23 @@
     <button onclick="logout()">Cerrar sesión</button>
   </div>
 
-  <div class="contenido">
-    <h2>Participá en la Mini Pool</h2>
-    <p id="infoNivel"></p>
-    <button id="btnUnirse" class="unirse" onclick="unirseMiniPool()">Unirse a la Mini Pool</button>
+  <div class="container">
+    <h2>Participar en la Mini Pool</h2>
+    <div class="info">
+      <p>Podés duplicar tu inversión en 7 días. El 50% de lo recaudado se destina a premios y el 50% a la plataforma.</p>
+    </div>
+
+    <div class="formulario">
+      <button onclick="participarEnMiniPool()">Ingresar según tu nivel</button>
+    </div>
 
     <div class="historial">
-      <h3>Historial de Participación</h3>
+      <h3>Historial de participaciones</h3>
       <table>
         <thead>
-          <tr>
-            <th>Fecha de Entrada</th>
-            <th>Nivel</th>
-            <th>Monto</th>
-            <th>Estado</th>
-          </tr>
+          <tr><th>Fecha</th><th>Monto</th><th>Estado</th></tr>
         </thead>
-        <tbody id="tablaHistorial"></tbody>
+        <tbody id="tablaMiniPool"><tr><td colspan="3">Cargando...</td></tr></tbody>
       </table>
     </div>
   </div>
@@ -154,10 +137,67 @@
     const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    let currentUserId = null;
-    let currentEmail = "";
-    let currentNombre = "";
-    let nivelUsuario = "";
+    let currentUserId = null, currentEmail = null, currentNombre = null, currentNivel = null;
+
+    async function iniciar() {
+      const { data: { session }, error } = await client.auth.getSession();
+      if (!session) return window.location.href = "index.html";
+      currentUserId = session.user.id;
+      currentEmail = session.user.email;
+
+      const { data, error: perfilError } = await client.from("profiles").select("*").eq("id", currentUserId).single();
+      if (data) {
+        currentNombre = data.nombres + " " + data.apellido;
+        currentNivel = data.nivel?.toLowerCase();
+      }
+
+      cargarHistorial();
+    }
+
+    async function participarEnMiniPool() {
+      if (!currentNivel) return alert("Tu perfil no está completo o no tenés nivel de inversión asignado.");
+
+      let monto = 0;
+      if (currentNivel === "básico") monto = 2000;
+      else if (currentNivel === "medio") monto = 5000;
+      else if (currentNivel === "avanzado") monto = 10000;
+      else return alert("Nivel de inversión inválido.");
+
+      await client.from("mini_pool").insert({
+        usuario_id: currentUserId,
+        nombre: currentNombre,
+        email: currentEmail,
+        nivel: currentNivel,
+        monto,
+        fecha_entrada: new Date().toISOString(),
+        estado_pago: "pendiente"
+      });
+
+      alert("✅ Te registraste en la Mini Pool correctamente.");
+      cargarHistorial();
+    }
+
+    async function cargarHistorial() {
+      const { data, error } = await client
+        .from("mini_pool")
+        .select("fecha_entrada, monto, estado_pago")
+        .eq("usuario_id", currentUserId)
+        .order("fecha_entrada", { ascending: false });
+
+      const tabla = document.getElementById("tablaMiniPool");
+      tabla.innerHTML = "";
+
+      if (!data || data.length === 0) {
+        tabla.innerHTML = `<tr><td colspan="3">Sin registros aún.</td></tr>`;
+        return;
+      }
+
+      data.forEach(entry => {
+        const fecha = new Date(entry.fecha_entrada).toLocaleDateString('es-AR');
+        const fila = `<tr><td>${fecha}</td><td>$${entry.monto}</td><td>${entry.estado_pago}</td></tr>`;
+        tabla.innerHTML += fila;
+      });
+    }
 
     function toggleMenu() {
       const menu = document.getElementById("mainMenu");
@@ -169,97 +209,7 @@
       window.location.href = "index.html";
     }
 
-    async function init() {
-      const { data: { session }, error } = await client.auth.getSession();
-      if (!session) return window.location.href = "index.html";
-      currentUserId = session.user.id;
-      currentEmail = session.user.email;
-
-      const { data: perfil } = await client.from("profiles").select("*").eq("id", currentUserId).single();
-      nivelUsuario = perfil?.nivel || "";
-      currentNombre = perfil?.nombres || "";
-
-      const niveles = {
-        "básico": 2000,
-        "medio": 5000,
-        "avanzado": 10000
-      };
-
-      const monto = niveles[nivelUsuario] || 0;
-      document.getElementById("infoNivel").textContent = nivelUsuario 
-        ? `Nivel: ${nivelUsuario.toUpperCase()} - Entrada: $${monto}`
-        : "No tenés un nivel asignado aún.";
-
-      await cargarHistorial();
-    }
-
-    async function unirseMiniPool() {
-      const niveles = {
-        "básico": 2000,
-        "medio": 5000,
-        "avanzado": 10000
-      };
-      const monto = niveles[nivelUsuario];
-
-      if (!nivelUsuario || !monto) return alert("No tenés nivel asignado o es inválido.");
-
-      const { data: ultimos } = await client
-        .from("mini_pool")
-        .select("*")
-        .eq("usuario_id", currentUserId)
-        .order("fecha_entrada", { ascending: false })
-        .limit(1);
-
-      if (ultimos.length > 0) {
-        const ultima = new Date(ultimos[0].fecha_entrada);
-        const hoy = new Date();
-        const dias = (hoy - ultima) / (1000 * 60 * 60 * 24);
-        if (dias < 7) return alert("Solo podés unirte una vez por semana.");
-      }
-
-      const { error } = await client.from("mini_pool").insert({
-        usuario_id: currentUserId,
-        nombre: currentNombre,
-        email: currentEmail,
-        nivel: nivelUsuario,
-        monto
-      });
-
-      if (error) return alert("Error al registrarte en la mini pool: " + error.message);
-
-      alert("✅ Te uniste correctamente a la Mini Pool.");
-      await cargarHistorial();
-    }
-
-    async function cargarHistorial() {
-      const { data } = await client
-        .from("mini_pool")
-        .select("*")
-        .eq("usuario_id", currentUserId)
-        .order("fecha_entrada", { ascending: false });
-
-      const tbody = document.getElementById("tablaHistorial");
-      tbody.innerHTML = "";
-
-      if (!data.length) {
-        tbody.innerHTML = "<tr><td colspan='4'>Sin participación aún.</td></tr>";
-        return;
-      }
-
-      data.forEach(row => {
-        const fecha = new Date(row.fecha_entrada).toLocaleDateString('es-AR');
-        const estado = row.estado_pago === "pagado" ? "✅ Pagado" : "⏳ Pendiente";
-        tbody.innerHTML += `
-          <tr>
-            <td>${fecha}</td>
-            <td>${row.nivel}</td>
-            <td>$${row.monto}</td>
-            <td>${estado}</td>
-          </tr>`;
-      });
-    }
-
-    init();
+    iniciar();
   </script>
 </body>
 </html>
