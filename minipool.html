@@ -7,289 +7,148 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-image: url('fondodepantallaprincipal1.jpeg');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      color: white;
-      margin: 0;
-      padding-top: 80px;
-      min-height: 100vh;
-    }
-
-    .top-bar {
-      background: rgba(0, 0, 0, 0.7);
-      padding: 15px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: fixed;
-      top: 0;
-      width: 100%;
-      z-index: 100;
-    }
-
-    .menu-btn {
-      font-size: 24px;
-      background: none;
-      border: none;
-      color: white;
-      cursor: pointer;
-    }
-
-    .menu {
-      display: none;
-      flex-direction: column;
-      position: absolute;
-      top: 60px;
-      left: 20px;
-      background: rgba(0, 0, 0, 0.95);
-      padding: 10px;
-      border-radius: 10px;
-      width: 240px;
-      z-index: 101;
-    }
-
-    .menu button {
-      background: none;
-      border: none;
-      color: white;
-      padding: 10px;
-      text-align: left;
-      width: 100%;
-      font-size: 16px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-    }
-
-    .menu button i {
-      margin-right: 10px;
-      width: 20px;
-      text-align: center;
-    }
-
-    .menu button:hover {
-      background: rgba(255,255,255,0.1);
-    }
-
-    .contenido {
-      max-width: 700px;
-      margin: auto;
-      background: rgba(0,0,0,0.65);
-      padding: 30px;
-      border-radius: 12px;
-      text-align: center;
-    }
-
-    h2 {
-      margin-bottom: 20px;
-      font-size: 26px;
-      color: #00ffc3;
-    }
-
-    .mensaje-info {
-      font-size: 18px;
-      margin-top: 10px;
-      margin-bottom: 20px;
-      color: #fff;
-    }
-
-    .formulario select, .formulario button {
-      width: 100%;
-      padding: 14px;
-      border-radius: 10px;
-      border: none;
-      margin-top: 12px;
-      font-size: 17px;
-    }
-
-    .formulario select {
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-      font-weight: bold;
-    }
-
-    .formulario select option {
-      background-color: #000;
-      color: white;
-    }
-
-    .formulario button {
-      background: #00a8ff;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .formulario button:hover {
-      background: #007acc;
-    }
-
-    .historial {
-      margin-top: 30px;
-      background: rgba(255,255,255,0.08);
-      padding: 20px;
-      border-radius: 10px;
-    }
-
-    .historial h3 {
-      margin-bottom: 15px;
-      color: #00ffc8;
-    }
-
-    .historial table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-      color: white;
-    }
-
-    .historial th, .historial td {
-      padding: 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      text-align: center;
-    }
-
-    .historial th {
-      background: rgba(255,255,255,0.1);
-    }
+    body { margin:0; font-family:'Segoe UI',sans-serif; background:url('fondodepantallaprincipal1.jpeg') center/cover no-repeat; color:white; min-height:100vh; padding-top:60px; }
+    .top-bar { position:fixed; top:0; width:100%; background:rgba(0,0,0,0.6); padding:15px 20px; display:flex; justify-content:space-between; align-items:center; z-index:100; }
+    .menu-btn { font-size:24px; background:none; border:none; color:white; cursor:pointer; }
+    .menu { display:none; position:absolute; top:60px; left:20px; background:rgba(0,0,0,0.9); padding:10px; border-radius:10px; width:240px; flex-direction:column; }
+    .menu button { background:none; border:none; color:white; padding:10px; text-align:left; font-size:16px; cursor:pointer; }
+    .menu button:hover { background:rgba(255,255,255,0.1); }
+    .container { display:flex; max-width:1200px; margin:100px auto 40px; padding:0 20px; gap:30px; }
+    .left, .right { background:rgba(0,0,0,0.6); border-radius:12px; padding:20px; }
+    .left { flex:1; }
+    .right { width:300px; height:500px; position:relative; overflow:hidden; display:flex; align-items:end; justify-content:center; }
+    .coin { position:absolute; bottom:0; opacity:0.9; }
+    .form-group { margin-bottom:15px; }
+    .form-group select { width:100%; padding:10px; border-radius:8px; border:none; }
+    .form-group button { width:100%; padding:12px; border:none; border-radius:8px; background:#00a8ff; color:white; font-weight:bold; cursor:pointer; }
+    .form-group button:hover { background:#007acc; }
+    table { width:100%; margin-top:20px; border-collapse:collapse; }
+    th, td { padding:10px; border-bottom:1px solid rgba(255,255,255,0.2); text-align:center; }
+    th { background:rgba(0,0,0,0.4); }
   </style>
 </head>
 <body>
 
   <div class="top-bar">
     <button class="menu-btn" onclick="toggleMenu()">☰</button>
-    <strong>Mini Pool</strong>
+    <strong>Mini Pool Semanal</strong>
   </div>
-
   <div class="menu" id="mainMenu">
-    <button onclick="window.location.href='principal.html#welcome'"><i class="fas fa-home"></i> Inicio</button>
-    <button onclick="window.location.href='principal.html#perfil'"><i class="fas fa-user"></i> Perfil</button>
-    <button onclick="window.location.href='inversion.html'"><i class="fas fa-chart-line"></i> Nivel de inversión</button>
-    <button onclick="window.location.href='deposito.html'"><i class="fas fa-wallet"></i> Depósito</button>
-    <button onclick="window.location.href='retiro.html'"><i class="fas fa-arrow-circle-up"></i> Retiro</button>
-    <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Programa de referidos</button>
-    <button onclick="window.location.href='trivia.html'"><i class="fas fa-question"></i> Trivia</button>
-    <button onclick="window.location.href='minipool.html'"><i class="fas fa-sync-alt"></i> Mini Pool</button>
-    <button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>
-    <button onclick="window.location.href='preguntasfrecuentes.html'"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>
-    <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-alt"></i> Términos y condiciones</button>
-    <button onclick="logout()"><i class="fas fa-power-off"></i> Cerrar sesión</button>
+    <button onclick="window.location.href='principal.html#welcome'">Inicio</button>
+    <button onclick="window.location.href='principal.html#perfil'">Perfil</button>
+    <button onclick="window.location.href='inversion.html'">Nivel de inversión</button>
+    <button onclick="window.location.href='deposito.html'">Depósito</button>
+    <button onclick="window.location.href='retiro.html'">Retiro</button>
+    <button onclick="window.location.href='referidos.html'">Programa de referidos</button>
+    <button onclick="window.location.href='trivia.html'">Trivia</button>
+    <button onclick="window.location.href='minipool.html'">Mini Pool</button>
+    <button onclick="window.location.href='sorteo.html'">Sorteo</button>
+    <button onclick="window.location.href='preguntasfrecuentes.html'">Preguntas frecuentes</button>
+    <button onclick="window.location.href='terminosycondiciones.html'">Términos y condiciones</button>
+    <button onclick="logout()">Cerrar sesión</button>
   </div>
 
-  <div class="contenido">
-    <h2>🔥 Participá en la Mini Pool Semanal</h2>
-    <p class="mensaje-info">Ingresá y obtené un 80% de ganancia en sólo 7 días</p>
-
-    <div class="formulario">
-      <select id="entrada">
-        <option value="">-- Seleccioná un monto --</option>
-        <option value="2000">Básico - $2.000</option>
-        <option value="5000">Medio - $5.000</option>
-        <option value="10000">Avanzado - $10.000</option>
-      </select>
-      <button onclick="registrarEntrada()">Confirmar participación</button>
-    </div>
-
-    <div class="historial" id="historialPool" style="display: none;">
-      <h3>🧾 Tus Participaciones</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Monto</th>
-            <th>Nivel</th>
-            <th>Fecha</th>
-            <th>Estado</th>
-          </tr>
-        </thead>
-        <tbody id="tablaPool"></tbody>
+  <div class="container">
+    <div class="left">
+      <h2 style="text-align:center; margin-bottom:20px;">Participá en la Mini Pool</h2>
+      <div class="form-group">
+        <select id="nivelSelect" onchange="startAnimation()">
+          <option value="">-- Seleccioná un nivel --</option>
+          <option value="basico">Básico – $2.000</option>
+          <option value="medio">Medio – $5.000</option>
+          <option value="avanzado">Avanzado – $10.000</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <button onclick="registrarMiniPool()">Entrar y ganar 80% en 7 días</button>
+      </div>
+      <h3>Tu historial reciente</h3>
+      <table id="tablaMiniPool">
+        <thead><tr><th>Monto</th><th>Nivel</th><th>Fecha</th><th>Estado</th></tr></thead>
+        <tbody><tr><td colspan="4">Cargando...</td></tr></tbody>
       </table>
+    </div>
+    <div class="right" id="btcBox">
+      <!-- Las monedas caerán aquí -->
     </div>
   </div>
 
   <script>
     const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
+    const SUPABASE_ANON_KEY = 'TU_SUPABASE_ANON_KEY_COMPLETA';
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    let currentUserId = null;
-    let currentEmail = null;
+    let currentUserId;
 
-    async function init() {
+    function toggleMenu() {
+      const m = document.getElementById("mainMenu");
+      m.style.display = m.style.display === "flex" ? "none" : "flex";
+    }
+
+    async function initMiniPool() {
       const { data: { session } } = await client.auth.getSession();
-      if (!session) return window.location.href = "index.html";
+      if (!session) return window.location.href="index.html";
       currentUserId = session.user.id;
-      currentEmail = session.user.email;
-
       cargarHistorial();
     }
 
-    function toggleMenu() {
-      const menu = document.getElementById("mainMenu");
-      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+    function startAnimation() {
+      const level = document.getElementById("nivelSelect").value;
+      const box = document.getElementById("btcBox");
+      box.innerHTML = ""; // limpia la animación anterior
+      if (!level) return;
+
+      let interval = level === 'basico' ? 2000 :
+                     level === 'medio' ? 1000 : 500;
+
+      let timer = setInterval(() => {
+        if (box.children.length > 20) clearInterval(timer);
+        const img = document.createElement("img");
+        img.src = level === 'basico' ? 'btc.svg'
+                 : level === 'medio' ? 'eth.svg' : 'usdt.svg';
+        img.className = 'coin';
+        img.style.left = Math.random() * 250 + 'px';
+        box.appendChild(img);
+        setTimeout(() => img.remove(), 5000);
+      }, interval);
     }
 
-    async function registrarEntrada() {
-      const monto = parseInt(document.getElementById("entrada").value);
-      if (!monto) return alert("Seleccioná un monto válido.");
+    async function registrarMiniPool() {
+      const sel = document.getElementById("nivelSelect");
+      const nivel = sel.value;
+      const monto = nivel === 'basico' ? 2000 : nivel === 'medio' ? 5000 : nivel === 'avanzado' ? 10000 : null;
+      if (!monto) return alert("Seleccioná un nivel.");
 
-      const niveles = {
-        2000: "básico",
-        5000: "medio",
-        10000: "avanzado"
-      };
-
-      const registro = {
+      // Por ahora no redirigimos
+      await client.from("mini_pool").insert({
         usuario_id: currentUserId,
-        email: currentEmail,
-        nivel: niveles[monto],
+        nivel,
         monto,
         fecha_entrada: new Date().toISOString(),
         estado_pago: "pendiente"
-      };
-
-      const { error } = await client.from("mini_pool").insert(registro);
-      if (error) {
-        console.error(error);
-        return alert("❌ Ocurrió un error.");
-      }
-
-      alert("✅ Registro exitoso.");
+      });
+      alert("✅ Entraste a la Mini Pool. Volvé en 7 días para cobrar!");
       cargarHistorial();
     }
 
     async function cargarHistorial() {
-      const { data, error } = await client
-        .from("mini_pool")
-        .select("*")
-        .eq("usuario_id", currentUserId)
-        .order("fecha_entrada", { ascending: false });
-
-      const tabla = document.getElementById("tablaPool");
-      const historial = document.getElementById("historialPool");
-
-      if (!data || data.length === 0) {
-        historial.style.display = "none";
-        return;
+      const { data } = await client.from("mini_pool")
+        .select("*").eq("usuario_id", currentUserId)
+        .order("fecha_entrada", { ascending: false }).limit(10);
+      const tbody = document.querySelector("#tablaMiniPool tbody");
+      tbody.innerHTML = '';
+      if (!(data && data.length)) {
+        tbody.innerHTML = '<tr><td colspan="4">No participaste aún.</td></tr>';
+      } else {
+        data.forEach(r => {
+          const f = new Date(r.fecha_entrada).toLocaleDateString('es-AR');
+          tbody.innerHTML += `<tr>
+            <td>${r.monto}</td>
+            <td>${r.nivel}</td>
+            <td>${f}</td>
+            <td>${r.estado_pago === 'pagado' ? '✅' : '🕒'}</td>
+          </tr>`;
+        });
       }
-
-      historial.style.display = "block";
-      tabla.innerHTML = "";
-
-      data.forEach(row => {
-        const fecha = new Date(row.fecha_entrada).toLocaleDateString('es-AR');
-        const estado = row.estado_pago === "pagado" ? "✅" : "⏳";
-        tabla.innerHTML += `
-          <tr>
-            <td>$${row.monto}</td>
-            <td>${row.nivel}</td>
-            <td>${fecha}</td>
-            <td>${estado}</td>
-          </tr>
-        `;
-      });
     }
 
     async function logout() {
@@ -297,7 +156,7 @@
       window.location.href = "index.html";
     }
 
-    init();
+    window.addEventListener('load', initMiniPool);
   </script>
 </body>
 </html>
