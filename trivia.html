@@ -2,9 +2,9 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Trivia Cripto</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
     body {
       margin: 0;
@@ -14,6 +14,7 @@
       color: white;
       min-height: 100vh;
     }
+
     .menu-toggle {
       position: fixed;
       top: 15px;
@@ -25,6 +26,7 @@
       border-radius: 6px;
       z-index: 1000;
     }
+
     .sidebar {
       width: 230px;
       background-color: rgba(0, 0, 0, 0.9);
@@ -36,7 +38,9 @@
       z-index: 999;
       padding-top: 60px;
     }
+
     .sidebar.active { left: 0; }
+
     .sidebar button {
       background: none;
       border: none;
@@ -50,8 +54,9 @@
       gap: 12px;
       cursor: pointer;
     }
+
     .sidebar button:hover {
-      background-color: rgba(255,255,255,0.1);
+      background-color: rgba(255, 255, 255, 0.1);
     }
 
     .main {
@@ -61,51 +66,118 @@
       margin: auto;
     }
 
-    .formulario, .pregunta {
-      background: rgba(0,0,0,0.6);
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 30px;
+    /* Niveles en recuadros */
+    .niveles-container {
+      display: flex;
+      justify-content: space-around;
+      gap: 20px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
     }
 
-    .formulario select, .formulario button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      font-size: 16px;
-      border-radius: 8px;
-      border: none;
+    .nivel-card {
+      background: rgba(0, 195, 255, 0.2);
+      border: 2px solid #00c3ff;
+      border-radius: 16px;
+      padding: 25px 30px;
+      width: 220px;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+      user-select: none;
     }
 
-    .formulario button {
+    .nivel-card:hover {
       background: #00c3ff;
-      color: white;
+      color: #000;
+      transform: scale(1.05);
+    }
+
+    .nivel-titulo {
+      font-size: 1.5rem;
       font-weight: bold;
+      margin-bottom: 12px;
+    }
+
+    .nivel-entrada {
+      font-size: 1.2rem;
+      margin-bottom: 8px;
+    }
+
+    .btn-iniciar {
+      display: block;
+      margin: 0 auto;
+      padding: 12px 30px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      background: #00c3ff;
+      border: none;
+      border-radius: 10px;
+      color: black;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.3s;
+    }
+
+    .btn-iniciar:hover {
+      background: #0099cc;
+    }
+
+    /* Trivia Box */
+    .pregunta {
+      background: rgba(0,0,0,0.7);
+      padding: 25px;
+      border-radius: 12px;
+      margin-top: 30px;
     }
 
     .temporizador {
-      font-size: 22px;
+      font-size: 24px;
       font-weight: bold;
       text-align: right;
-      margin-top: -10px;
       margin-bottom: 20px;
       color: #00ffcc;
     }
 
+    .pregunta-texto {
+      font-size: 1.4rem;
+      margin-bottom: 25px;
+    }
+
+    .opciones {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
     .opciones button {
-      display: block;
-      margin: 10px 0;
-      width: 100%;
       background: #222;
       color: white;
-      border: 1px solid #00c3ff;
+      border: 2px solid #00c3ff;
       border-radius: 8px;
-      padding: 10px;
+      padding: 14px;
+      font-size: 1.1rem;
       cursor: pointer;
+      user-select: none;
+      transition: background 0.3s, color 0.3s;
+      text-align: center;
     }
 
     .opciones button:hover {
       background: #00c3ff;
+      color: black;
+    }
+
+    /* Resultado final */
+    .resultado {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 1.4rem;
+      background: rgba(0, 195, 255, 0.3);
+      padding: 30px;
+      border-radius: 16px;
+      color: black;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -117,90 +189,189 @@
     <button onclick="window.location.href='principal.html#welcome'"><i class="fas fa-home"></i> Inicio</button>
     <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Referidos</button>
     <button onclick="window.location.href='trivia.html'"><i class="fas fa-question"></i> Trivia</button>
-    <button onclick="window.location.href='minipool.html'"><i class="fas fa-water'></i> Mini Pool</button>
+    <button onclick="window.location.href='minipool.html'"><i class="fas fa-water"></i> Mini Pool</button>
     <button onclick="window.location.href='loteria.html'"><i class="fas fa-ticket-alt"></i> Lotería</button>
     <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
   </div>
 
   <div class="main">
-    <div class="formulario" id="nivelForm">
-      <h2>Seleccionar Nivel de Trivia</h2>
-      <select id="nivel">
-        <option value="">Elige un nivel</option>
-        <option value="basico">Básico - Entrada: 2.000 ARS</option>
-        <option value="medio">Medio - Entrada: 5.000 ARS</option>
-        <option value="avanzado">Avanzado - Entrada: 10.000 ARS</option>
-      </select>
-      <button onclick="iniciarTrivia()">Pagar entrada e iniciar</button>
+
+    <h1 style="text-align:center; margin-bottom: 40px; font-weight: 900; font-size: 2rem; color:#00c3ff;">
+      OBTÉN ENTRE UN 60% HASTA 180% DE TU INVERSIÓN
+    </h1>
+
+    <div id="nivelesContainer" class="niveles-container">
+      <div class="nivel-card" data-nivel="basico" data-preguntas="10" data-tiempo="15">
+        <div class="nivel-titulo">Nivel Básico</div>
+        <div class="nivel-entrada">Entrada: 2.000 ARS</div>
+      </div>
+      <div class="nivel-card" data-nivel="medio" data-preguntas="15" data-tiempo="20">
+        <div class="nivel-titulo">Nivel Medio</div>
+        <div class="nivel-entrada">Entrada: 5.000 ARS</div>
+      </div>
+      <div class="nivel-card" data-nivel="avanzado" data-preguntas="15" data-tiempo="20">
+        <div class="nivel-titulo">Nivel Avanzado</div>
+        <div class="nivel-entrada">Entrada: 10.000 ARS</div>
+      </div>
     </div>
+
+    <button id="btnIniciar" class="btn-iniciar" disabled>Pagar entrada e iniciar</button>
 
     <div class="pregunta" id="triviaBox" style="display:none">
       <div class="temporizador">Tiempo: <span id="tiempo">30</span>s</div>
-      <h3 id="preguntaText">Pregunta aquí</h3>
+      <div class="pregunta-texto" id="preguntaText">Pregunta aquí</div>
       <div class="opciones" id="opcionesBox"></div>
     </div>
+
+    <div id="resultadoFinal" class="resultado" style="display:none;"></div>
+
   </div>
 
   <script>
-    let preguntas = [];
-    let actual = 0;
-    let tiempo = 30;
-    let timer;
-
-    const ejemplo = [
-      {
-        pregunta: "¿Qué criptomoneda fue la primera en existir?",
-        opciones: ["Ethereum", "Bitcoin", "Dogecoin", "Ripple"],
-        respuesta: "Bitcoin"
-      },
-      {
-        pregunta: "¿Qué red utiliza USDT en esta plataforma?",
-        opciones: ["ERC20", "TRC20", "BEP20", "Solana"],
-        respuesta: "BEP20"
-      }
+    let preguntasBasico = [
+      { pregunta: "¿Qué criptomoneda fue la primera en existir?", opciones: ["Ethereum", "Bitcoin", "Dogecoin", "Ripple"], respuesta: "Bitcoin" },
+      { pregunta: "¿Qué es un wallet?", opciones: ["Un tipo de exchange", "Una billetera digital", "Un token", "Un smart contract"], respuesta: "Una billetera digital" },
+      // ... agrega hasta 10 preguntas para nivel básico
     ];
 
-    function toggleMenu() {
-      document.getElementById("sidebar").classList.toggle("active");
-    }
+    let preguntasMedio = [
+      { pregunta: "¿Qué red utiliza USDT en esta plataforma?", opciones: ["ERC20", "TRC20", "BEP20", "Solana"], respuesta: "BEP20" },
+      { pregunta: "¿Qué es un NFT?", opciones: ["Un activo digital único", "Una criptomoneda", "Una blockchain", "Un exchange"], respuesta: "Un activo digital único" },
+      // ... agrega hasta 15 preguntas para nivel medio
+    ];
 
-    function iniciarTrivia() {
-      const nivel = document.getElementById("nivel").value;
-      if (!nivel) return alert("Selecciona un nivel para continuar.");
+    let preguntasAvanzado = [
+      { pregunta: "¿Qué es un smart contract?", opciones: ["Un contrato físico", "Un contrato digital autoejecutable", "Una criptomoneda", "Una wallet"], respuesta: "Un contrato digital autoejecutable" },
+      { pregunta: "¿Qué significa DeFi?", opciones: ["Finanzas descentralizadas", "Dinero fiduciario", "Una criptomoneda", "Un exchange"], respuesta: "Finanzas descentralizadas" },
+      // ... agrega hasta 15 preguntas para nivel avanzado
+    ];
 
-      // Aquí iría la validación de pago según nivel y usuario
+    // Variables generales
+    let preguntas = [];
+    let actual = 0;
+    let tiempo = 0;
+    let timer = null;
+    let correctas = 0;
 
-      preguntas = ejemplo; // Cargar preguntas reales desde Supabase aquí
+    // Nivel seleccionado
+    let nivelSeleccionado = null;
+    let numPreguntasNivel = 0;
+    let tiempoPorPregunta = 15;
+
+    // Elementos DOM
+    const nivelesContainer = document.getElementById('nivelesContainer');
+    const btnIniciar = document.getElementById('btnIniciar');
+    const triviaBox = document.getElementById('triviaBox');
+    const preguntaText = document.getElementById('preguntaText');
+    const opcionesBox = document.getElementById('opcionesBox');
+    const tiempoDisplay = document.getElementById('tiempo');
+    const resultadoFinal = document.getElementById('resultadoFinal');
+
+    // Manejo selección de nivel
+    nivelesContainer.addEventListener('click', e => {
+      const card = e.target.closest('.nivel-card');
+      if (!card) return;
+      // Quitar selección previa
+      document.querySelectorAll('.nivel-card').forEach(c => c.style.background = "rgba(0, 195, 255, 0.2)");
+      document.querySelectorAll('.nivel-card').forEach(c => c.style.color = "white");
+
+      // Marcar seleccionado
+      card.style.background = "#00c3ff";
+      card.style.color = "black";
+
+      // Guardar datos del nivel
+      nivelSeleccionado = card.getAttribute('data-nivel');
+      numPreguntasNivel = parseInt(card.getAttribute('data-preguntas'), 10);
+      tiempoPorPregunta = parseInt(card.getAttribute('data-tiempo'), 10);
+
+      btnIniciar.disabled = false;
+    });
+
+    // Al hacer clic en iniciar: redirigir a depósito
+    btnIniciar.addEventListener('click', () => {
+      if (!nivelSeleccionado) {
+        alert('Selecciona un nivel primero.');
+        return;
+      }
+      // Guardar selección en localStorage para usar en depósito y en la trivia
+      localStorage.setItem('nivelTrivia', nivelSeleccionado);
+      // Redirigir a la página de depósito para que el usuario pague
+      window.location.href = 'deposito.html';
+    });
+
+    // --- Código para iniciar la trivia (en esta página) solo si ya pagó ---
+    // Esto debe activarse solo si el usuario vuelve de deposito.html con pago confirmado.
+    // Por ejemplo, deposito.html puede establecer localStorage.setItem('triviaPagoConfirmado', 'true')
+    // y luego redirigir a esta página para iniciar trivia.
+
+    window.addEventListener('load', () => {
+      const pagoConfirmado = localStorage.getItem('triviaPagoConfirmado');
+      const nivel = localStorage.getItem('nivelTrivia');
+
+      if (pagoConfirmado === 'true' && nivel) {
+        iniciarTriviaReal(nivel);
+        // Limpiar el flag para que no inicie automáticamente otra vez
+        localStorage.removeItem('triviaPagoConfirmado');
+      }
+    });
+
+    function iniciarTriviaReal(nivel) {
+      nivelSeleccionado = nivel;
+
+      // Asignar preguntas y tiempo según nivel
+      if (nivel === 'basico') {
+        preguntas = preguntasBasico.slice(0, 10);
+        tiempoPorPregunta = 15;
+      } else if (nivel === 'medio') {
+        preguntas = preguntasMedio.slice(0, 15);
+        tiempoPorPregunta = 20;
+      } else if (nivel === 'avanzado') {
+        preguntas = preguntasAvanzado.slice(0, 15);
+        tiempoPorPregunta = 20;
+      } else {
+        alert('Nivel no reconocido.');
+        return;
+      }
+
+      // Ocultar selección de nivel y mostrar trivia
+      document.getElementById('nivelesContainer').style.display = 'none';
+      btnIniciar.style.display = 'none';
+      resultadoFinal.style.display = 'none';
+      triviaBox.style.display = 'block';
+
       actual = 0;
-      document.getElementById("nivelForm").style.display = "none";
-      document.getElementById("triviaBox").style.display = "block";
+      correctas = 0;
       mostrarPregunta();
     }
 
     function mostrarPregunta() {
-      if (actual >= preguntas.length) return alert("Trivia finalizada. Gracias por participar.");
-
+      if (actual >= preguntas.length) {
+        terminarTrivia();
+        return;
+      }
       const p = preguntas[actual];
-      document.getElementById("preguntaText").innerText = p.pregunta;
-      const contenedor = document.getElementById("opcionesBox");
-      contenedor.innerHTML = "";
-      p.opciones.forEach(op => {
-        const btn = document.createElement("button");
-        btn.innerText = op;
+      preguntaText.textContent = `${actual + 1}. ${p.pregunta}`;
+      opcionesBox.innerHTML = '';
+      p.opciones.forEach(opcion => {
+        const btn = document.createElement('button');
+        btn.textContent = opcion;
         btn.onclick = () => {
           clearInterval(timer);
+          if (opcion === p.respuesta) {
+            correctas++;
+          }
           actual++;
           mostrarPregunta();
         };
-        contenedor.appendChild(btn);
+        opcionesBox.appendChild(btn);
       });
+      tiempo = tiempoPorPregunta;
+      tiempoDisplay.textContent = tiempo;
 
-      tiempo = 30;
-      document.getElementById("tiempo").innerText = tiempo;
       clearInterval(timer);
       timer = setInterval(() => {
         tiempo--;
-        document.getElementById("tiempo").innerText = tiempo;
+        tiempoDisplay.textContent = tiempo;
         if (tiempo <= 0) {
           clearInterval(timer);
           actual++;
@@ -209,10 +380,23 @@
       }, 1000);
     }
 
+    function terminarTrivia() {
+      triviaBox.style.display = 'none';
+      resultadoFinal.style.display = 'block';
+      resultadoFinal.innerHTML = `¡Has terminado la trivia!<br>Respuestas correctas: ${correctas} de ${preguntas.length}.<br><br>Gracias por participar.`;
+      // Limpiar datos del nivel
+      localStorage.removeItem('nivelTrivia');
+    }
+
+    // Función para toggle menú sidebar
+    function toggleMenu() {
+      document.getElementById("sidebar").classList.toggle("active");
+    }
+
     async function logout() {
-      const client = supabase.createClient('https://ovulezkcxwrjvyxlxsdv.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5...');
-      await client.auth.signOut();
-      window.location.href = "index.html";
+      // Supabase signout (ajusta con tu cliente supabase)
+      alert('Cerrando sesión...');
+      // window.location.href = 'index.html';
     }
   </script>
 
