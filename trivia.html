@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Trivia Cripto</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: url('fondodepantallaprincipal1.jpeg') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      min-height: 100vh;
+    }
+    .menu-toggle {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      font-size: 24px;
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 10px;
+      border-radius: 6px;
+      z-index: 1000;
+    }
+    .sidebar {
+      width: 230px;
+      background-color: rgba(0, 0, 0, 0.9);
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: -230px;
+      transition: left 0.3s ease;
+      z-index: 999;
+      padding-top: 60px;
+    }
+    .sidebar.active { left: 0; }
+    .sidebar button {
+      background: none;
+      border: none;
+      color: white;
+      padding: 12px 20px;
+      width: 100%;
+      text-align: left;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .sidebar button:hover {
+      background-color: rgba(255,255,255,0.1);
+    }
+
+    .main {
+      margin-left: 0;
+      padding: 100px 20px 30px;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .formulario, .pregunta {
+      background: rgba(0,0,0,0.6);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+    }
+
+    .formulario select, .formulario button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+    }
+
+    .formulario button {
+      background: #00c3ff;
+      color: white;
+      font-weight: bold;
+    }
+
+    .temporizador {
+      font-size: 22px;
+      font-weight: bold;
+      text-align: right;
+      margin-top: -10px;
+      margin-bottom: 20px;
+      color: #00ffcc;
+    }
+
+    .opciones button {
+      display: block;
+      margin: 10px 0;
+      width: 100%;
+      background: #222;
+      color: white;
+      border: 1px solid #00c3ff;
+      border-radius: 8px;
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    .opciones button:hover {
+      background: #00c3ff;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+
+  <div class="sidebar" id="sidebar">
+    <button onclick="window.location.href='principal.html#welcome'"><i class="fas fa-home"></i> Inicio</button>
+    <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Referidos</button>
+    <button onclick="window.location.href='trivia.html'"><i class="fas fa-question"></i> Trivia</button>
+    <button onclick="window.location.href='minipool.html'"><i class="fas fa-water'></i> Mini Pool</button>
+    <button onclick="window.location.href='loteria.html'"><i class="fas fa-ticket-alt"></i> Lotería</button>
+    <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
+  </div>
+
+  <div class="main">
+    <div class="formulario" id="nivelForm">
+      <h2>Seleccionar Nivel de Trivia</h2>
+      <select id="nivel">
+        <option value="">Elige un nivel</option>
+        <option value="basico">Básico - Entrada: 2.000 ARS</option>
+        <option value="medio">Medio - Entrada: 5.000 ARS</option>
+        <option value="avanzado">Avanzado - Entrada: 10.000 ARS</option>
+      </select>
+      <button onclick="iniciarTrivia()">Pagar entrada e iniciar</button>
+    </div>
+
+    <div class="pregunta" id="triviaBox" style="display:none">
+      <div class="temporizador">Tiempo: <span id="tiempo">30</span>s</div>
+      <h3 id="preguntaText">Pregunta aquí</h3>
+      <div class="opciones" id="opcionesBox"></div>
+    </div>
+  </div>
+
+  <script>
+    let preguntas = [];
+    let actual = 0;
+    let tiempo = 30;
+    let timer;
+
+    const ejemplo = [
+      {
+        pregunta: "¿Qué criptomoneda fue la primera en existir?",
+        opciones: ["Ethereum", "Bitcoin", "Dogecoin", "Ripple"],
+        respuesta: "Bitcoin"
+      },
+      {
+        pregunta: "¿Qué red utiliza USDT en esta plataforma?",
+        opciones: ["ERC20", "TRC20", "BEP20", "Solana"],
+        respuesta: "BEP20"
+      }
+    ];
+
+    function toggleMenu() {
+      document.getElementById("sidebar").classList.toggle("active");
+    }
+
+    function iniciarTrivia() {
+      const nivel = document.getElementById("nivel").value;
+      if (!nivel) return alert("Selecciona un nivel para continuar.");
+
+      // Aquí iría la validación de pago según nivel y usuario
+
+      preguntas = ejemplo; // Cargar preguntas reales desde Supabase aquí
+      actual = 0;
+      document.getElementById("nivelForm").style.display = "none";
+      document.getElementById("triviaBox").style.display = "block";
+      mostrarPregunta();
+    }
+
+    function mostrarPregunta() {
+      if (actual >= preguntas.length) return alert("Trivia finalizada. Gracias por participar.");
+
+      const p = preguntas[actual];
+      document.getElementById("preguntaText").innerText = p.pregunta;
+      const contenedor = document.getElementById("opcionesBox");
+      contenedor.innerHTML = "";
+      p.opciones.forEach(op => {
+        const btn = document.createElement("button");
+        btn.innerText = op;
+        btn.onclick = () => {
+          clearInterval(timer);
+          actual++;
+          mostrarPregunta();
+        };
+        contenedor.appendChild(btn);
+      });
+
+      tiempo = 30;
+      document.getElementById("tiempo").innerText = tiempo;
+      clearInterval(timer);
+      timer = setInterval(() => {
+        tiempo--;
+        document.getElementById("tiempo").innerText = tiempo;
+        if (tiempo <= 0) {
+          clearInterval(timer);
+          actual++;
+          mostrarPregunta();
+        }
+      }, 1000);
+    }
+
+    async function logout() {
+      const client = supabase.createClient('https://ovulezkcxwrjvyxlxsdv.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5...');
+      await client.auth.signOut();
+      window.location.href = "index.html";
+    }
+  </script>
+
+</body>
+</html>
