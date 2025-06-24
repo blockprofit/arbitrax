@@ -239,6 +239,7 @@
     <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Programa de referidos</button>
     <button onclick="window.location.href='trivia.html'"><i class="fas fa-question"></i> Trivia</button>
     <button onclick="window.location.href='minipool.html'"><i class="fas fa-coins"></i> Mini Pool</button>
+    <button onclick="window.location.href='mysterybox.html'"><i class="fas fa-box-open"></i> Mystery Box</button>
     <button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>
     <button onclick="window.location.href='preguntasfrecuentes.html'"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>
     <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-alt"></i> Términos y condiciones</button>
@@ -265,189 +266,151 @@
       <canvas id="graficaGanancias"></canvas>
     </div>
 <div id="perfil" class="section">
-      <h2>Perfil</h2>
+      <h2>Mi Perfil</h2>
       <div class="formulario">
-        <input type="text" id="nombres" placeholder="Nombres" />
-        <input type="text" id="apellido" placeholder="Apellido" />
-        <input type="text" id="dni" placeholder="DNI" />
-        <input type="text" id="celular" placeholder="Número de celular" />
-        <input type="email" id="email" placeholder="Correo electrónico" disabled />
-        <input type="text" id="cbu" placeholder="CBU o Dirección USDT (BEP20)" />
-        <button onclick="guardarPerfil()">Guardar</button>
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" readonly />
+
+        <label for="correo">Correo:</label>
+        <input type="email" id="correo" readonly />
+
+        <label for="wallet">Wallet:</label>
+        <input type="text" id="wallet" readonly />
       </div>
     </div>
   </div>
 
-  <!-- Modal de ayuda -->
-  <div id="botAyuda" onclick="toggleAyuda()"><i class="fas fa-comment-dots"></i></div>
+  <div id="botAyuda" onclick="toggleAyuda()">
+    <i class="fas fa-question"></i>
+  </div>
+
   <div id="modalAyuda">
+    <span class="cerrar" onclick="toggleAyuda()">&times;</span>
     <div class="contenido-ayuda">
-      <h3>Soporte / Consulta</h3>
-      <input type="email" id="emailAyuda" placeholder="Tu correo electrónico" />
+      <h3>¿Necesitas ayuda?</h3>
+      <input type="email" id="emailAyuda" placeholder="Tu correo" />
       <input type="text" id="asuntoAyuda" placeholder="Asunto" />
-      <textarea id="mensajeAyuda" placeholder="Escribe tu mensaje aquí..."></textarea>
-      <button onclick="enviarTicket()">Enviar</button>
-      <span class="cerrar" onclick="toggleAyuda()">&times;</span>
-      <div id="historialTickets">
-        <h4 style="color:#00a8ff;">Últimos tickets</h4>
-        <ul id="listaTickets"></ul>
-      </div>
+      <textarea id="mensajeAyuda" placeholder="Describe tu problema"></textarea>
+      <button onclick="enviarAyuda()">Enviar</button>
+      <div id="listaTickets"></div>
     </div>
   </div>
 
   <script>
-    const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
-    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    let currentUserId = null;
-    let currentEmail = null;
-
-    async function validateSession() {
-      const { data: { session } } = await client.auth.getSession();
-      if (!session) return window.location.href = "index.html";
-      currentUserId = session.user.id;
-      currentEmail = session.user.email;
-      document.getElementById("emailAyuda").value = currentEmail;
-      cargarPerfil();
-      cargarHistorialTickets();
-    }
-
-    async function cargarPerfil() {
-      const { data, error } = await client
-        .from("profiles")
-        .select("*")
-        .eq("id", currentUserId)
-        .single();
-
-      if (!error && data) {
-        document.getElementById("nombres").value = data.nombres || "";
-        document.getElementById("apellido").value = data.apellido || "";
-        document.getElementById("dni").value = data.dni || "";
-        document.getElementById("celular").value = data.celular || "";
-        document.getElementById("cbu").value = data.cbu || "";
-        document.getElementById("email").value = data.email || currentEmail;
-      } else {
-        document.getElementById("email").value = currentEmail;
-      }
-    }
-
-    async function guardarPerfil() {
-      const perfil = {
-        id: currentUserId,
-        email: currentEmail,
-        nombres: document.getElementById("nombres").value,
-        apellido: document.getElementById("apellido").value,
-        dni: document.getElementById("dni").value,
-        celular: document.getElementById("celular").value,
-        cbu: document.getElementById("cbu").value
-      };
-      await client.from("profiles").upsert(perfil, { onConflict: 'id' });
-      cargarPerfil();
-      showSection("welcome");
-    }
-
-    async function enviarTicket() {
-      const email = document.getElementById("emailAyuda").value.trim();
-      const asunto = document.getElementById("asuntoAyuda").value.trim();
-      const mensaje = document.getElementById("mensajeAyuda").value.trim();
-      if (!email || !asunto || !mensaje) return;
-
-      await client.from("tickets").insert({
-        usuario_id: currentUserId,
-        email,
-        asunto,
-        mensaje,
-        fecha: new Date().toISOString()
-      });
-
-      document.getElementById("asuntoAyuda").value = "";
-      document.getElementById("mensajeAyuda").value = "";
-      cargarHistorialTickets();
-    }
-
-    async function cargarHistorialTickets() {
-      const { data } = await client
-        .from("tickets")
-        .select("*")
-        .eq("usuario_id", currentUserId)
-        .order("fecha", { ascending: false })
-        .limit(3);
-
-      const lista = document.getElementById("listaTickets");
-      lista.innerHTML = "";
-
-      if (data && data.length > 0) {
-        data.forEach(ticket => {
-          const li = document.createElement("li");
-          li.textContent = `${ticket.asunto}: ${ticket.mensaje}`;
-          lista.appendChild(li);
-        });
-      } else {
-        lista.innerHTML = "<li>No hay tickets recientes.</li>";
-      }
-    }
-
-    function toggleAyuda() {
-      const modal = document.getElementById("modalAyuda");
-      modal.style.display = modal.style.display === "block" ? "none" : "block";
-    }
+    const supabaseUrl = 'https://your_supabase_url';
+    const supabaseKey = 'your_supabase_key';
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
     function toggleSidebar() {
-      document.getElementById("sidebar").classList.toggle("active");
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('active');
     }
 
     function closeSidebar() {
-      document.getElementById("sidebar").classList.remove("active");
+      const sidebar = document.getElementById('sidebar');
+      if (sidebar.classList.contains('active')) {
+        sidebar.classList.remove('active');
+      }
     }
 
     function showSection(id) {
-      document.querySelectorAll(".section").forEach(el => el.classList.remove("active"));
-      document.getElementById(id).classList.add("active");
+      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
 
-      document.querySelectorAll(".sidebar button").forEach(btn => btn.classList.remove("active"));
-      const allButtons = document.querySelectorAll(".sidebar button");
-      if (id === "welcome") allButtons[0].classList.add("active");
-      if (id === "perfil") allButtons[1].classList.add("active");
+      document.querySelectorAll('.sidebar button').forEach(btn => btn.classList.remove('active'));
+      const buttons = document.querySelectorAll('.sidebar button');
+      buttons.forEach(button => {
+        if (button.getAttribute('onclick') && button.getAttribute('onclick').includes(id)) {
+          button.classList.add('active');
+        }
+      });
     }
 
-    async function logout() {
-      await client.auth.signOut();
-      window.location.href = "index.html";
+    function toggleAyuda() {
+      const modal = document.getElementById('modalAyuda');
+      modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
     }
 
-    new Chart(document.getElementById('graficaGanancias').getContext('2d'), {
+    function enviarAyuda() {
+      const email = document.getElementById('emailAyuda').value;
+      const asunto = document.getElementById('asuntoAyuda').value;
+      const mensaje = document.getElementById('mensajeAyuda').value;
+
+      if (!email || !asunto || !mensaje) {
+        alert('Por favor, completa todos los campos.');
+        return;
+      }
+
+      const ticketHTML = `<li><strong>${asunto}:</strong> ${mensaje}</li>`;
+      document.getElementById('listaTickets').innerHTML += ticketHTML;
+
+      document.getElementById('emailAyuda').value = '';
+      document.getElementById('asuntoAyuda').value = '';
+      document.getElementById('mensajeAyuda').value = '';
+
+      alert('Tu mensaje ha sido enviado. Te responderemos pronto.');
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = 'index.html';
+    }
+
+    // Simulación de datos (reemplazar con datos reales de Supabase)
+    document.getElementById('total-invertido').textContent = '$1,000';
+    document.getElementById('ganancias').textContent = '$320';
+    document.getElementById('proximo-pago').textContent = '$75';
+
+    const ctx = document.getElementById('graficaGanancias').getContext('2d');
+    new Chart(ctx, {
       type: 'line',
       data: {
-        labels: ['L', 'M', 'X', 'J', 'V', 'S', 'D'],
+        labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
         datasets: [{
-          label: 'Ganancias diarias',
-          data: [120, 300, 180, 260, 210, 400, 370],
-          borderColor: '#00d4ff',
-          backgroundColor: 'transparent',
-          tension: 0.4,
-          pointBackgroundColor: '#00d4ff',
-          pointRadius: 4
+          label: 'Ganancias ($)',
+          data: [80, 90, 70, 80],
+          backgroundColor: 'rgba(0, 168, 255, 0.2)',
+          borderColor: '#00a8ff',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.3
         }]
       },
       options: {
+        responsive: true,
         scales: {
           y: {
             beginAtZero: true,
-            ticks: { color: 'white' },
-            grid: { color: 'rgba(255,255,255,0.1)' }
+            ticks: {
+              color: 'white'
+            }
           },
           x: {
-            ticks: { color: 'white' },
-            grid: { color: 'rgba(255,255,255,0.05)' }
+            ticks: {
+              color: 'white'
+            }
           }
         },
         plugins: {
-          legend: { display: false }
+          legend: {
+            labels: {
+              color: 'white'
+            }
+          }
         }
       }
     });
 
-    validateSession();
+    // Simulación para cargar perfil (reemplazar con sesión real)
+    const perfil = {
+      nombre: "Juan Pérez",
+      correo: "juan@example.com",
+      wallet: "0xABCDEF123456"
+    };
+
+    document.getElementById("nombre").value = perfil.nombre;
+    document.getElementById("correo").value = perfil.correo;
+    document.getElementById("wallet").value = perfil.wallet;
   </script>
 </body>
 </html>
