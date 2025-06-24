@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="es">
+<!DOCTYPE html><html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -18,399 +17,452 @@
       min-height: 100vh;
       color: white;
       display: flex;
-    }
+    }.menu-toggle {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 1001;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 10px 15px;
+  border-radius: 6px;
+}
 
-    .menu-toggle {
-      position: fixed;
-      top: 15px;
-      left: 15px;
-      font-size: 24px;
-      cursor: pointer;
-      z-index: 1001;
-      background-color: rgba(0, 0, 0, 0.6);
-      padding: 10px 15px;
-      border-radius: 6px;
-    }
+.noti-button {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  background: #00a8ff;
+  color: white;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 0 10px #000;
+  z-index: 1001;
+}
 
-    .sidebar {
-      width: 230px;
-      background-color: rgba(0, 0, 0, 0.85);
-      height: 100vh;
-      padding-top: 60px;
-      display: flex;
-      flex-direction: column;
-      position: fixed;
-      top: 0;
-      left: 0;
-      transform: translateX(-100%);
-      transition: transform 0.3s ease;
-      z-index: 1000;
-    }
+#modalNotificaciones {
+  display: none;
+  position: fixed;
+  top: 80px;
+  right: 30px;
+  background: rgba(0, 0, 0, 0.95);
+  padding: 20px;
+  border-radius: 12px;
+  z-index: 1002;
+  width: 300px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
 
-    .sidebar.active {
-      transform: translateX(0%);
-    }
+#modalNotificaciones h3 {
+  margin-top: 0;
+  font-size: 18px;
+  color: #fff;
+}
 
-    .sidebar button {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 15px;
-      padding: 12px 20px;
-      text-align: left;
-      cursor: pointer;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      transition: background 0.2s;
-    }
+#modalNotificaciones .cerrar {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  font-size: 20px;
+  cursor: pointer;
+  color: #fff;
+}
 
-    .sidebar button:hover,
-    .sidebar button.active {
-      background-color: rgba(255, 255, 255, 0.1);
-    }
+#modalNotificaciones ul {
+  list-style: none;
+  padding-left: 15px;
+  font-size: 14px;
+  color: #ccc;
+}
 
-    .sidebar button i {
-      margin-right: 12px;
-      width: 20px;
-      text-align: center;
-    }
+#modalNotificaciones ul li {
+  margin-bottom: 10px;
+}
 
-    .content {
-      flex: 1;
-      padding: 30px;
-      margin-left: 0;
-      width: 100%;
-    }
+.sidebar {
+  width: 230px;
+  background-color: rgba(0, 0, 0, 0.85);
+  height: 100vh;
+  padding-top: 60px;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  z-index: 1000;
+}
 
-    .section {
-      display: none;
-      max-width: 1000px;
-      margin: auto;
-    }
+.sidebar.active {
+  transform: translateX(0%);
+}
 
-    .section.active {
-      display: block;
-    }
+.sidebar button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 15px;
+  padding: 12px 20px;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  transition: background 0.2s;
+}
 
-    .formulario input {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border-radius: 8px;
-      border: none;
-      background: #fff;
-      color: #000;
-    }
+.sidebar button:hover,
+.sidebar button.active {
+  background-color: rgba(255, 255, 255, 0.1);
+}
 
-    .formulario button {
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      background: #00a8ff;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 10px;
-    }
+.sidebar button i {
+  margin-right: 12px;
+  width: 20px;
+  text-align: center;
+}
 
-    .formulario button:hover {
-      background: #007acc;
-    }
+.content {
+  flex: 1;
+  padding: 30px;
+  margin-left: 0;
+  width: 100%;
+}
 
-    .dashboard-cards {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-bottom: 30px;
-    }
+.section {
+  display: none;
+  max-width: 1000px;
+  margin: auto;
+}
 
-    .card {
-      flex: 1;
-      min-width: 250px;
-      background: rgba(0,0,0,0.5);
-      border-radius: 12px;
-      padding: 20px;
-      text-align: center;
-      border: 2px solid;
-    }
+.section.active {
+  display: block;
+}
 
-    .card h3 {
-      margin-bottom: 10px;
-    }
+.formulario input {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 8px;
+  border: none;
+  background: #fff;
+  color: #000;
+}
 
-    #graficaGanancias {
-      width: 100%;
-      max-width: 800px;
-      height: 300px;
-      background: rgba(0,0,0,0.4);
-      padding: 20px;
-      border-radius: 12px;
-    }
+.formulario button {
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #00a8ff;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+}
 
-    #botAyuda {
-      position: fixed;
-      bottom: 25px;
-      right: 25px;
-      background: #00a8ff;
-      color: white;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      cursor: pointer;
-      box-shadow: 0 0 10px #000;
-      z-index: 1000;
-    }
+.formulario button:hover {
+  background: #007acc;
+}
 
-    #modalAyuda {
-      display: none;
-      position: fixed;
-      bottom: 80px;
-      right: 30px;
-      background: rgba(0, 0, 0, 0.95);
-      padding: 20px;
-      border-radius: 12px;
-      z-index: 1001;
-      width: 320px;
-      max-height: 80vh;
-      overflow-y: auto;
-    }
+.dashboard-cards {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 30px;
+}
 
-    .contenido-ayuda h3 {
-      margin-top: 0;
-      font-size: 18px;
-      color: #fff;
-    }
+.card {
+  flex: 1;
+  min-width: 250px;
+  background: rgba(0,0,0,0.5);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  border: 2px solid;
+}
 
-    #mensajeAyuda, #asuntoAyuda, #emailAyuda {
-      width: 100%;
-      border: none;
-      border-radius: 8px;
-      padding: 10px;
-      margin-bottom: 10px;
-    }
+.card h3 {
+  margin-bottom: 10px;
+}
 
-    #mensajeAyuda {
-      height: 80px;
-      resize: none;
-    }
+#graficaGanancias {
+  width: 100%;
+  max-width: 800px;
+  height: 300px;
+  background: rgba(0,0,0,0.4);
+  padding: 20px;
+  border-radius: 12px;
+}
 
-    #modalAyuda button {
-      background: #00a8ff;
-      border: none;
-      padding: 8px 16px;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-    }
+#botAyuda {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  background: #00a8ff;
+  color: white;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 0 10px #000;
+  z-index: 1000;
+}
 
-    #modalAyuda .cerrar {
-      position: absolute;
-      top: 5px;
-      right: 10px;
-      font-size: 20px;
-      cursor: pointer;
-      color: #fff;
-    }
+#modalAyuda {
+  display: none;
+  position: fixed;
+  bottom: 80px;
+  right: 30px;
+  background: rgba(0, 0, 0, 0.95);
+  padding: 20px;
+  border-radius: 12px;
+  z-index: 1001;
+  width: 320px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
 
-    #listaTickets {
-      font-size: 13px;
-      color: #ccc;
-      margin-top: 10px;
-      padding-left: 20px;
-    }
+.contenido-ayuda h3 {
+  margin-top: 0;
+  font-size: 18px;
+  color: #fff;
+}
+
+#mensajeAyuda, #asuntoAyuda, #emailAyuda {
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+#mensajeAyuda {
+  height: 80px;
+  resize: none;
+}
+
+#modalAyuda button {
+  background: #00a8ff;
+  border: none;
+  padding: 8px 16px;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#modalAyuda .cerrar {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  font-size: 20px;
+  cursor: pointer;
+  color: #fff;
+}
+
+#listaTickets {
+  font-size: 13px;
+  color: #ccc;
+  margin-top: 10px;
+  padding-left: 20px;
+}
+
   </style>
 </head>
 <body>
+<script>
+    const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let currentUserId = null;
+    let currentEmail = null;
 
-  <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
-
-  <div class="sidebar" id="sidebar">
-    <button onclick="showSection('welcome')" class="active"><i class="fas fa-home"></i> Inicio</button>
-    <button onclick="showSection('perfil')"><i class="fas fa-user"></i> Perfil</button>
-    <button onclick="window.location.href='inversion.html'"><i class="fas fa-chart-line"></i> Nivel de inversión</button>
-    <button onclick="window.location.href='deposito.html'"><i class="fas fa-wallet"></i> Depósito</button>
-    <button onclick="window.location.href='retiro.html'"><i class="fas fa-arrow-circle-up"></i> Retiro</button>
-    <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Programa de referidos</button>
-    <button onclick="window.location.href='trivia.html'"><i class="fas fa-question"></i> Trivia</button>
-    <button onclick="window.location.href='minipool.html'"><i class="fas fa-coins"></i> Mini Pool</button>
-    <button onclick="window.location.href='mysterybox.html'"><i class="fas fa-box-open"></i> Mystery Box</button>
-    <button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>
-    <button onclick="window.location.href='preguntasfrecuentes.html'"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>
-    <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-alt"></i> Términos y condiciones</button>
-    <button onclick="logout()"><i class="fas fa-power-off"></i> Cerrar sesión</button>
-  </div>
-
-  <div class="content" onclick="closeSidebar()">
-    <div id="welcome" class="section active">
-      <h2>¡Bienvenido de nuevo!</h2>
-      <div class="dashboard-cards">
-        <div class="card" style="border-color: #00d4ff;">
-          <h3>Total Invertido</h3>
-          <p id="total-invertido" style="font-size: 28px; color: #00d4ff; font-weight: bold;">$0</p>
-        </div>
-        <div class="card" style="border-color: #c56cf0;">
-          <h3>Ganancias</h3>
-          <p id="ganancias" style="font-size: 28px; color: #c56cf0; font-weight: bold;">$0</p>
-        </div>
-        <div class="card" style="border-color: #ff6b81;">
-          <h3>Próximo Pago</h3>
-          <p id="proximo-pago" style="font-size: 28px; color: #ff6b81; font-weight: bold;">$0</p>
-        </div>
-      </div>
-      <canvas id="graficaGanancias"></canvas>
-    </div>
-<div id="perfil" class="section">
-      <h2>Mi Perfil</h2>
-      <div class="formulario">
-        <label for="nombre">Nombre:</label>
-        <input type="text" id="nombre" readonly />
-
-        <label for="correo">Correo:</label>
-        <input type="email" id="correo" readonly />
-
-        <label for="wallet">Wallet:</label>
-        <input type="text" id="wallet" readonly />
-      </div>
-    </div>
-  </div>
-
-  <div id="botAyuda" onclick="toggleAyuda()">
-    <i class="fas fa-question"></i>
-  </div>
-
-  <div id="modalAyuda">
-    <span class="cerrar" onclick="toggleAyuda()">&times;</span>
-    <div class="contenido-ayuda">
-      <h3>¿Necesitas ayuda?</h3>
-      <input type="email" id="emailAyuda" placeholder="Tu correo" />
-      <input type="text" id="asuntoAyuda" placeholder="Asunto" />
-      <textarea id="mensajeAyuda" placeholder="Describe tu problema"></textarea>
-      <button onclick="enviarAyuda()">Enviar</button>
-      <div id="listaTickets"></div>
-    </div>
-  </div>
-
-  <script>
-    const supabaseUrl = 'https://your_supabase_url';
-    const supabaseKey = 'your_supabase_key';
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-    function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      sidebar.classList.toggle('active');
+    async function validateSession() {
+      const { data: { session } } = await client.auth.getSession();
+      if (!session) return window.location.href = "index.html";
+      currentUserId = session.user.id;
+      currentEmail = session.user.email;
+      document.getElementById("emailAyuda").value = currentEmail;
+      cargarPerfil();
+      cargarHistorialTickets();
+      cargarNotificaciones();
     }
 
-    function closeSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      if (sidebar.classList.contains('active')) {
-        sidebar.classList.remove('active');
+    async function cargarPerfil() {
+      const { data, error } = await client
+        .from("profiles")
+        .select("*")
+        .eq("id", currentUserId)
+        .single();
+
+      if (!error && data) {
+        document.getElementById("nombres").value = data.nombres || "";
+        document.getElementById("apellido").value = data.apellido || "";
+        document.getElementById("dni").value = data.dni || "";
+        document.getElementById("celular").value = data.celular || "";
+        document.getElementById("cbu").value = data.cbu || "";
+        document.getElementById("email").value = data.email || currentEmail;
+      } else {
+        document.getElementById("email").value = currentEmail;
       }
     }
 
-    function showSection(id) {
-      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
+    async function guardarPerfil() {
+      const perfil = {
+        id: currentUserId,
+        email: currentEmail,
+        nombres: document.getElementById("nombres").value,
+        apellido: document.getElementById("apellido").value,
+        dni: document.getElementById("dni").value,
+        celular: document.getElementById("celular").value,
+        cbu: document.getElementById("cbu").value
+      };
+      await client.from("profiles").upsert(perfil, { onConflict: 'id' });
+      cargarPerfil();
+      showSection("welcome");
+    }
 
-      document.querySelectorAll('.sidebar button').forEach(btn => btn.classList.remove('active'));
-      const buttons = document.querySelectorAll('.sidebar button');
-      buttons.forEach(button => {
-        if (button.getAttribute('onclick') && button.getAttribute('onclick').includes(id)) {
-          button.classList.add('active');
-        }
+    async function enviarTicket() {
+      const email = document.getElementById("emailAyuda").value.trim();
+      const asunto = document.getElementById("asuntoAyuda").value.trim();
+      const mensaje = document.getElementById("mensajeAyuda").value.trim();
+      if (!email || !asunto || !mensaje) return;
+
+      await client.from("tickets").insert({
+        usuario_id: currentUserId,
+        email,
+        asunto,
+        mensaje,
+        fecha: new Date().toISOString()
       });
+
+      document.getElementById("asuntoAyuda").value = "";
+      document.getElementById("mensajeAyuda").value = "";
+      cargarHistorialTickets();
+    }
+
+    async function cargarHistorialTickets() {
+      const { data } = await client
+        .from("tickets")
+        .select("*")
+        .eq("usuario_id", currentUserId)
+        .order("fecha", { ascending: false })
+        .limit(3);
+
+      const lista = document.getElementById("listaTickets");
+      lista.innerHTML = "";
+
+      if (data && data.length > 0) {
+        data.forEach(ticket => {
+          const li = document.createElement("li");
+          li.textContent = `${ticket.asunto}: ${ticket.mensaje}`;
+          lista.appendChild(li);
+        });
+      } else {
+        lista.innerHTML = "<li>No hay tickets recientes.</li>";
+      }
     }
 
     function toggleAyuda() {
-      const modal = document.getElementById('modalAyuda');
-      modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+      const modal = document.getElementById("modalAyuda");
+      modal.style.display = modal.style.display === "block" ? "none" : "block";
     }
 
-    function enviarAyuda() {
-      const email = document.getElementById('emailAyuda').value;
-      const asunto = document.getElementById('asuntoAyuda').value;
-      const mensaje = document.getElementById('mensajeAyuda').value;
+    function toggleNotificaciones() {
+      const modal = document.getElementById("modalNotificaciones");
+      modal.style.display = modal.style.display === "block" ? "none" : "block";
+    }
 
-      if (!email || !asunto || !mensaje) {
-        alert('Por favor, completa todos los campos.');
-        return;
+    async function cargarNotificaciones() {
+      const { data, error } = await client
+        .from("notificaciones")
+        .select("*")
+        .order("fecha", { ascending: false })
+        .limit(5);
+
+      const lista = document.getElementById("listaNotificaciones");
+      lista.innerHTML = "";
+
+      if (data && data.length > 0) {
+        data.forEach(noti => {
+          const li = document.createElement("li");
+          li.innerHTML = `<strong>${noti.titulo}</strong><br>${noti.mensaje}`;
+          lista.appendChild(li);
+        });
+      } else {
+        lista.innerHTML = "<li>No hay notificaciones recientes.</li>";
       }
-
-      const ticketHTML = `<li><strong>${asunto}:</strong> ${mensaje}</li>`;
-      document.getElementById('listaTickets').innerHTML += ticketHTML;
-
-      document.getElementById('emailAyuda').value = '';
-      document.getElementById('asuntoAyuda').value = '';
-      document.getElementById('mensajeAyuda').value = '';
-
-      alert('Tu mensaje ha sido enviado. Te responderemos pronto.');
     }
 
-    function logout() {
-      localStorage.clear();
-      window.location.href = 'index.html';
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("active");
     }
 
-    // Simulación de datos (reemplazar con datos reales de Supabase)
-    document.getElementById('total-invertido').textContent = '$1,000';
-    document.getElementById('ganancias').textContent = '$320';
-    document.getElementById('proximo-pago').textContent = '$75';
+    function closeSidebar() {
+      document.getElementById("sidebar").classList.remove("active");
+    }
 
-    const ctx = document.getElementById('graficaGanancias').getContext('2d');
-    new Chart(ctx, {
+    function showSection(id) {
+      document.querySelectorAll(".section").forEach(el => el.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+
+      document.querySelectorAll(".sidebar button").forEach(btn => btn.classList.remove("active"));
+      const allButtons = document.querySelectorAll(".sidebar button");
+      if (id === "welcome") allButtons[0].classList.add("active");
+      if (id === "perfil") allButtons[1].classList.add("active");
+    }
+
+    async function logout() {
+      await client.auth.signOut();
+      window.location.href = "index.html";
+    }
+
+    new Chart(document.getElementById('graficaGanancias').getContext('2d'), {
       type: 'line',
       data: {
-        labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
+        labels: ['L', 'M', 'X', 'J', 'V', 'S', 'D'],
         datasets: [{
-          label: 'Ganancias ($)',
-          data: [80, 90, 70, 80],
-          backgroundColor: 'rgba(0, 168, 255, 0.2)',
-          borderColor: '#00a8ff',
-          borderWidth: 2,
-          fill: true,
-          tension: 0.3
+          label: 'Ganancias diarias',
+          data: [120, 300, 180, 260, 210, 400, 370],
+          borderColor: '#00d4ff',
+          backgroundColor: 'transparent',
+          tension: 0.4,
+          pointBackgroundColor: '#00d4ff',
+          pointRadius: 4
         }]
       },
       options: {
-        responsive: true,
         scales: {
           y: {
             beginAtZero: true,
-            ticks: {
-              color: 'white'
-            }
+            ticks: { color: 'white' },
+            grid: { color: 'rgba(255,255,255,0.1)' }
           },
           x: {
-            ticks: {
-              color: 'white'
-            }
+            ticks: { color: 'white' },
+            grid: { color: 'rgba(255,255,255,0.05)' }
           }
         },
         plugins: {
-          legend: {
-            labels: {
-              color: 'white'
-            }
-          }
+          legend: { display: false }
         }
       }
     });
 
-    // Simulación para cargar perfil (reemplazar con sesión real)
-    const perfil = {
-      nombre: "Juan Pérez",
-      correo: "juan@example.com",
-      wallet: "0xABCDEF123456"
-    };
-
-    document.getElementById("nombre").value = perfil.nombre;
-    document.getElementById("correo").value = perfil.correo;
-    document.getElementById("wallet").value = perfil.wallet;
+    validateSession();
   </script>
 </body>
 </html>
