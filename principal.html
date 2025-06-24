@@ -149,10 +149,9 @@
       border-radius: 12px;
     }
 
-    #botAyuda {
+    #botAyuda, #botNotificacion {
       position: fixed;
       bottom: 25px;
-      right: 25px;
       background: #00a8ff;
       color: white;
       width: 50px;
@@ -167,11 +166,18 @@
       z-index: 1000;
     }
 
-    #modalAyuda {
+    #botAyuda {
+      right: 25px;
+    }
+
+    #botNotificacion {
+      top: 25px;
+      right: 25px;
+    }
+
+    #modalAyuda, #modalNotificacion {
       display: none;
       position: fixed;
-      bottom: 80px;
-      right: 30px;
       background: rgba(0, 0, 0, 0.95);
       padding: 20px;
       border-radius: 12px;
@@ -181,7 +187,18 @@
       overflow-y: auto;
     }
 
-    .contenido-ayuda h3 {
+    #modalAyuda {
+      bottom: 80px;
+      right: 30px;
+    }
+
+    #modalNotificacion {
+      top: 80px;
+      right: 30px;
+    }
+
+    .contenido-ayuda h3,
+    .contenido-notificacion h3 {
       margin-top: 0;
       font-size: 18px;
       color: #fff;
@@ -200,7 +217,7 @@
       resize: none;
     }
 
-    #modalAyuda button {
+    .modal button {
       background: #00a8ff;
       border: none;
       padding: 8px 16px;
@@ -209,7 +226,7 @@
       cursor: pointer;
     }
 
-    #modalAyuda .cerrar {
+    .cerrar {
       position: absolute;
       top: 5px;
       right: 10px;
@@ -227,8 +244,7 @@
   </style>
 </head>
 <body>
-
-  <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
+<div class="menu-toggle" onclick="toggleSidebar()">☰</div>
 
   <div class="sidebar" id="sidebar">
     <button onclick="showSection('welcome')" class="active"><i class="fas fa-home"></i> Inicio</button>
@@ -239,13 +255,14 @@
     <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Programa de referidos</button>
     <button onclick="window.location.href='trivia.html'"><i class="fas fa-question"></i> Trivia</button>
     <button onclick="window.location.href='minipool.html'"><i class="fas fa-coins"></i> Mini Pool</button>
-    <button onclick="window.location.href='mysterybox.html'"><i class="fas fa-box-open"></i> Mystery Box</button>
-    <button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>
+    <button onclick="window.location.href='mysterybox.html'"><i class="fas fa-box"></i> Mystery Box</button>
+<button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>
     <button onclick="window.location.href='preguntasfrecuentes.html'"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>
     <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-alt"></i> Términos y condiciones</button>
     <button onclick="logout()"><i class="fas fa-power-off"></i> Cerrar sesión</button>
   </div>
-<div class="content" onclick="closeSidebar()">
+
+  <div class="content" onclick="closeSidebar()">
     <div id="welcome" class="section active">
       <h2>¡Bienvenido de nuevo!</h2>
       <div class="dashboard-cards">
@@ -279,11 +296,8 @@
     </div>
   </div>
 
-  <!-- Botón de ayuda flotante -->
   <div id="botAyuda" onclick="toggleAyuda()"><i class="fas fa-comment-dots"></i></div>
-
-  <!-- Modal de ayuda -->
-  <div id="modalAyuda">
+  <div id="modalAyuda" class="modal">
     <div class="contenido-ayuda">
       <h3>Soporte / Consulta</h3>
       <input type="email" id="emailAyuda" placeholder="Tu correo electrónico" />
@@ -298,9 +312,18 @@
     </div>
   </div>
 
+  <div id="botNotificacion" onclick="toggleNotificacion()"><i class="fas fa-bell"></i></div>
+  <div id="modalNotificacion" class="modal">
+    <div class="contenido-notificacion">
+      <h3>Notificaciones</h3>
+      <p>No tienes nuevas notificaciones.</p>
+      <span class="cerrar" onclick="toggleNotificacion()">&times;</span>
+    </div>
+  </div>
+
   <script>
     const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let currentUserId = null;
     let currentEmail = null;
@@ -392,6 +415,11 @@
 
     function toggleAyuda() {
       const modal = document.getElementById("modalAyuda");
+      modal.style.display = modal.style.display === "block" ? "none" : "block";
+    }
+
+    function toggleNotificacion() {
+      const modal = document.getElementById("modalNotificacion");
       modal.style.display = modal.style.display === "block" ? "none" : "block";
     }
 
