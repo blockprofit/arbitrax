@@ -1,208 +1,309 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Trivia Cripto</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: url('fondodepantallaprincipal1.jpeg') no-repeat center center fixed;
-      background-size: cover;
-      color: white;
-      min-height: 100vh;
-    }
-    .menu-toggle {
-      position: fixed;
-      top: 15px;
-      left: 15px;
-      font-size: 24px;
-      cursor: pointer;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 10px;
-      border-radius: 6px;
-      z-index: 1000;
-    }
-    .sidebar {
-      width: 230px;
-      background-color: rgba(0, 0, 0, 0.9);
-      height: 100vh;
-      position: fixed;
-      top: 0;
-      left: -230px;
-      transition: left 0.3s ease;
-      z-index: 999;
-      padding-top: 60px;
-    }
-    .sidebar.active { left: 0; }
-    .sidebar button {
-      background: none;
-      border: none;
-      color: white;
-      padding: 12px 20px;
-      width: 100%;
-      text-align: left;
-      font-size: 15px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      cursor: pointer;
-    }
-    .sidebar button:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-    }
-    .main {
-      margin-left: 0;
-      padding: 100px 20px 30px;
-      max-width: 800px;
-      margin: auto;
-    }
-    .niveles-container {
-      display: flex;
-      justify-content: space-around;
-      gap: 20px;
-      margin-bottom: 40px;
-      flex-wrap: wrap;
-    }
-    .nivel-card {
-      background: rgba(0, 195, 255, 0.2);
-      border: 2px solid #00c3ff;
-      border-radius: 16px;
-      padding: 25px 30px;
-      width: 220px;
-      text-align: center;
-      cursor: pointer;
-      transition: background 0.3s, transform 0.3s;
-      user-select: none;
-    }
-    .nivel-card:hover {
-      background: #00c3ff;
-      color: #000;
-      transform: scale(1.05);
-    }
-    .nivel-titulo {
-      font-size: 1.5rem;
-      font-weight: bold;
-      margin-bottom: 12px;
-    }
-    .nivel-entrada {
-      font-size: 1.2rem;
-      margin-bottom: 8px;
-    }
-    .btn-iniciar {
-      display: block;
-      margin: 0 auto;
-      padding: 12px 30px;
-      font-size: 1.1rem;
-      font-weight: 700;
-      background: #00c3ff;
-      border: none;
-      border-radius: 10px;
-      color: black;
-      cursor: pointer;
-      user-select: none;
-      transition: background 0.3s;
-    }
-    .btn-iniciar:hover {
-      background: #0099cc;
-    }
-    .pregunta {
-      background: rgba(0,0,0,0.7);
-      padding: 25px;
-      border-radius: 12px;
-      margin-top: 30px;
-    }
-    .temporizador {
-      font-size: 24px;
-      font-weight: bold;
-      text-align: right;
-      margin-bottom: 20px;
-      color: #00ffcc;
-    }
-    .pregunta-texto {
-      font-size: 1.4rem;
-      margin-bottom: 25px;
-    }
-    .opciones {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-    .opciones button {
-      background: #222;
-      color: white;
-      border: 2px solid #00c3ff;
-      border-radius: 8px;
-      padding: 14px;
-      font-size: 1.1rem;
-      cursor: pointer;
-      user-select: none;
-      transition: background 0.3s, color 0.3s;
-      text-align: center;
-    }
-    .opciones button:hover {
-      background: #00c3ff;
-      color: black;
-    }
-    .resultado {
-      text-align: center;
-      margin-top: 40px;
-      font-size: 1.4rem;
-      background: rgba(0, 195, 255, 0.3);
-      padding: 30px;
-      border-radius: 16px;
-      color: black;
-      font-weight: bold;
-    }
-  </style>
-</head>
-<body>
-  <div class="menu-toggle" onclick="toggleMenu()">☰</div>
-
-  <div class="sidebar" id="sidebar">
-    <button onclick="window.location.href='principal.html#welcome'"><i class="fas fa-home"></i> Inicio</button>
-    <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Referidos</button>
-    <button onclick="window.location.href='trivia.html'"><i class="fas fa-question"></i> Trivia</button>
-    <button onclick="window.location.href='minipool.html'"><i class="fas fa-water"></i> Mini Pool</button>
-    <button onclick="window.location.href='mysterybox.html'"><i class="fas fa-gift"></i> Mystery Box</button>
-    <button onclick="window.location.href='sorteo.html'"><i class="fas fa-bullseye"></i> Sorteo</button>
-    <button onclick="window.location.href='loteria.html'"><i class="fas fa-ticket-alt"></i> Lotería</button>
-    <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
+<html lang="es">  
+<head>  
+  <meta charset="UTF-8" />  
+  <meta name="viewport" content="width=device-width, initial-scale=1" />  
+  <title>Trivia Cripto</title>  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />  
+  <style>  
+    body {  
+      margin: 0;  
+      font-family: 'Segoe UI', sans-serif;  
+      background: url('fondodepantallaprincipal1.jpeg') no-repeat center center fixed;  
+      background-size: cover;  
+      color: white;  
+      min-height: 100vh;  
+    }  
+    .menu-toggle {  
+      position: fixed;  
+      top: 15px;  
+      left: 15px;  
+      font-size: 24px;  
+      cursor: pointer;  
+      background: rgba(0, 0, 0, 0.6);  
+      padding: 10px;  
+      border-radius: 6px;  
+      z-index: 1000;  
+    }  
+    .sidebar {  
+      width: 230px;  
+      background-color: rgba(0, 0, 0, 0.85);  
+      height: 100vh;  
+      padding-top: 60px;  
+      display: flex;  
+      flex-direction: column;  
+      position: fixed;  
+      top: 0;  
+      left: -230px;  
+      transition: left 0.3s ease;  
+      z-index: 999;  
+    }  
+    .sidebar.active { left: 0; }  
+    .sidebar button {  
+      background: none;  
+      border: none;  
+      color: white;  
+      padding: 12px 20px;  
+      width: 100%;  
+      text-align: left;  
+      font-size: 15px;  
+      display: flex;  
+      align-items: center;  
+      gap: 12px;  
+      cursor: pointer;  
+    }  
+    .sidebar button:hover {  
+      background-color: rgba(255, 255, 255, 0.1);  
+    }  
+    .sidebar button i {  
+      margin-right: 12px;  
+      width: 20px;  
+      text-align: center;  
+    }  
+    .main {  
+      margin-left: 0;  
+      padding: 100px 20px 30px;  
+      max-width: 800px;  
+      margin: auto;  
+    }  
+    .niveles-container {  
+      display: flex;  
+      justify-content: space-around;  
+      gap: 20px;  
+      margin-bottom: 40px;  
+      flex-wrap: wrap;  
+    }  
+    .nivel-card {  
+      background: rgba(0, 195, 255, 0.2);  
+      border: 2px solid #00c3ff;  
+      border-radius: 16px;  
+      padding: 25px 30px;  
+      width: 220px;  
+      text-align: center;  
+      cursor: pointer;  
+      transition: background 0.3s, transform 0.3s;  
+      user-select: none;  
+    }  
+    .nivel-card:hover {  
+      background: #00c3ff;  
+      color: #000;  
+      transform: scale(1.05);  
+    }  
+    .nivel-titulo {  
+      font-size: 1.5rem;  
+      font-weight: bold;  
+      margin-bottom: 12px;  
+    }  
+    .nivel-entrada {  
+      font-size: 1.2rem;  
+      margin-bottom: 8px;  
+    }  
+    .btn-iniciar {  
+      display: block;  
+      margin: 0 auto;  
+      padding: 12px 30px;  
+      font-size: 1.1rem;  
+      font-weight: 700;  
+      background: #00c3ff;  
+      border: none;  
+      border-radius: 10px;  
+      color: black;  
+      cursor: pointer;  
+      user-select: none;  
+      transition: background 0.3s;  
+    }  
+    .btn-iniciar:hover {  
+      background: #0099cc;  
+    }  
+    .pregunta {  
+      background: rgba(0,0,0,0.7);  
+      padding: 25px;  
+      border-radius: 12px;  
+      margin-top: 30px;  
+    }  
+    .temporizador {  
+      font-size: 24px;  
+      font-weight: bold;  
+      text-align: right;  
+      margin-bottom: 20px;  
+      color: #00ffcc;  
+    }  
+    .pregunta-texto {  
+      font-size: 1.4rem;  
+      margin-bottom: 25px;  
+    }  
+    .opciones {  
+      display: flex;  
+      flex-direction: column;  
+      gap: 15px;  
+    }  
+    .opciones button {  
+      background: #222;  
+      color: white;  
+      border: 2px solid #00c3ff;  
+      border-radius: 8px;  
+      padding: 14px;  
+      font-size: 1.1rem;  
+      cursor: pointer;  
+      user-select: none;  
+      transition: background 0.3s, color 0.3s;  
+      text-align: center;  
+    }  
+    .opciones button:hover {  
+      background: #00c3ff;  
+      color: black;  
+    }  
+    .resultado {  
+      text-align: center;  
+      margin-top: 40px;  
+      font-size: 1.4rem;  
+      background: rgba(0, 195, 255, 0.3);  
+      padding: 30px;  
+      border-radius: 16px;  
+      color: black;  
+      font-weight: bold;  
+    }  
+  </style>  
+</head>  
+<body>  
+  <div class="menu-toggle" onclick="toggleMenu()">☰</div>  
+  <div class="sidebar" id="sidebar">  
+    <button onclick="window.location.href='principal.html#welcome'"><i class="fas fa-home"></i> Inicio</button>  
+    <button onclick="window.location.href='principal.html#perfil'"><i class="fas fa-user"></i> Perfil</button>  
+    <button onclick="window.location.href='inversion.html'"><i class="fas fa-chart-line"></i> Nivel de inversión</button>  
+    <button onclick="window.location.href='deposito.html'"><i class="fas fa-wallet"></i> Depósito</button>  
+    <button onclick="window.location.href='retiro.html'"><i class="fas fa-hand-holding-usd"></i> Retiro</button>  
+    <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Programa de referidos</button>  
+    <button class="active"><i class="fas fa-question"></i> Trivia</button>  
+    <button onclick="window.location.href='minipool.html'"><i class="fas fa-coins"></i> Mini Pool</button>  
+    <button onclick="window.location.href='mysterybox.html'"><i class="fas fa-box-open"></i> Mystery Box</button>  
+    <button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>  
+    <button onclick="window.location.href='preguntasfrecuentes.html'"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>  
+    <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-contract"></i> Términos y condiciones</button>  
+    <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>  
   </div>
-<div class="main">
-    <h1 style="text-align:center; margin-bottom: 40px; font-weight: 900; font-size: 2rem; color:#00c3ff;">
-      GANA ENTRE UN ×5 Y HASTA UN ×10 DE TU APUESTA
-    </h1>
+<div class="main">  
+    <h1 style="text-align:center; margin-bottom: 40px; font-weight: 900; font-size: 2rem; color:#00c3ff;">  
+      GANA ENTRE UN ×5 Y HASTA UN ×10 DE TU APUESTA  
+    </h1>  
 
-    <div id="nivelesContainer" class="niveles-container">
-      <div class="nivel-card" data-nivel="basico" data-tiempo="15">
-        <div class="nivel-titulo">Nivel Básico</div>
-        <div class="nivel-entrada">Entrada: 2.000 ARS</div>
-      </div>
-      <div class="nivel-card" data-nivel="medio" data-tiempo="20">
-        <div class="nivel-titulo">Nivel Medio</div>
-        <div class="nivel-entrada">Entrada: 5.000 ARS</div>
-      </div>
-      <div class="nivel-card" data-nivel="avanzado" data-tiempo="20">
-        <div class="nivel-titulo">Nivel Avanzado</div>
-        <div class="nivel-entrada">Entrada: 10.000 ARS</div>
-      </div>
-    </div>
+    <div id="nivelesContainer" class="niveles-container">  
+      <div class="nivel-card" data-nivel="basico" data-tiempo="15">  
+        <div class="nivel-titulo">Nivel Básico</div>  
+        <div class="nivel-entrada">Entrada: 2.000 ARS</div>  
+      </div>  
+      <div class="nivel-card" data-nivel="medio" data-tiempo="20">  
+        <div class="nivel-titulo">Nivel Medio</div>  
+        <div class="nivel-entrada">Entrada: 5.000 ARS</div>  
+      </div>  
+      <div class="nivel-card" data-nivel="avanzado" data-tiempo="20">  
+        <div class="nivel-titulo">Nivel Avanzado</div>  
+        <div class="nivel-entrada">Entrada: 10.000 ARS</div>  
+      </div>  
+    </div>  
 
-    <button id="btnIniciar" class="btn-iniciar" disabled>Iniciar Trivia</button>
+    <button id="btnIniciar" class="btn-iniciar" disabled>Iniciar Trivia</button>  
 
-    <div class="pregunta" id="triviaBox" style="display:none">
-      <div class="temporizador">Tiempo: <span id="tiempo">0</span>s</div>
-      <div class="pregunta-texto" id="preguntaText">Pregunta aquí</div>
-      <div class="opciones" id="opcionesBox"></div>
-    </div>
+    <div class="pregunta" id="triviaBox" style="display:none">  
+      <div class="temporizador">Tiempo: <span id="tiempo">0</span>s</div>  
+      <div class="pregunta-texto" id="preguntaText">Pregunta aquí</div>  
+      <div class="opciones" id="opcionesBox"></div>  
+    </div>  
 
-    <div id="resultadoFinal" class="resultado" style="display:none;"></div>
-  </div>
+    <div id="resultadoFinal" class="resultado" style="display:none;"></div>  
+  </div>  
 
   <script>
+    function toggleMenu() {
+      document.getElementById("sidebar").classList.toggle("active");
+    }
+
+    function logout() {
+      window.location.href = "index.html";
+    }
+
+    const btnIniciar = document.getElementById("btnIniciar");
+    const triviaBox = document.getElementById("triviaBox");
+    const preguntaText = document.getElementById("preguntaText");
+    const opcionesBox = document.getElementById("opcionesBox");
+    const resultadoFinal = document.getElementById("resultadoFinal");
+    const tiempoSpan = document.getElementById("tiempo");
+
+    let preguntas = [];
+    let indice = 0;
+    let puntaje = 0;
+    let temporizador;
+    let tiempoRestante = 0;
+
+    const niveles = document.querySelectorAll(".nivel-card");
+    niveles.forEach(nivel => {
+      nivel.addEventListener("click", () => {
+        niveles.forEach(n => n.style.borderColor = "#00c3ff");
+        nivel.style.borderColor = "#00ffcc";
+
+        const tipo = nivel.dataset.nivel;
+        const tiempo = parseInt(nivel.dataset.tiempo);
+
+        if (tipo === "basico") preguntas = [...preguntasBasico];
+        else if (tipo === "medio") preguntas = [...preguntasMedio];
+        else if (tipo === "avanzado") preguntas = [...preguntasAvanzado];
+
+        preguntas.sort(() => Math.random() - 0.5);
+        tiempoRestante = tiempo;
+        btnIniciar.disabled = false;
+      });
+    });
+
+    btnIniciar.addEventListener("click", () => {
+      indice = 0;
+      puntaje = 0;
+      resultadoFinal.style.display = "none";
+      triviaBox.style.display = "block";
+      btnIniciar.disabled = true;
+      mostrarPregunta();
+      iniciarTemporizador();
+    });
+
+    function mostrarPregunta() {
+      if (indice >= preguntas.length) {
+        mostrarResultado();
+        return;
+      }
+      const actual = preguntas[indice];
+      preguntaText.textContent = actual.pregunta;
+      opcionesBox.innerHTML = "";
+
+      actual.opciones.forEach(opcion => {
+        const btn = document.createElement("button");
+        btn.textContent = opcion;
+        btn.onclick = () => {
+          if (opcion === actual.respuesta) puntaje++;
+          indice++;
+          mostrarPregunta();
+        };
+        opcionesBox.appendChild(btn);
+      });
+    }
+
+    function mostrarResultado() {
+      triviaBox.style.display = "none";
+      resultadoFinal.style.display = "block";
+      resultadoFinal.innerHTML = `Respondiste correctamente ${puntaje} de ${preguntas.length} preguntas.`;
+      clearInterval(temporizador);
+    }
+
+    function iniciarTemporizador() {
+      tiempoSpan.textContent = tiempoRestante;
+      temporizador = setInterval(() => {
+        tiempoRestante--;
+        tiempoSpan.textContent = tiempoRestante;
+        if (tiempoRestante <= 0) {
+          clearInterval(temporizador);
+          mostrarResultado();
+        }
+      }, 1000);
+    }
+
     const preguntasBasico = [
       { pregunta: "¿Qué es Bitcoin?", opciones: ["Un banco", "Una criptomoneda", "Una app", "Una empresa"], respuesta: "Una criptomoneda" },
       { pregunta: "¿Qué es un wallet?", opciones: ["Una moneda", "Una billetera digital", "Una app de comida"], respuesta: "Una billetera digital" },
@@ -239,113 +340,8 @@
       { pregunta: "¿Qué es un rug pull?", opciones: ["Estafa", "Token valioso", "Minería"], respuesta: "Estafa" },
       { pregunta: "¿Qué significa Layer 2?", opciones: ["Capa extra para velocidad", "Segunda app", "Token duplicado"], respuesta: "Capa extra para velocidad" },
       { pregunta: "¿Qué es yield farming?", opciones: ["Cultivar tokens", "Recompensas por staking", "NFTs"], respuesta: "Recompensas por staking" },
-      { pregunta: "¿Qué es la liquidez?", opciones: ["Cantidad disponible", "Red lenta", "App"], respuesta: "Cantidad disponible" },
-      { pregunta: "¿Qué es una seed phrase?", opciones: ["Frase para recuperar wallet", "Clave de red", "Nombre NFT"], respuesta: "Frase para recuperar wallet" },
-      { pregunta: "¿Qué significa HODL?", opciones: ["Mantener criptos", "Vender urgente", "Hackear"], respuesta: "Mantener criptos" },
-      { pregunta: "¿Qué es un bridge?", opciones: ["Puente entre blockchains", "Wallet", "Token estable"], respuesta: "Puente entre blockchains" },
-      { pregunta: "¿Qué es una cold wallet?", opciones: ["Offline segura", "App web", "Token"], respuesta: "Offline segura" },
-      { pregunta: "¿Qué es una hot wallet?", opciones: ["Wallet conectada", "Frase secreta", "Bridge"], respuesta: "Wallet conectada" },
-      { pregunta: "¿Qué protocolo usa BEP20?", opciones: ["Binance Smart Chain", "Ethereum", "Solana"], respuesta: "Binance Smart Chain" },
-      { pregunta: "¿Qué hace un DAO token?", opciones: ["Voto en DAO", "NFT", "Gas Fee"], respuesta: "Voto en DAO" }
+      { pregunta: "¿Qué es la liquidez?", opciones: ["Cantidad disponible", "Red lenta", "App"], respuesta: "Cantidad disponible" }
     ];
-
-    let preguntas = [], actual = 0, tiempo = 0, timer = null, correctas = 0;
-    let nivelSeleccionado = null;
-    const nivelesContainer = document.getElementById('nivelesContainer');
-    const btnIniciar = document.getElementById('btnIniciar');
-    const triviaBox = document.getElementById('triviaBox');
-    const preguntaText = document.getElementById('preguntaText');
-    const opcionesBox = document.getElementById('opcionesBox');
-    const tiempoDisplay = document.getElementById('tiempo');
-    const resultadoFinal = document.getElementById('resultadoFinal');
-
-    nivelesContainer.addEventListener('click', e => {
-      const card = e.target.closest('.nivel-card');
-      if (!card) return;
-      document.querySelectorAll('.nivel-card').forEach(c => {
-        c.style.background = "rgba(0, 195, 255, 0.2)";
-        c.style.color = "white";
-      });
-      card.style.background = "#00c3ff";
-      card.style.color = "black";
-      nivelSeleccionado = card.getAttribute('data-nivel');
-      btnIniciar.disabled = false;
-    });
-
-    btnIniciar.addEventListener('click', () => {
-      if (!nivelSeleccionado) return;
-      if (nivelSeleccionado === 'basico') preguntas = preguntasBasico;
-      else if (nivelSeleccionado === 'medio') preguntas = preguntasMedio;
-      else if (nivelSeleccionado === 'avanzado') preguntas = preguntasAvanzado;
-      else return;
-      actual = 0;
-      correctas = 0;
-      nivelesContainer.style.display = 'none';
-      btnIniciar.style.display = 'none';
-      triviaBox.style.display = 'block';
-      mostrarPregunta();
-    });
-
-    function mostrarPregunta() {
-      if (actual >= preguntas.length) return terminarTrivia();
-      const p = preguntas[actual];
-      preguntaText.textContent = `${actual + 1}. ${p.pregunta}`;
-      opcionesBox.innerHTML = '';
-      p.opciones.forEach(opcion => {
-        const btn = document.createElement('button');
-        btn.textContent = opcion;
-        btn.onclick = () => {
-          clearInterval(timer);
-          if (opcion === p.respuesta) correctas++;
-          actual++;
-          mostrarPregunta();
-        };
-        opcionesBox.appendChild(btn);
-      });
-      tiempo = 15;
-      tiempoDisplay.textContent = tiempo;
-      clearInterval(timer);
-      timer = setInterval(() => {
-        tiempo--;
-        tiempoDisplay.textContent = tiempo;
-        if (tiempo <= 0) {
-          clearInterval(timer);
-          actual++;
-          mostrarPregunta();
-        }
-      }, 1000);
-    }
-
-    function terminarTrivia() {
-      triviaBox.style.display = 'none';
-      resultadoFinal.style.display = 'block';
-      resultadoFinal.innerHTML = `
-        🎉 <strong>¡Felicidades!</strong><br><br>
-        Arbitrax premia tu conocimiento.<br>
-        Respuestas correctas: ${correctas} de ${preguntas.length}.<br><br>
-        Volverás al inicio en 10 segundos...
-      `;
-      setTimeout(() => {
-        resultadoFinal.style.display = 'none';
-        nivelesContainer.style.display = 'flex';
-        btnIniciar.style.display = 'block';
-        btnIniciar.disabled = true;
-        nivelSeleccionado = null;
-        document.querySelectorAll('.nivel-card').forEach(c => {
-          c.style.background = "rgba(0, 195, 255, 0.2)";
-          c.style.color = "white";
-        });
-      }, 10000);
-    }
-
-    function toggleMenu() {
-      document.getElementById("sidebar").classList.toggle("active");
-    }
-
-    function logout() {
-      alert('Cerrando sesión...');
-      window.location.href = 'index.html';
-    }
   </script>
-</body>
+</body>  
 </html>
