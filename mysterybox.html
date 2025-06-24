@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Caja Misteriosa</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding-top: 100px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .mistery-container {
+      background: rgba(0,0,0,0.5);
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 0 20px rgba(255,255,255,0.2);
+    }
+
+    .box {
+      width: 120px;
+      height: 120px;
+      background: url('https://cdn-icons-png.flaticon.com/512/3081/3081648.png') no-repeat center center;
+      background-size: contain;
+      margin: 20px auto;
+      animation: pulse 1s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.1); }
+    }
+
+    button {
+      background: #00a8ff;
+      color: white;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #007acc;
+    }
+
+    .resultado {
+      margin-top: 25px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #00ffcc;
+    }
+
+    .menu-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      font-size: 22px;
+      cursor: pointer;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    .menu {
+      display: none;
+      position: fixed;
+      top: 60px;
+      left: 20px;
+      background: rgba(0, 0, 0, 0.95);
+      padding: 10px;
+      border-radius: 10px;
+      width: 240px;
+      z-index: 101;
+      flex-direction: column;
+    }
+
+    .menu button {
+      background: none;
+      border: none;
+      color: white;
+      padding: 10px;
+      text-align: left;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .menu button:hover {
+      background-color: rgba(255,255,255,0.1);
+    }
+  </style>
+</head>
+<body>
+
+  <button class="menu-btn" onclick="toggleMenu()">☰</button>
+
+  <div class="menu" id="mainMenu">
+    <button onclick="window.location.href='principal.html#welcome'"><i class="fas fa-home"></i> Inicio</button>
+    <button onclick="window.location.href='principal.html#perfil'"><i class="fas fa-user"></i> Perfil</button>
+    <button onclick="window.location.href='inversion.html'"><i class="fas fa-chart-line"></i> Nivel de inversión</button>
+    <button onclick="window.location.href='deposito.html'"><i class="fas fa-wallet"></i> Depósito</button>
+    <button onclick="window.location.href='retiro.html'"><i class="fas fa-arrow-circle-up"></i> Retiro</button>
+    <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Programa de referidos</button>
+    <button onclick="window.location.href='trivia.html'"><i class="fas fa-question"></i> Trivia</button>
+    <button onclick="window.location.href='minipool.html'"><i class="fas fa-fire"></i> Mini Pool</button>
+    <button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>
+    <button onclick="window.location.href='preguntasfrecuentes.html'"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>
+    <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-alt"></i> Términos y condiciones</button>
+    <button onclick="logout()"><i class="fas fa-power-off"></i> Cerrar sesión</button>
+  </div>
+
+  <h1>🎁 Caja Misteriosa</h1>
+
+  <div class="mistery-container">
+    <p>¡Abrí tu caja y descubrí premios especiales! Podés ganar entradas gratis, bonificaciones o premios en efectivo.</p>
+    <div class="box"></div>
+    <button onclick="abrirCaja()">Abrir Caja ($5000)</button>
+    <div class="resultado" id="resultado"></div>
+  </div>
+
+  <script>
+    const premios = [
+      "🎉 Entrada gratis a la Trivia Básica",
+      "🔥 Entrada gratis a la Mini Pool Básica",
+      "💰 Premio en efectivo: $2000",
+      "🚀 Bonificación del 10% por 7 días",
+      "🙁 Caja vacía. ¡Mejor suerte la próxima!"
+    ];
+
+    function abrirCaja() {
+      const resultado = premios[Math.floor(Math.random() * premios.length)];
+      document.getElementById("resultado").textContent = resultado;
+    }
+
+    function toggleMenu() {
+      const menu = document.getElementById("mainMenu");
+      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+    }
+
+    async function logout() {
+      const client = supabase.createClient(
+        'https://ovulezkcxwrjvyxlxsdv.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI'
+      );
+      await client.auth.signOut();
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>
