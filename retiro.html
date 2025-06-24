@@ -148,15 +148,15 @@
     <button onclick="window.location.href='principal.html#perfil'"><i class="fas fa-user"></i> Perfil</button>
     <button onclick="window.location.href='inversion.html'"><i class="fas fa-chart-line"></i> Nivel de inversión</button>
     <button onclick="window.location.href='deposito.html'"><i class="fas fa-wallet"></i> Depósito</button>
-    <button class="active"><i class="fas fa-arrow-circle-up"></i> Retiro</button>
+    <button class="active"><i class="fas fa-hand-holding-usd"></i> Retiro</button>
     <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Programa de referidos</button>
-    <button onclick="window.location.href='trivia.html'"><i class="fas fa-gamepad"></i> Trivia</button>
-    <button onclick="window.location.href='minipool.html'"><i class="fas fa-dice'></i> Mini Pool</button>
+    <button onclick="window.location.href='trivia.html'"><i class="fas fa-question"></i> Trivia</button>
+    <button onclick="window.location.href='minipool.html'"><i class="fas fa-coins"></i> Mini Pool</button>
     <button onclick="window.location.href='mysterybox.html'"><i class="fas fa-box-open"></i> Mystery Box</button>
     <button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>
     <button onclick="window.location.href='preguntasfrecuentes.html'"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>
-    <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-alt"></i> Términos y condiciones</button>
-    <button onclick="logout()"><i class="fas fa-power-off"></i> Cerrar sesión</button>
+    <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-contract"></i> Términos y condiciones</button>
+    <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
   </div>
 
   <div class="content" onclick="closeSidebar()">
@@ -166,13 +166,14 @@
       <input type="text" id="ret-apellido" placeholder="Apellido" />
       <input type="text" id="ret-dni" placeholder="DNI" />
       <input type="number" id="ret-cantidad" placeholder="Monto a retirar" />
-      <label>Tipo de retiro:</label><br>
+<label>Tipo de retiro:</label><br>
       <input type="radio" name="tipo-retiro" value="ARS" onchange="toggleMetodoRetiro()"> ARS
       <input type="radio" name="tipo-retiro" value="USDT" onchange="toggleMetodoRetiro()"> USDT (BEP20)
 
       <input type="text" id="ret-cbu" placeholder="CBU" style="display:none" />
       <input type="text" id="ret-usdt" placeholder="Dirección USDT" style="display:none" />
-<button onclick="enviarRetiro()">Enviar solicitud</button>
+
+      <button onclick="enviarRetiro()">Enviar solicitud</button>
     </div>
 
     <h3>Historial de Retiros</h3>
