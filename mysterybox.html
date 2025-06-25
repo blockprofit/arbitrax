@@ -13,72 +13,51 @@
       background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364);
       color: white;
       display: flex;
-      min-height: 100vh;
-    }
-
-    .menu-toggle {
-      position: fixed;
-      top: 15px;
-      left: 15px;
-      font-size: 24px;
-      cursor: pointer;
-      z-index: 1001;
-      background-color: rgba(0, 0, 0, 0.6);
-      padding: 10px 15px;
-      border-radius: 6px;
-    }
-
-    .sidebar {
-      width: 230px;
-      background-color: rgba(0, 0, 0, 0.85);
-      height: 100vh;
-      padding-top: 60px;
-      display: flex;
       flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding-top: 100px;
+    }
+
+    .menu-btn {
       position: fixed;
-      top: 0;
-      left: 0;
-      transform: translateX(-100%);
-      transition: transform 0.3s ease;
+      top: 20px;
+      left: 20px;
+      font-size: 22px;
+      cursor: pointer;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      z-index: 1001;
+    }
+
+    .menu {
+      display: none;
+      position: fixed;
+      top: 60px;
+      left: 20px;
+      background: rgba(0, 0, 0, 0.95);
+      padding: 10px;
+      border-radius: 10px;
+      width: 240px;
       z-index: 1000;
+      flex-direction: column;
     }
 
-    .sidebar.active {
-      transform: translateX(0%);
-    }
-
-    .sidebar button {
+    .menu button {
       background: none;
       border: none;
       color: white;
-      font-size: 15px;
-      padding: 12px 20px;
+      padding: 10px;
       text-align: left;
+      font-size: 16px;
       cursor: pointer;
-      width: 100%;
-      display: flex;
-      align-items: center;
     }
 
-    .sidebar button:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-    }
-
-    .sidebar button i {
-      margin-right: 12px;
-      width: 20px;
-      text-align: center;
-    }
-
-    .content {
-      flex: 1;
-      padding: 30px;
-      margin-left: 0;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding-top: 100px;
+    .menu button:hover {
+      background-color: rgba(255,255,255,0.1);
     }
 
     h1 {
@@ -86,22 +65,24 @@
       text-align: center;
     }
 
-    .mistery-container {
-      background: rgba(0,0,0,0.5);
-      padding: 30px;
-      border-radius: 15px;
-      text-align: center;
-      max-width: 400px;
-      width: 90%;
-      box-shadow: 0 0 20px rgba(255,255,255,0.2);
+    .cofre-container {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      margin: 20px auto;
+      cursor: pointer;
+      transition: transform 0.3s ease;
     }
 
-    .box {
-      width: 120px;
-      height: 120px;
+    .cofre-container:hover {
+      transform: scale(1.05);
+    }
+
+    .cofre {
+      width: 100%;
+      height: 100%;
       background: url('https://cdn-icons-png.flaticon.com/512/3081/3081648.png') no-repeat center center;
       background-size: contain;
-      margin: 20px auto;
       animation: pulse 1s infinite alternate;
     }
 
@@ -110,7 +91,55 @@
       to { transform: scale(1.1); }
     }
 
-    button {
+    .card-container {
+      perspective: 1000px;
+      width: 250px;
+      height: 150px;
+      margin-top: 30px;
+      display: none;
+    }
+
+    .card {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.8s;
+    }
+
+    .card.flip {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .front {
+      background-image: url('fondodepantallaprincipal1.jpeg');
+      background-size: cover;
+      background-position: center;
+      color: white;
+    }
+
+    .back {
+      background: rgba(0,0,0,0.8);
+      transform: rotateY(180deg);
+      color: #00ffcc;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .boton-abrir {
       background: #00a8ff;
       color: white;
       padding: 12px 25px;
@@ -121,22 +150,15 @@
       cursor: pointer;
     }
 
-    button:hover {
+    .boton-abrir:hover {
       background: #007acc;
     }
-
-    .resultado {
-      margin-top: 25px;
-      font-size: 18px;
-      font-weight: bold;
-      color: #00ffcc;
-    }
-</style>
+  </style>
 </head>
 <body>
-  <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
+  <button class="menu-btn" onclick="toggleMenu()">☰</button>
 
-  <div class="sidebar" id="sidebar">
+  <div class="menu" id="mainMenu">
     <button onclick="window.location.href='principal.html#welcome'"><i class="fas fa-home"></i> Inicio</button>
     <button onclick="window.location.href='principal.html#perfil'"><i class="fas fa-user"></i> Perfil</button>
     <button onclick="window.location.href='inversion.html'"><i class="fas fa-chart-line"></i> Nivel de inversión</button>
@@ -145,20 +167,21 @@
     <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Programa de referidos</button>
     <button onclick="window.location.href='trivia.html'"><i class="fas fa-question"></i> Trivia</button>
     <button onclick="window.location.href='minipool.html'"><i class="fas fa-coins"></i> Mini Pool</button>
-    <button class="active"><i class="fas fa-box-open"></i> Mystery Box</button>
+    <button onclick="window.location.href='mysterybox.html'"><i class="fas fa-box-open"></i> Mystery Box</button>
     <button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>
     <button onclick="window.location.href='preguntasfrecuentes.html'"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>
     <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-contract"></i> Términos y condiciones</button>
     <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
   </div>
 
-  <div class="content" onclick="closeSidebar()">
-    <h1>🎁 Caja Misteriosa</h1>
-    <div class="mistery-container">
-      <p>¡Abrí tu caja y descubrí premios especiales! Podés ganar entradas gratis, bonificaciones o premios en efectivo.</p>
-      <div class="box"></div>
-      <button onclick="abrirCaja()">Abrir Caja ($5000)</button>
-      <div class="resultado" id="resultado"></div>
+  <h1>🎁 Caja Misteriosa</h1>
+  <div class="cofre-container" onclick="abrirCaja()">
+    <div class="cofre" id="cofre"></div>
+  </div>
+<div class="card-container" id="cardContainer">
+    <div class="card" id="card">
+      <div class="card-face front">Premio oculto...</div>
+      <div class="card-face back" id="resultado"></div>
     </div>
   </div>
 
@@ -171,17 +194,9 @@
       "🙁 Caja vacía. ¡Mejor suerte la próxima!"
     ];
 
-    function abrirCaja() {
-      const resultado = premios[Math.floor(Math.random() * premios.length)];
-      document.getElementById("resultado").textContent = resultado;
-    }
-
-    function toggleSidebar() {
-      document.getElementById("sidebar").classList.toggle("active");
-    }
-
-    function closeSidebar() {
-      document.getElementById("sidebar").classList.remove("active");
+    function toggleMenu() {
+      const menu = document.getElementById("mainMenu");
+      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
     }
 
     async function logout() {
@@ -191,6 +206,19 @@
       );
       await client.auth.signOut();
       window.location.href = "index.html";
+    }
+
+    function abrirCaja() {
+      const premio = premios[Math.floor(Math.random() * premios.length)];
+      document.getElementById("resultado").textContent = premio;
+
+      const card = document.getElementById("card");
+      const container = document.getElementById("cardContainer");
+
+      container.style.display = "block";
+      setTimeout(() => {
+        card.classList.add("flip");
+      }, 300);
     }
   </script>
 </body>
