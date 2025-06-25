@@ -4,6 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login con Email - Supabase</title>
+
+  <!-- Open Graph Meta Tags -->
+  <meta property="og:title" content="Arbitrax - Plataforma de inversión cripto" />
+  <meta property="og:description" content="Invertí y multiplicá tu capital con nuestras funciones: inversión, trivia, mini pool y más." />
+  <meta property="og:image" content="https://arbitrax.vercel.app/imagenes/logo-preview.png" />
+  <meta property="og:url" content="https://arbitrax.vercel.app/" />
+  <meta property="og:type" content="website" />
+
+  <!-- Twitter Card (opcional) -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Arbitrax - Plataforma de inversión cripto">
+  <meta name="twitter:description" content="Sumate al ecosistema de inversión más dinámico y transparente.">
+  <meta name="twitter:image" content="https://arbitrax.vercel.app/imagenes/logo-preview.png">
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <style>
     * {
@@ -176,8 +190,7 @@
       </div>
     </div>
   </div>
-
-  <script>
+<script>
     const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
