@@ -13,12 +13,105 @@
       background-image: url('fondodepantallaprincipal1.jpeg');
       background-size: cover;
       background-position: center;
+      background-repeat: no-repeat;
       color: white;
       display: flex;
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      padding-top: 80px;
+      padding-top: 100px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .mistery-container {
+      background: rgba(0,0,0,0.5);
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 0 20px rgba(255,255,255,0.2);
+    }
+
+    .chest {
+      width: 140px;
+      height: 140px;
+      background-image: url('https://cdn-icons-png.flaticon.com/512/3468/3468354.png'); /* Cofre cerrado */
+      background-size: cover;
+      background-position: center;
+      margin: 0 auto;
+      transition: transform 0.6s ease;
+      cursor: pointer;
+    }
+
+    .chest.open {
+      background-image: url('https://cdn-icons-png.flaticon.com/512/3468/3468374.png'); /* Cofre abierto */
+    }
+
+    .card-container {
+      perspective: 1000px;
+      margin-top: 30px;
+      display: none;
+    }
+
+    .card {
+      width: 240px;
+      height: 140px;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 1s;
+    }
+
+    .card.flip {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 12px;
+      backface-visibility: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      font-size: 16px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .front {
+      background-image: url('fondodepantallaprincipal1.jpeg');
+      background-size: cover;
+      background-position: center;
+      border: 2px solid #00ffc8;
+    }
+
+    .back {
+      background: #00a8ff;
+      color: white;
+      transform: rotateY(180deg);
+    }
+
+    .abrir-btn {
+      background: #00a8ff;
+      color: white;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .abrir-btn:hover {
+      background: #007acc;
     }
 
     .menu-btn {
@@ -32,7 +125,7 @@
       border: none;
       padding: 10px;
       border-radius: 8px;
-      z-index: 10;
+      z-index: 1001;
     }
 
     .menu {
@@ -44,7 +137,7 @@
       padding: 10px;
       border-radius: 10px;
       width: 240px;
-      z-index: 10;
+      z-index: 101;
       flex-direction: column;
     }
 
@@ -61,96 +154,11 @@
     .menu button:hover {
       background-color: rgba(255,255,255,0.1);
     }
-
-    h1 {
-      margin: 20px 0;
-      text-align: center;
-    }
-
-    .chest-container {
-      position: relative;
-      width: 200px;
-      height: 200px;
-      margin: 30px auto;
-      cursor: pointer;
-    }
-
-    .chest {
-      width: 100%;
-      height: 100%;
-      background: url('https://cdn-icons-png.flaticon.com/512/3081/3081648.png') no-repeat center;
-      background-size: contain;
-      transition: transform 1s ease;
-    }
-
-    .chest.open {
-      transform: rotateX(75deg) scale(1.1);
-    }
-
-    .card {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 150px;
-      height: 100px;
-      transform: translate(-50%, -50%) rotateY(0deg);
-      transform-style: preserve-3d;
-      transition: transform 1s;
-      display: none;
-      perspective: 800px;
-    }
-
-    .card.show {
-      display: block;
-      animation: rise 0.6s ease-out forwards;
-    }
-
-    .card-inner {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      transform-style: preserve-3d;
-      transition: transform 0.6s;
-    }
-
-    .card.flipped .card-inner {
-      transform: rotateY(180deg);
-    }
-
-    .card-front, .card-back {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border-radius: 12px;
-      backface-visibility: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      font-weight: bold;
-    }
-
-    .card-front {
-      background: url('fondodepantallaprincipal1.jpeg');
-      background-size: cover;
-    }
-
-    .card-back {
-      background: #000000dd;
-      color: #00ffc3;
-      transform: rotateY(180deg);
-      padding: 10px;
-      text-align: center;
-    }
-
-    @keyframes rise {
-      from { transform: translate(-50%, 50%); opacity: 0; }
-      to { transform: translate(-50%, -100%); opacity: 1; }
-    }
   </style>
 </head>
 <body>
-<button class="menu-btn" onclick="toggleMenu()">☰</button>
+
+  <button class="menu-btn" onclick="toggleMenu()">☰</button>
 
   <div class="menu" id="mainMenu">
     <button onclick="window.location.href='principal.html#welcome'"><i class="fas fa-home"></i> Inicio</button>
@@ -170,17 +178,18 @@
 
   <h1>🎁 Caja Misteriosa</h1>
 
-  <div class="chest-container" onclick="abrirCaja()">
-    <div class="chest" id="chest"></div>
-    <div class="card" id="card">
-      <div class="card-inner">
-        <div class="card-front"></div>
-        <div class="card-back" id="resultado"></div>
+  <div class="mistery-container">
+    <p>¡Abrí tu cofre y descubrí premios especiales! Podés ganar entradas gratis, bonificaciones o premios en efectivo.</p>
+    <div class="chest" id="chest" onclick="abrirCaja()"></div>
+    <button class="abrir-btn" onclick="abrirCaja()">Abrir Caja ($5000)</button>
+    <div class="card-container" id="cardContainer">
+      <div class="card" id="card">
+        <div class="card-face front"></div>
+        <div class="card-face back" id="resultado"></div>
       </div>
     </div>
   </div>
-
-  <script>
+<script>
     const premios = [
       "🎉 Entrada gratis a la Trivia Básica",
       "🔥 Entrada gratis a la Mini Pool Básica",
@@ -189,28 +198,37 @@
       "🙁 Caja vacía. ¡Mejor suerte la próxima!"
     ];
 
-    function toggleMenu() {
-      const menu = document.getElementById("mainMenu");
-      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
-    }
+    let cajaAbierta = false;
 
     function abrirCaja() {
+      if (cajaAbierta) return;
+
+      cajaAbierta = true;
+
       const chest = document.getElementById("chest");
       const card = document.getElementById("card");
       const resultado = document.getElementById("resultado");
+      const cardContainer = document.getElementById("cardContainer");
 
-      const premio = premios[Math.floor(Math.random() * premios.length)];
-
+      // Cambiar imagen del cofre (cerrado → abierto)
       chest.classList.add("open");
 
+      // Mostrar tarjeta con animación después de medio segundo
       setTimeout(() => {
-        card.classList.add("show");
+        const premio = premios[Math.floor(Math.random() * premios.length)];
         resultado.textContent = premio;
+        cardContainer.style.display = "block";
 
+        // Flip de la tarjeta
         setTimeout(() => {
-          card.classList.add("flipped");
-        }, 800);
-      }, 1000);
+          card.classList.add("flip");
+        }, 500);
+      }, 700);
+    }
+
+    function toggleMenu() {
+      const menu = document.getElementById("mainMenu");
+      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
     }
 
     async function logout() {
