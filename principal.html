@@ -241,244 +241,269 @@
       margin-top: 10px;
       padding-left: 20px;
     }
+
+    .saldo-disponible-box {
+      background-color: rgba(255,255,255,0.1);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 16px;
+      color: #00ffcc;
+      font-weight: bold;
+      display: inline-block;
+      margin-left: 20px;
+      vertical-align: middle;
+    }
+
   </style>
 </head>
 <body>
 <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
 
-  <div class="sidebar" id="sidebar">
-    <button onclick="showSection('welcome')" class="active"><i class="fas fa-home"></i> Inicio</button>
-    <button onclick="showSection('perfil')"><i class="fas fa-user"></i> Perfil</button>
-    <button onclick="window.location.href='inversion.html'"><i class="fas fa-chart-line"></i> Nivel de inversión</button>
-    <button onclick="window.location.href='deposito.html'"><i class="fas fa-wallet"></i> Depósito</button>
-    <button onclick="window.location.href='retiro.html'"><i class="fas fa-arrow-circle-up"></i> Retiro</button>
-    <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Programa de referidos</button>
-    <button onclick="window.location.href='trivia.html'"><i class="fas fa-question"></i> Trivia</button>
-    <button onclick="window.location.href='minipool.html'"><i class="fas fa-coins"></i> Mini Pool</button>
-    <button onclick="window.location.href='mysterybox.html'"><i class="fas fa-box"></i> Mystery Box</button>
-<button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>
-    <button onclick="window.location.href='preguntasfrecuentes.html'"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>
-    <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-alt"></i> Términos y condiciones</button>
-    <button onclick="logout()"><i class="fas fa-power-off"></i> Cerrar sesión</button>
-  </div>
+<div class="sidebar" id="sidebar">
+  <button onclick="showSection('welcome')" class="active"><i class="fas fa-home"></i> Inicio</button>
+  <button onclick="showSection('perfil')"><i class="fas fa-user"></i> Perfil</button>
+  <button onclick="window.location.href='inversion.html'"><i class="fas fa-chart-line"></i> Nivel de inversión</button>
+  <button onclick="window.location.href='deposito.html'"><i class="fas fa-wallet"></i> Depósito</button>
+  <button onclick="window.location.href='retiro.html'"><i class="fas fa-arrow-circle-up"></i> Retiro</button>
+  <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Programa de referidos</button>
+  <button onclick="window.location.href='trivia.html'"><i class="fas fa-question"></i> Trivia</button>
+  <button onclick="window.location.href='minipool.html'"><i class="fas fa-coins"></i> Mini Pool</button>
+  <button onclick="window.location.href='mysterybox.html'"><i class="fas fa-box"></i> Mystery Box</button>
+  <button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>
+  <button onclick="window.location.href='preguntasfrecuentes.html'"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>
+  <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-alt"></i> Términos y condiciones</button>
+  <button onclick="logout()"><i class="fas fa-power-off"></i> Cerrar sesión</button>
+</div>
 
-  <div class="content" onclick="closeSidebar()">
-    <div id="welcome" class="section active">
-      <h2>¡Bienvenido de nuevo!</h2>
-      <div class="dashboard-cards">
-        <div class="card" style="border-color: #00d4ff;">
-          <h3>Total Invertido</h3>
-          <p id="total-invertido" style="font-size: 28px; color: #00d4ff; font-weight: bold;">$0</p>
-        </div>
-        <div class="card" style="border-color: #c56cf0;">
-          <h3>Ganancias</h3>
-          <p id="ganancias" style="font-size: 28px; color: #c56cf0; font-weight: bold;">$0</p>
-        </div>
-        <div class="card" style="border-color: #ff6b81;">
-          <h3>Próximo Pago</h3>
-          <p id="proximo-pago" style="font-size: 28px; color: #ff6b81; font-weight: bold;">$0</p>
-        </div>
+<div class="content" onclick="closeSidebar()">
+  <div id="welcome" class="section active">
+    <h2 style="display:flex; align-items:center; justify-content:space-between;">
+      ¡Bienvenido de nuevo!
+      <span class="saldo-disponible-box">
+        Saldo disponible: <span id="saldo-disponible">$0</span>
+      </span>
+    </h2>
+
+    <div class="dashboard-cards">
+      <div class="card" style="border-color: #00d4ff;">
+        <h3>Total Invertido</h3>
+        <p id="total-invertido" style="font-size: 28px; color: #00d4ff; font-weight: bold;">$0</p>
       </div>
-      <canvas id="graficaGanancias"></canvas>
-    </div>
-
-    <div id="perfil" class="section">
-      <h2>Perfil</h2>
-      <div class="formulario">
-        <input type="text" id="nombres" placeholder="Nombres" />
-        <input type="text" id="apellido" placeholder="Apellido" />
-        <input type="text" id="dni" placeholder="DNI" />
-        <input type="text" id="celular" placeholder="Número de celular" />
-        <input type="email" id="email" placeholder="Correo electrónico" disabled />
-        <input type="text" id="cbu" placeholder="CBU o Dirección USDT (BEP20)" />
-        <button onclick="guardarPerfil()">Guardar</button>
+      <div class="card" style="border-color: #c56cf0;">
+        <h3>Ganancias</h3>
+        <p id="ganancias" style="font-size: 28px; color: #c56cf0; font-weight: bold;">$0</p>
+      </div>
+      <div class="card" style="border-color: #ff6b81;">
+        <h3>Próximo Pago</h3>
+        <p id="proximo-pago" style="font-size: 28px; color: #ff6b81; font-weight: bold;">$0</p>
       </div>
     </div>
+    <canvas id="graficaGanancias"></canvas>
   </div>
 
-  <div id="botAyuda" onclick="toggleAyuda()"><i class="fas fa-comment-dots"></i></div>
-  <div id="modalAyuda" class="modal">
-    <div class="contenido-ayuda">
-      <h3>Soporte / Consulta</h3>
-      <input type="email" id="emailAyuda" placeholder="Tu correo electrónico" />
-      <input type="text" id="asuntoAyuda" placeholder="Asunto" />
-      <textarea id="mensajeAyuda" placeholder="Escribe tu mensaje aquí..."></textarea>
-      <button onclick="enviarTicket()">Enviar</button>
-      <span class="cerrar" onclick="toggleAyuda()">&times;</span>
-      <div id="historialTickets">
-        <h4 style="color:#00a8ff;">Últimos tickets</h4>
-        <ul id="listaTickets"></ul>
-      </div>
+  <div id="perfil" class="section">
+    <h2>Perfil</h2>
+    <div class="formulario">
+      <input type="text" id="nombres" placeholder="Nombres" />
+      <input type="text" id="apellido" placeholder="Apellido" />
+      <input type="text" id="dni" placeholder="DNI" />
+      <input type="text" id="celular" placeholder="Número de celular" />
+      <input type="email" id="email" placeholder="Correo electrónico" disabled />
+      <input type="text" id="cbu" placeholder="CBU o Dirección USDT (BEP20)" />
+      <button onclick="guardarPerfil()">Guardar</button>
     </div>
   </div>
+</div>
 
-  <div id="botNotificacion" onclick="toggleNotificacion()"><i class="fas fa-bell"></i></div>
-  <div id="modalNotificacion" class="modal">
-    <div class="contenido-notificacion">
-      <h3>Notificaciones</h3>
-      <p>No tienes nuevas notificaciones.</p>
-      <span class="cerrar" onclick="toggleNotificacion()">&times;</span>
+<div id="botAyuda" onclick="toggleAyuda()"><i class="fas fa-comment-dots"></i></div>
+<div id="modalAyuda" class="modal">
+  <div class="contenido-ayuda">
+    <h3>Soporte / Consulta</h3>
+    <input type="email" id="emailAyuda" placeholder="Tu correo electrónico" />
+    <input type="text" id="asuntoAyuda" placeholder="Asunto" />
+    <textarea id="mensajeAyuda" placeholder="Escribe tu mensaje aquí..."></textarea>
+    <button onclick="enviarTicket()">Enviar</button>
+    <span class="cerrar" onclick="toggleAyuda()">&times;</span>
+    <div id="historialTickets">
+      <h4 style="color:#00a8ff;">Últimos tickets</h4>
+      <ul id="listaTickets"></ul>
     </div>
   </div>
+</div>
 
-  <script>
-    const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
-    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    let currentUserId = null;
-    let currentEmail = null;
+<div id="botNotificacion" onclick="toggleNotificacion()"><i class="fas fa-bell"></i></div>
+<div id="modalNotificacion" class="modal">
+  <div class="contenido-notificacion">
+    <h3>Notificaciones</h3>
+    <p>No tienes nuevas notificaciones.</p>
+    <span class="cerrar" onclick="toggleNotificacion()">&times;</span>
+  </div>
+</div>
 
-    async function validateSession() {
-      const { data: { session } } = await client.auth.getSession();
-      if (!session) return window.location.href = "index.html";
-      currentUserId = session.user.id;
-      currentEmail = session.user.email;
-      document.getElementById("emailAyuda").value = currentEmail;
-      cargarPerfil();
-      cargarHistorialTickets();
+<script>
+  const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
+  const SUPABASE_ANON_KEY = 'ey...'; // Tu clave aquí
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let currentUserId = null;
+  let currentEmail = null;
+
+  async function validateSession() {
+    const { data: { session } } = await client.auth.getSession();
+    if (!session) return window.location.href = "index.html";
+    currentUserId = session.user.id;
+    currentEmail = session.user.email;
+    document.getElementById("emailAyuda").value = currentEmail;
+    await cargarPerfil();
+    await cargarSaldoDisponible();
+    cargarHistorialTickets();
+  }
+
+  async function cargarPerfil() {
+    const { data } = await client.from("profiles").select("*").eq("id", currentUserId).single();
+    if (data) {
+      document.getElementById("nombres").value = data.nombres || "";
+      document.getElementById("apellido").value = data.apellido || "";
+      document.getElementById("dni").value = data.dni || "";
+      document.getElementById("celular").value = data.celular || "";
+      document.getElementById("cbu").value = data.cbu || "";
+      document.getElementById("email").value = data.email || currentEmail;
     }
+  }
 
-    async function cargarPerfil() {
-      const { data, error } = await client
-        .from("profiles")
-        .select("*")
-        .eq("id", currentUserId)
-        .single();
+  async function cargarSaldoDisponible() {
+    const { data } = await client.from("saldos").select("saldo").eq("usuario_id", currentUserId).single();
+    document.getElementById("saldo-disponible").textContent = data ? `$${data.saldo}` : "$0";
+  }
 
-      if (!error && data) {
-        document.getElementById("nombres").value = data.nombres || "";
-        document.getElementById("apellido").value = data.apellido || "";
-        document.getElementById("dni").value = data.dni || "";
-        document.getElementById("celular").value = data.celular || "";
-        document.getElementById("cbu").value = data.cbu || "";
-        document.getElementById("email").value = data.email || currentEmail;
-      } else {
-        document.getElementById("email").value = currentEmail;
-      }
-    }
+  async function guardarPerfil() {
+    const perfil = {
+      id: currentUserId,
+      email: currentEmail,
+      nombres: document.getElementById("nombres").value,
+      apellido: document.getElementById("apellido").value,
+      dni: document.getElementById("dni").value,
+      celular: document.getElementById("celular").value,
+      cbu: document.getElementById("cbu").value
+    };
+    await client.from("profiles").upsert(perfil, { onConflict: 'id' });
+    cargarPerfil();
+    showSection("welcome");
+  }
 
-    async function guardarPerfil() {
-      const perfil = {
-        id: currentUserId,
-        email: currentEmail,
-        nombres: document.getElementById("nombres").value,
-        apellido: document.getElementById("apellido").value,
-        dni: document.getElementById("dni").value,
-        celular: document.getElementById("celular").value,
-        cbu: document.getElementById("cbu").value
-      };
-      await client.from("profiles").upsert(perfil, { onConflict: 'id' });
-      cargarPerfil();
-      showSection("welcome");
-    }
-
-    async function enviarTicket() {
-      const email = document.getElementById("emailAyuda").value.trim();
-      const asunto = document.getElementById("asuntoAyuda").value.trim();
-      const mensaje = document.getElementById("mensajeAyuda").value.trim();
-      if (!email || !asunto || !mensaje) return;
-
-      await client.from("tickets").insert({
-        usuario_id: currentUserId,
-        email,
-        asunto,
-        mensaje,
-        fecha: new Date().toISOString()
-      });
-
-      document.getElementById("asuntoAyuda").value = "";
-      document.getElementById("mensajeAyuda").value = "";
-      cargarHistorialTickets();
-    }
-
-    async function cargarHistorialTickets() {
-      const { data } = await client
-        .from("tickets")
-        .select("*")
-        .eq("usuario_id", currentUserId)
-        .order("fecha", { ascending: false })
-        .limit(3);
-
-      const lista = document.getElementById("listaTickets");
-      lista.innerHTML = "";
-
-      if (data && data.length > 0) {
-        data.forEach(ticket => {
-          const li = document.createElement("li");
-          li.textContent = `${ticket.asunto}: ${ticket.mensaje}`;
-          lista.appendChild(li);
-        });
-      } else {
-        lista.innerHTML = "<li>No hay tickets recientes.</li>";
-      }
-    }
-
-    function toggleAyuda() {
-      const modal = document.getElementById("modalAyuda");
-      modal.style.display = modal.style.display === "block" ? "none" : "block";
-    }
-
-    function toggleNotificacion() {
-      const modal = document.getElementById("modalNotificacion");
-      modal.style.display = modal.style.display === "block" ? "none" : "block";
-    }
-
-    function toggleSidebar() {
-      document.getElementById("sidebar").classList.toggle("active");
-    }
-
-    function closeSidebar() {
-      document.getElementById("sidebar").classList.remove("active");
-    }
-
-    function showSection(id) {
-      document.querySelectorAll(".section").forEach(el => el.classList.remove("active"));
-      document.getElementById(id).classList.add("active");
-
-      document.querySelectorAll(".sidebar button").forEach(btn => btn.classList.remove("active"));
-      const allButtons = document.querySelectorAll(".sidebar button");
-      if (id === "welcome") allButtons[0].classList.add("active");
-      if (id === "perfil") allButtons[1].classList.add("active");
-    }
-
-    async function logout() {
-      await client.auth.signOut();
-      window.location.href = "index.html";
-    }
-
-    new Chart(document.getElementById('graficaGanancias').getContext('2d'), {
-      type: 'line',
-      data: {
-        labels: ['L', 'M', 'X', 'J', 'V', 'S', 'D'],
-        datasets: [{
-          label: 'Ganancias diarias',
-          data: [120, 300, 180, 260, 210, 400, 370],
-          borderColor: '#00d4ff',
-          backgroundColor: 'transparent',
-          tension: 0.4,
-          pointBackgroundColor: '#00d4ff',
-          pointRadius: 4
-        }]
-      },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: { color: 'white' },
-            grid: { color: 'rgba(255,255,255,0.1)' }
-          },
-          x: {
-            ticks: { color: 'white' },
-            grid: { color: 'rgba(255,255,255,0.05)' }
-          }
-        },
-        plugins: {
-          legend: { display: false }
-        }
-      }
+  async function enviarTicket() {
+    const email = document.getElementById("emailAyuda").value.trim();
+    const asunto = document.getElementById("asuntoAyuda").value.trim();
+    const mensaje = document.getElementById("mensajeAyuda").value.trim();
+    if (!email || !asunto || !mensaje) return;
+    await client.from("tickets").insert({
+      usuario_id: currentUserId,
+      email, asunto, mensaje,
+      fecha: new Date().toISOString()
     });
+    document.getElementById("asuntoAyuda").value = "";
+    document.getElementById("mensajeAyuda").value = "";
+    cargarHistorialTickets();
+  }
 
-    validateSession();
-  </script>
+  async function cargarHistorialTickets() {
+    const { data } = await client
+      .from("tickets")
+      .select("*")
+      .eq("usuario_id", currentUserId)
+      .order("fecha", { ascending: false })
+      .limit(3);
+    const lista = document.getElementById("listaTickets");
+    lista.innerHTML = "";
+    if (data && data.length > 0) {
+      data.forEach(ticket => {
+        const li = document.createElement("li");
+        li.textContent = `${ticket.asunto}: ${ticket.mensaje}`;
+        lista.appendChild(li);
+      });
+    } else {
+      lista.innerHTML = "<li>No hay tickets recientes.</li>";
+    }
+  }
+
+  function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("active");
+  }
+
+  function closeSidebar() {
+    document.getElementById("sidebar").classList.remove("active");
+  }
+
+  function toggleAyuda() {
+    const modal = document.getElementById("modalAyuda");
+    modal.style.display = modal.style.display === "block" ? "none" : "block";
+  }
+
+  function toggleNotificacion() {
+    const modal = document.getElementById("modalNotificacion");
+    modal.style.display = modal.style.display === "block" ? "none" : "block";
+  }
+
+  function showSection(id) {
+    document.querySelectorAll(".section").forEach(el => el.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    document.querySelectorAll(".sidebar button").forEach(btn => btn.classList.remove("active"));
+    const allButtons = document.querySelectorAll(".sidebar button");
+    if (id === "welcome") allButtons[0].classList.add("active");
+    if (id === "perfil") allButtons[1].classList.add("active");
+  }
+
+  async function logout() {
+    await client.auth.signOut();
+    window.location.href = "index.html";
+  }
+
+  new Chart(document.getElementById('graficaGanancias').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: ['L', 'M', 'X', 'J', 'V', 'S', 'D'],
+      datasets: [{
+        label: 'Ganancias diarias',
+        data: [120, 300, 180, 260, 210, 400, 370],
+        borderColor: '#00d4ff',
+        backgroundColor: 'transparent',
+        tension: 0.4,
+        pointBackgroundColor: '#00d4ff',
+        pointRadius: 4
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { color: 'white' },
+          grid: { color: 'rgba(255,255,255,0.1)' }
+        },
+        x: {
+          ticks: { color: 'white' },
+          grid: { color: 'rgba(255,255,255,0.05)' }
+        }
+      },
+      plugins: {
+        legend: { display: false }
+      }
+    }
+  });
+
+  validateSession();
+</script>
+
+<style>
+  .saldo-disponible-box {
+    font-size: 16px;
+    padding: 8px 16px;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #00ffcc;
+    border-radius: 12px;
+    font-weight: bold;
+    display: inline-block;
+  }
+</style>
+
 </body>
 </html>
