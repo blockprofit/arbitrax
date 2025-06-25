@@ -63,8 +63,7 @@
       align-items: center;
     }
 
-    .sidebar button:hover,
-    .sidebar button.active {
+    .sidebar button:hover {
       background-color: rgba(255, 255, 255, 0.1);
     }
 
@@ -81,7 +80,7 @@
       width: 100%;
     }
 
-    section {
+    .contenido {
       max-width: 900px;
       margin: 80px auto 40px;
       background: rgba(0, 0, 0, 0.6);
@@ -134,89 +133,102 @@
     <button onclick="window.location.href='deposito.html'"><i class="fas fa-wallet"></i> Depósito</button>
     <button onclick="window.location.href='retiro.html'"><i class="fas fa-arrow-circle-up"></i> Retiro</button>
     <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Programa de referidos</button>
-    <button onclick="window.location.href='trivia.html'"><i class="fas fa-lightbulb"></i> Trivia</button>
-    <button onclick="window.location.href='minipool.html'"><i class="fas fa-water'></i> Mini Pool</button>
-    <button onclick="window.location.href='mysterybox.html'"><i class="fas fa-box'></i> Mystery Box</button>
-    <button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift'></i> Sorteo</button>
-    <button onclick="window.location.href='preguntasfrecuentes.html'"><i class="fas fa-question-circle'></i> Preguntas frecuentes</button>
-    <button class="active"><i class="fas fa-file-alt'></i> Términos y condiciones</button>
-    <button onclick="logout()"><i class="fas fa-power-off'></i> Cerrar sesión</button>
+    <button onclick="window.location.href='trivia.html'"><i class="fas fa-question"></i> Trivia</button>
+    <button onclick="window.location.href='minipool.html'"><i class="fas fa-coins"></i> Mini Pool</button>
+    <button onclick="window.location.href='mysterybox.html'"><i class="fas fa-box-open"></i> Mystery Box</button>
+    <button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>
+    <button onclick="window.location.href='preguntasfrecuentes.html'"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>
+    <button onclick="window.location.href='operaciones.html'"><i class="fas fa-robot"></i> Operaciones automáticas</button>
+    <button class="active"><i class="fas fa-file-alt"></i> Términos y condiciones</button>
+    <button onclick="logout()"><i class="fas fa-power-off"></i> Cerrar sesión</button>
   </div>
 
   <div class="content" onclick="closeSidebar()">
-    <section>
+    <div class="contenido">
       <h1>Términos y Condiciones</h1>
 
-      <p>Al acceder, registrarte y utilizar esta plataforma, aceptás sin restricciones los presentes términos y condiciones, los cuales regulan la participación del usuario en los servicios ofrecidos: inversión en criptomonedas, minería digital, arbitraje automatizado, programas de referidos y sorteos promocionales. Estos términos constituyen un acuerdo legal entre el usuario y la plataforma.</p>
+      <p>Al acceder, registrarte y utilizar esta plataforma, aceptás sin restricciones los presentes términos y condiciones, los cuales regulan la participación del usuario en los servicios ofrecidos: inversión en criptomonedas, minería digital, arbitraje automatizado, programas de referidos, sorteos y funcionalidades como Trivia, Mini Pool y Mystery Box. Estos términos constituyen un acuerdo legal entre el usuario y la plataforma.</p>
 
       <p><strong>Uso de la plataforma</strong></p>
       <ul>
         <li>La plataforma actúa como intermediario digital que canaliza inversiones hacia actividades automatizadas vinculadas a criptoactivos.</li>
-        <li>La participación está sujeta a confirmación de identidad, validación de perfil y cumplimiento de los requisitos mínimos para cada función.</li>
-        <li>Los usuarios deben mantener sus credenciales de acceso seguras. La empresa no se responsabiliza por accesos no autorizados causados por negligencia del usuario.</li>
+        <li>La participación está sujeta a validación de perfil y requisitos mínimos para cada función.</li>
+        <li>Los usuarios deben mantener sus credenciales seguras. La empresa no se responsabiliza por accesos no autorizados por negligencia.</li>
       </ul>
 
       <p><strong>Riesgos y rendimientos</strong></p>
       <ul>
-        <li>Las inversiones realizadas en la plataforma están sujetas a riesgo de mercado. No existe garantía de retorno fijo, y los valores pueden variar sin previo aviso.</li>
-        <li>Los porcentajes anunciados como rendimiento semanal son estimaciones basadas en históricos de operaciones, pero no constituyen promesas ni contratos de resultados.</li>
-        <li>El usuario reconoce que toda inversión conlleva riesgo, y exime expresamente a la empresa de cualquier responsabilidad por pérdidas parciales o totales del capital invertido.</li>
+        <li>Las inversiones están sujetas a riesgo de mercado y no se garantiza retorno alguno.</li>
+        <li>Los porcentajes anunciados son estimaciones históricas, no contratos de rendimiento.</li>
+        <li>El usuario acepta la posibilidad de pérdidas totales o parciales del capital invertido.</li>
       </ul>
 
       <p><strong>Limitación de responsabilidad</strong></p>
       <ul>
-        <li>La empresa no será responsable por interrupciones de servicio, caídas de servidores, ataques informáticos, fallos de terceros proveedores ni disposiciones regulatorias que afecten la operativa.</li>
-        <li>No nos hacemos responsables por decisiones individuales, fluctuaciones de mercado, ni por recomendaciones interpretadas por el usuario como asesoramiento financiero.</li>
-        <li>El usuario asume la plena responsabilidad del uso que hace de la plataforma y sus decisiones de inversión.</li>
+        <li>No nos responsabilizamos por interrupciones, ataques informáticos o cambios regulatorios.</li>
+        <li>No brindamos asesoramiento financiero. Las decisiones del usuario son autónomas.</li>
+        <li>La empresa no responde por resultados individuales ni expectativas personales.</li>
       </ul>
 <p><strong>Modificaciones del servicio</strong></p>
       <ul>
-        <li>La empresa se reserva el derecho de modificar, suspender o eliminar funcionalidades sin previo aviso.</li>
-        <li>Estos términos pueden ser actualizados en cualquier momento, y el uso continuado de la plataforma implica la aceptación de los mismos.</li>
-        <li>Está prohibido el uso de múltiples cuentas por un mismo individuo, el uso abusivo del sistema de referidos o cualquier intento de manipular el funcionamiento de la plataforma.</li>
+        <li>La empresa puede modificar, suspender o eliminar funcionalidades sin previo aviso.</li>
+        <li>Estos términos pueden ser actualizados en cualquier momento.</li>
+        <li>El uso de múltiples cuentas, abuso de referidos o manipulación de la plataforma está prohibido.</li>
       </ul>
 
       <p><strong>Participación en sorteos</strong></p>
       <ul>
-        <li>La participación en sorteos está reservada para usuarios que cumplan con los criterios establecidos (por ejemplo, referidos activos).</li>
-        <li>La decisión sobre la elegibilidad y premiación es exclusivamente del administrador y no está sujeta a apelación.</li>
-        <li>Los premios pueden ser modificados o cancelados sin previo aviso en función del rendimiento de la plataforma.</li>
+        <li>Solo usuarios que cumplan con condiciones específicas pueden participar.</li>
+        <li>Los ganadores y premios se determinan exclusivamente por el administrador.</li>
+        <li>Los premios están sujetos a disponibilidad y rendimiento de la plataforma.</li>
+      </ul>
+
+      <p><strong>Trivia</strong></p>
+      <ul>
+        <li>La sección de Trivia es de carácter lúdico y educativo, no representa una promesa de beneficio económico.</li>
+        <li>El sistema puede aplicar reglas de clasificación automática según respuestas y tiempo.</li>
+        <li>La plataforma no se hace responsable por fallas técnicas que afecten el desarrollo de la Trivia.</li>
+      </ul>
+
+      <p><strong>Mini Pool</strong></p>
+      <ul>
+        <li>El Mini Pool es una funcionalidad promocional con rendimiento variable.</li>
+        <li>Está sujeta a cupos semanales y condiciones internas de liquidez.</li>
+        <li>No garantiza pagos si la inversión no se encuentra validada o el usuario no cumple con requisitos.</li>
+      </ul>
+
+      <p><strong>Mystery Box</strong></p>
+      <ul>
+        <li>Los premios son aleatorios y virtuales. La plataforma no garantiza premios monetarios.</li>
+        <li>Los premios pueden incluir beneficios, puntos o accesos limitados dentro de la app.</li>
+        <li>Una vez abierta la caja, no hay posibilidad de cambio, devolución o reclamo.</li>
       </ul>
 
       <p><strong>Jurisdicción</strong></p>
       <ul>
-        <li>Este servicio no constituye una entidad financiera regulada. Su uso es voluntario y bajo la exclusiva responsabilidad del usuario.</li>
-        <li>Cada usuario es responsable de cumplir con la legislación fiscal y financiera vigente en su país de residencia.</li>
-      </ul>
-
-      <p><strong>Trivia, Mini Pool y Mystery Box</strong></p>
-      <ul>
-        <li>La sección de Trivia es una actividad de tipo lúdico basada en conocimiento sobre criptomonedas. Los resultados dependen exclusivamente de las respuestas correctas y del tiempo de respuesta del usuario.</li>
-        <li>La empresa no garantiza la entrega de premios si se detecta comportamiento fraudulento, trampas, automatización o manipulación del sistema por parte del usuario.</li>
-        <li>La participación en Mini Pool implica un compromiso temporal de inversión con un posible rendimiento de hasta el 80%. No se garantiza que todos los usuarios obtengan dicho porcentaje, ya que depende del comportamiento del mercado.</li>
-        <li>Mystery Box contiene premios aleatorios que pueden variar en valor, cantidad o tipo. La empresa no es responsable si el premio no cumple las expectativas personales del usuario.</li>
-        <li>En todos los casos, la plataforma queda completamente desligada de cualquier reclamo, disputa o malentendido derivado de la participación en estas funciones.</li>
+        <li>Este sistema no constituye una entidad financiera ni está regulado por entes oficiales.</li>
+        <li>Los usuarios deben cumplir las normativas de su país respecto a ingresos digitales o criptoactivos.</li>
       </ul>
 
       <p><strong>Contacto y soporte</strong></p>
       <ul>
-        <li>El único canal oficial de soporte es a través de la sección "Soporte" dentro de la plataforma, o mediante Telegram en los enlaces proporcionados.</li>
-        <li>No se brinda atención fuera de los canales oficiales. Las dudas o reclamos enviados por vías externas podrán no ser respondidos.</li>
+        <li>La atención se realiza únicamente mediante los canales oficiales mencionados dentro de la plataforma.</li>
+        <li>La empresa no responderá consultas enviadas por medios no autorizados.</li>
       </ul>
 
-      <p>Al continuar usando esta plataforma, el usuario manifiesta haber comprendido todos los puntos expuestos, reconociendo la autonomía de sus decisiones y deslindando de toda responsabilidad legal a la empresa, su personal, socios, proveedores y colaboradores.</p>
+      <p>Al continuar usando esta plataforma, el usuario declara comprender y aceptar todos los puntos anteriores, liberando expresamente de responsabilidad a los desarrolladores, administradores, proveedores y aliados de cualquier daño directo o indirecto derivado del uso del sistema, incluyendo pérdidas económicas, errores humanos, interpretaciones equivocadas o problemas técnicos.</p>
 
       <div class="footer">
         Última actualización: junio 2025<br>
         <a href="principal.html#welcome">← Volver al inicio</a>
       </div>
-    </section>
+    </div>
   </div>
 
   <script>
     const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     function toggleSidebar() {
       document.getElementById("sidebar").classList.toggle("active");
@@ -227,9 +239,10 @@
     }
 
     async function logout() {
-      await supabase.auth.signOut();
+      await client.auth.signOut();
       window.location.href = "index.html";
     }
   </script>
+
 </body>
 </html>
