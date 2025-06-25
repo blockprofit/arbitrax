@@ -111,12 +111,15 @@
     <button onclick="window.location.href='principal.html#perfil'"><i class="fas fa-user"></i> Perfil</button>
     <button onclick="window.location.href='inversion.html'"><i class="fas fa-chart-line"></i> Nivel de inversión</button>
     <button onclick="window.location.href='deposito.html'"><i class="fas fa-wallet"></i> Depósito</button>
-    <button onclick="window.location.href='retiro.html'"><i class="fas fa-arrow-circle-up"></i> Retiro</button>
+    <button onclick="window.location.href='retiro.html'"><i class="fas fa-hand-holding-usd"></i> Retiro</button>
     <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Programa de referidos</button>
+    <button onclick="window.location.href='trivia.html'"><i class="fas fa-question"></i> Trivia</button>
+    <button onclick="window.location.href='minipool.html'"><i class="fas fa-coins"></i> Mini Pool</button>
+    <button onclick="window.location.href='mysterybox.html'"><i class="fas fa-box-open"></i> Mystery Box</button>
     <button class="active"><i class="fas fa-gift"></i> Sorteo</button>
     <button onclick="window.location.href='preguntasfrecuentes.html'"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>
-    <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-alt"></i> Términos y condiciones</button>
-    <button onclick="logout()"><i class="fas fa-power-off"></i> Cerrar sesión</button>
+    <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-contract"></i> Términos y condiciones</button>
+    <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
   </div>
 
   <div class="content" onclick="closeSidebar()">
@@ -128,8 +131,7 @@
       <div class="info">💰 Monto del sorteo: <span id="montoSorteo">-</span></div>
     </div>
   </div>
-
-  <script>
+<script>
     const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
