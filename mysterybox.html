@@ -10,13 +10,15 @@
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364);
+      background-image: url('fondodepantallaprincipal1.jpeg');
+      background-size: cover;
+      background-position: center;
       color: white;
       display: flex;
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      padding-top: 100px;
+      padding-top: 80px;
     }
 
     .menu-btn {
@@ -30,7 +32,7 @@
       border: none;
       padding: 10px;
       border-radius: 8px;
-      z-index: 1001;
+      z-index: 10;
     }
 
     .menu {
@@ -42,7 +44,7 @@
       padding: 10px;
       border-radius: 10px;
       width: 240px;
-      z-index: 1000;
+      z-index: 10;
       flex-direction: column;
     }
 
@@ -61,102 +63,94 @@
     }
 
     h1 {
-      margin-bottom: 20px;
+      margin: 20px 0;
       text-align: center;
     }
 
-    .cofre-container {
+    .chest-container {
       position: relative;
-      width: 150px;
-      height: 150px;
-      margin: 20px auto;
+      width: 200px;
+      height: 200px;
+      margin: 30px auto;
       cursor: pointer;
-      transition: transform 0.3s ease;
     }
 
-    .cofre-container:hover {
-      transform: scale(1.05);
-    }
-
-    .cofre {
+    .chest {
       width: 100%;
       height: 100%;
-      background: url('https://cdn-icons-png.flaticon.com/512/3081/3081648.png') no-repeat center center;
+      background: url('https://cdn-icons-png.flaticon.com/512/3081/3081648.png') no-repeat center;
       background-size: contain;
-      animation: pulse 1s infinite alternate;
+      transition: transform 1s ease;
     }
 
-    @keyframes pulse {
-      from { transform: scale(1); }
-      to { transform: scale(1.1); }
-    }
-
-    .card-container {
-      perspective: 1000px;
-      width: 250px;
-      height: 150px;
-      margin-top: 30px;
-      display: none;
+    .chest.open {
+      transform: rotateX(75deg) scale(1.1);
     }
 
     .card {
-      width: 100%;
-      height: 100%;
-      position: relative;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 150px;
+      height: 100px;
+      transform: translate(-50%, -50%) rotateY(0deg);
       transform-style: preserve-3d;
-      transition: transform 0.8s;
+      transition: transform 1s;
+      display: none;
+      perspective: 800px;
     }
 
-    .card.flip {
+    .card.show {
+      display: block;
+      animation: rise 0.6s ease-out forwards;
+    }
+
+    .card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.6s;
+    }
+
+    .card.flipped .card-inner {
       transform: rotateY(180deg);
     }
 
-    .card-face {
+    .card-front, .card-back {
       position: absolute;
       width: 100%;
       height: 100%;
+      border-radius: 12px;
       backface-visibility: hidden;
-      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: bold;
     }
 
-    .front {
-      background-image: url('fondodepantallaprincipal1.jpeg');
+    .card-front {
+      background: url('fondodepantallaprincipal1.jpeg');
       background-size: cover;
-      background-position: center;
-      color: white;
     }
 
-    .back {
-      background: rgba(0,0,0,0.8);
+    .card-back {
+      background: #000000dd;
+      color: #00ffc3;
       transform: rotateY(180deg);
-      color: #00ffcc;
-      padding: 20px;
+      padding: 10px;
       text-align: center;
     }
 
-    .boton-abrir {
-      background: #00a8ff;
-      color: white;
-      padding: 12px 25px;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .boton-abrir:hover {
-      background: #007acc;
+    @keyframes rise {
+      from { transform: translate(-50%, 50%); opacity: 0; }
+      to { transform: translate(-50%, -100%); opacity: 1; }
     }
   </style>
 </head>
 <body>
-  <button class="menu-btn" onclick="toggleMenu()">☰</button>
+<button class="menu-btn" onclick="toggleMenu()">☰</button>
 
   <div class="menu" id="mainMenu">
     <button onclick="window.location.href='principal.html#welcome'"><i class="fas fa-home"></i> Inicio</button>
@@ -167,7 +161,7 @@
     <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Programa de referidos</button>
     <button onclick="window.location.href='trivia.html'"><i class="fas fa-question"></i> Trivia</button>
     <button onclick="window.location.href='minipool.html'"><i class="fas fa-coins"></i> Mini Pool</button>
-    <button onclick="window.location.href='mysterybox.html'"><i class="fas fa-box-open"></i> Mystery Box</button>
+    <button class="active"><i class="fas fa-box-open"></i> Mystery Box</button>
     <button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>
     <button onclick="window.location.href='preguntasfrecuentes.html'"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>
     <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-contract"></i> Términos y condiciones</button>
@@ -175,13 +169,14 @@
   </div>
 
   <h1>🎁 Caja Misteriosa</h1>
-  <div class="cofre-container" onclick="abrirCaja()">
-    <div class="cofre" id="cofre"></div>
-  </div>
-<div class="card-container" id="cardContainer">
+
+  <div class="chest-container" onclick="abrirCaja()">
+    <div class="chest" id="chest"></div>
     <div class="card" id="card">
-      <div class="card-face front">Premio oculto...</div>
-      <div class="card-face back" id="resultado"></div>
+      <div class="card-inner">
+        <div class="card-front"></div>
+        <div class="card-back" id="resultado"></div>
+      </div>
     </div>
   </div>
 
@@ -199,6 +194,25 @@
       menu.style.display = menu.style.display === "flex" ? "none" : "flex";
     }
 
+    function abrirCaja() {
+      const chest = document.getElementById("chest");
+      const card = document.getElementById("card");
+      const resultado = document.getElementById("resultado");
+
+      const premio = premios[Math.floor(Math.random() * premios.length)];
+
+      chest.classList.add("open");
+
+      setTimeout(() => {
+        card.classList.add("show");
+        resultado.textContent = premio;
+
+        setTimeout(() => {
+          card.classList.add("flipped");
+        }, 800);
+      }, 1000);
+    }
+
     async function logout() {
       const client = supabase.createClient(
         'https://ovulezkcxwrjvyxlxsdv.supabase.co',
@@ -206,19 +220,6 @@
       );
       await client.auth.signOut();
       window.location.href = "index.html";
-    }
-
-    function abrirCaja() {
-      const premio = premios[Math.floor(Math.random() * premios.length)];
-      document.getElementById("resultado").textContent = premio;
-
-      const card = document.getElementById("card");
-      const container = document.getElementById("cardContainer");
-
-      container.style.display = "block";
-      setTimeout(() => {
-        card.classList.add("flip");
-      }, 300);
     }
   </script>
 </body>
