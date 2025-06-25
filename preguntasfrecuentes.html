@@ -122,6 +122,9 @@
     <button onclick="window.location.href='deposito.html'"><i class="fas fa-wallet"></i> Depósito</button>
     <button onclick="window.location.href='retiro.html'"><i class="fas fa-arrow-circle-up"></i> Retiro</button>
     <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Programa de referidos</button>
+    <button onclick="window.location.href='trivia.html'"><i class="fas fa-question"></i> Trivia</button>
+    <button onclick="window.location.href='minipool.html'"><i class="fas fa-coins"></i> Mini Pool</button>
+    <button onclick="window.location.href='mysterybox.html'"><i class="fas fa-box-open"></i> Mystery Box</button>
     <button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>
     <button class="active"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>
     <button onclick="window.location.href='operaciones.html'"><i class="fas fa-robot"></i> Operaciones automáticas</button>
@@ -133,6 +136,7 @@
     <div class="contenido">
       <h2>Preguntas Frecuentes</h2>
 
+      <!-- PREGUNTAS ORIGINALES + OPERACIONES -->
       <details><summary>¿Qué es esta plataforma?</summary><p>Es un sistema de inversión que combina minería de criptomonedas y arbitraje, ofreciendo rendimientos semanales según el nivel de inversión.</p></details>
       <details><summary>¿Cómo puedo empezar a invertir?</summary><p>Registrate, completá tu perfil, elegí un plan de inversión y realizá un depósito según el monto indicado.</p></details>
       <details><summary>¿Qué métodos de pago aceptan?</summary><p>Aceptamos depósitos en ARS vía CVU y en USDT (BEP20).</p></details>
@@ -153,7 +157,7 @@
       <details><summary>¿Hay penalidades por retirar antes de los 7 días?</summary><p>No. Pero los intereses se calculan cada 7 días, por lo que podrías recibir menos si lo hacés antes.</p></details>
       <details><summary>¿La plataforma es segura?</summary><p>Implementamos autenticación segura, respaldo de datos y trabajamos con Supabase para el manejo de usuarios.</p></details>
       <details><summary>¿Qué pasa si pierdo el acceso a mi cuenta?</summary><p>Usá la opción "Recuperar contraseña" desde la página de inicio o contactanos si el problema persiste.</p></details>
-      <details><summary>¿Cuánto puedo ganar como máximo?</summary><p>El retorno semanal depende del plan, pero puede llegar hasta un 180% acumulado según el capital y el tiempo.</p></details>
+<details><summary>¿Cuánto puedo ganar como máximo?</summary><p>El retorno semanal depende del plan, pero puede llegar hasta un 180% acumulado según el capital y el tiempo.</p></details>
       <details><summary>¿Puedo usar dólares físicos para invertir?</summary><p>No directamente. Debés convertirlos a USDT (BEP20) y transferirlos a la dirección indicada.</p></details>
       <details><summary>¿Se puede invertir más de una vez?</summary><p>Sí, podés realizar depósitos múltiples y seguir acumulando ganancias semanales.</p></details>
       <details><summary>¿Qué garantía tengo de pago?</summary><p>La plataforma se basa en un modelo transparente y pagos automatizados. El cumplimiento depende también del correcto uso del sistema.</p></details>
@@ -164,11 +168,23 @@
       <details><summary>¿Qué datos necesito para registrarme?</summary><p>Sólo tu email y una contraseña. Luego podés completar el resto del perfil.</p></details>
       <details><summary>¿Puedo tener más de una cuenta?</summary><p>No se recomienda. El sistema detecta cuentas duplicadas y puede restringirlas.</p></details>
 
-      <!-- NUEVA PREGUNTA AGREGADA -->
-      <details open>
-        <summary>¿Qué son las operaciones automáticas?</summary>
-        <p>Las operaciones automáticas muestran en tiempo real las inversiones diarias realizadas por la plataforma. Esto incluye estrategias como arbitraje entre exchanges, staking, participación en fondos DeFi, compra temporal de activos digitales y minería inteligente. La sección "Operaciones automáticas" estará visible en el menú y se actualizará a diario para mantener informados a todos los usuarios sobre cómo se está utilizando el capital invertido.</p>
-      </details>
+      <!-- NUEVAS FUNCIONES -->
+      <details><summary>¿Qué es la sección "Operaciones automáticas"?</summary><p>Las operaciones automáticas muestran en tiempo real las inversiones diarias realizadas por la plataforma. Incluye arbitraje entre exchanges, staking, fondos DeFi, compra de activos digitales y minería inteligente. Se actualiza a diario y permite mayor transparencia sobre el uso del capital invertido.</p></details>
+
+      <details><summary>¿Cómo funciona la sección "Trivia"?</summary><p>Es un torneo de preguntas y respuestas relacionadas al mundo cripto. Los usuarios responden dentro de un tiempo limitado y los ganadores se determinan por la cantidad de respuestas correctas y el menor tiempo. Cuenta con tres niveles de dificultad.</p></details>
+
+      <details><summary>¿Cuántos niveles tiene la Trivia?</summary><p>La trivia está dividida en tres niveles: básico, intermedio y avanzado. Cada uno incluye preguntas adaptadas al nivel de conocimiento del usuario.</p></details>
+
+      <details><summary>¿Cuándo se habilita el torneo de Trivia?</summary><p>Los torneos se habilitan periódicamente. Se notifica a través de la plataforma y los usuarios deben ingresar rápidamente para participar y responder en tiempo real.</p></details>
+
+      <details><summary>¿Qué es Mini Pool?</summary><p>Es una modalidad de inversión semanal donde la plataforma se compromete a pagar hasta un 80% de rendimiento en 7 días. Se habilita una vez por semana para usuarios activos.</p></details>
+
+      <details><summary>¿Quiénes pueden participar en Mini Pool?</summary><p>Todos los usuarios verificados con al menos una inversión activa pueden participar. El acceso se habilita durante un periodo determinado una vez por semana.</p></details>
+
+      <details><summary>¿Qué es Mystery Box?</summary><p>Es una caja sorpresa virtual donde los premios pueden variar. Al abrirla, el usuario puede obtener diferentes tipos de recompensas. Está disponible en su propia sección dentro del menú.</p></details>
+
+      <details><summary>¿Qué tipo de premios hay en Mystery Box?</summary><p>Los premios pueden incluir USDT, recompensas en ARS, acceso a mini pools, puntos extra de referidos u otros beneficios temporales. Cada apertura es aleatoria.</p></details>
+
     </div>
   </div>
 
@@ -190,5 +206,6 @@
       window.location.href = "index.html";
     }
   </script>
+
 </body>
 </html>
