@@ -23,47 +23,36 @@
     }
 
     h1 {
-      margin-bottom: 20px;
+      margin-bottom: 10px;
       text-align: center;
     }
 
     .mistery-container {
-      background: rgba(0,0,0,0.5);
-      padding: 30px;
+      background: rgba(0,0,0,0.65);
+      padding: 30px 20px;
       border-radius: 15px;
       text-align: center;
-      max-width: 400px;
       width: 90%;
+      max-width: 420px;
       box-shadow: 0 0 20px rgba(255,255,255,0.2);
-    }
-
-    .chest {
-      width: 140px;
-      height: 140px;
-      background-image: url('https://cdn-icons-png.flaticon.com/512/3468/3468354.png'); /* Cofre cerrado */
-      background-size: cover;
-      background-position: center;
-      margin: 0 auto;
-      transition: transform 0.6s ease;
-      cursor: pointer;
-    }
-
-    .chest.open {
-      background-image: url('https://cdn-icons-png.flaticon.com/512/3468/3468374.png'); /* Cofre abierto */
     }
 
     .card-container {
       perspective: 1000px;
-      margin-top: 30px;
-      display: none;
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
     }
 
     .card {
-      width: 240px;
-      height: 140px;
-      position: relative;
+      width: 100%;
+      max-width: 300px;
+      height: 180px;
+      border-radius: 12px;
       transform-style: preserve-3d;
-      transition: transform 1s;
+      transition: transform 0.8s;
+      cursor: pointer;
+      position: relative;
     }
 
     .card.flip {
@@ -74,34 +63,33 @@
       position: absolute;
       width: 100%;
       height: 100%;
-      border-radius: 12px;
       backface-visibility: hidden;
+      border-radius: 12px;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
+      font-size: 18px;
       font-weight: bold;
-      font-size: 16px;
-      padding: 10px;
+      padding: 15px;
       text-align: center;
     }
 
-    .front {
+    .card-front {
       background-image: url('fondodepantallaprincipal1.jpeg');
       background-size: cover;
       background-position: center;
-      border: 2px solid #00ffc8;
     }
 
-    .back {
-      background: #00a8ff;
-      color: white;
+    .card-back {
+      background: rgba(0, 0, 0, 0.85);
       transform: rotateY(180deg);
+      color: #00ffc8;
     }
 
-    .abrir-btn {
+    button {
       background: #00a8ff;
       color: white;
-      padding: 12px 25px;
+      padding: 12px 20px;
       border: none;
       border-radius: 8px;
       font-size: 16px;
@@ -110,7 +98,7 @@
       margin-top: 20px;
     }
 
-    .abrir-btn:hover {
+    button:hover {
       background: #007acc;
     }
 
@@ -125,7 +113,7 @@
       border: none;
       padding: 10px;
       border-radius: 8px;
-      z-index: 1001;
+      z-index: 999;
     }
 
     .menu {
@@ -137,7 +125,7 @@
       padding: 10px;
       border-radius: 10px;
       width: 240px;
-      z-index: 101;
+      z-index: 1000;
       flex-direction: column;
     }
 
@@ -165,80 +153,69 @@
     <button onclick="window.location.href='principal.html#perfil'"><i class="fas fa-user"></i> Perfil</button>
     <button onclick="window.location.href='inversion.html'"><i class="fas fa-chart-line"></i> Nivel de inversión</button>
     <button onclick="window.location.href='deposito.html'"><i class="fas fa-wallet"></i> Depósito</button>
-    <button onclick="window.location.href='retiro.html'"><i class="fas fa-hand-holding-usd"></i> Retiro</button>
+    <button onclick="window.location.href='retiro.html'"><i class="fas fa-arrow-circle-up"></i> Retiro</button>
     <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Programa de referidos</button>
     <button onclick="window.location.href='trivia.html'"><i class="fas fa-question"></i> Trivia</button>
-    <button onclick="window.location.href='minipool.html'"><i class="fas fa-coins"></i> Mini Pool</button>
-    <button class="active"><i class="fas fa-box-open"></i> Mystery Box</button>
+    <button onclick="window.location.href='minipool.html'"><i class="fas fa-fire"></i> Mini Pool</button>
+    <button onclick="window.location.href='mysterybox.html'"><i class="fas fa-box-open"></i> Caja Misteriosa</button>
     <button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>
     <button onclick="window.location.href='preguntasfrecuentes.html'"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>
-    <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-contract"></i> Términos y condiciones</button>
-    <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
+    <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-alt"></i> Términos y condiciones</button>
+    <button onclick="logout()"><i class="fas fa-power-off"></i> Cerrar sesión</button>
   </div>
 
   <h1>🎁 Caja Misteriosa</h1>
 
   <div class="mistery-container">
     <p>¡Abrí tu cofre y descubrí premios especiales! Podés ganar entradas gratis, bonificaciones o premios en efectivo.</p>
-    <div class="chest" id="chest" onclick="abrirCaja()"></div>
-    <button class="abrir-btn" onclick="abrirCaja()">Abrir Caja ($5000)</button>
-    <div class="card-container" id="cardContainer">
+
+    <div class="card-container" id="cardContainer" style="display:none;">
       <div class="card" id="card">
-        <div class="card-face front"></div>
-        <div class="card-face back" id="resultado"></div>
+        <div class="card-face card-front"></div>
+        <div class="card-face card-back" id="resultado"></div>
       </div>
     </div>
-  </div>
+
+    <button onclick="abrirCaja()">Abrir Caja ($5000)</button>
 <script>
-    const premios = [
-      "🎉 Entrada gratis a la Trivia Básica",
-      "🔥 Entrada gratis a la Mini Pool Básica",
-      "💰 Premio en efectivo: $2000",
-      "🚀 Bonificación del 10% por 7 días",
-      "🙁 Caja vacía. ¡Mejor suerte la próxima!"
-    ];
+      const premios = [
+        "🎉 Entrada gratis a la Trivia Básica",
+        "🔥 Entrada gratis a la Mini Pool Básica",
+        "💰 Premio en efectivo: $2000",
+        "🚀 Bonificación del 10% por 7 días",
+        "🙁 Caja vacía. ¡Mejor suerte la próxima!"
+      ];
 
-    let cajaAbierta = false;
+      function abrirCaja() {
+        const resultado = premios[Math.floor(Math.random() * premios.length)];
+        const resultadoEl = document.getElementById("resultado");
+        const card = document.getElementById("card");
+        const container = document.getElementById("cardContainer");
 
-    function abrirCaja() {
-      if (cajaAbierta) return;
+        resultadoEl.textContent = resultado;
+        container.style.display = "flex";
 
-      cajaAbierta = true;
-
-      const chest = document.getElementById("chest");
-      const card = document.getElementById("card");
-      const resultado = document.getElementById("resultado");
-      const cardContainer = document.getElementById("cardContainer");
-
-      // Cambiar imagen del cofre (cerrado → abierto)
-      chest.classList.add("open");
-
-      // Mostrar tarjeta con animación después de medio segundo
-      setTimeout(() => {
-        const premio = premios[Math.floor(Math.random() * premios.length)];
-        resultado.textContent = premio;
-        cardContainer.style.display = "block";
-
-        // Flip de la tarjeta
+        // Reinicia el estado por si se vuelve a usar
+        card.classList.remove("flip");
         setTimeout(() => {
           card.classList.add("flip");
-        }, 500);
-      }, 700);
-    }
+        }, 100);
+      }
 
-    function toggleMenu() {
-      const menu = document.getElementById("mainMenu");
-      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
-    }
+      function toggleMenu() {
+        const menu = document.getElementById("mainMenu");
+        menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+      }
 
-    async function logout() {
-      const client = supabase.createClient(
-        'https://ovulezkcxwrjvyxlxsdv.supabase.co',
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI'
-      );
-      await client.auth.signOut();
-      window.location.href = "index.html";
-    }
-  </script>
+      async function logout() {
+        const client = supabase.createClient(
+          'https://ovulezkcxwrjvyxlxsdv.supabase.co',
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI'
+        );
+        await client.auth.signOut();
+        window.location.href = "index.html";
+      }
+    </script>
+  </div>
 </body>
 </html>
