@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Retiro</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
@@ -175,8 +176,7 @@
 
       <button onclick="enviarRetiro()">Enviar solicitud</button>
     </div>
-
-    <h3>Historial de Retiros</h3>
+<h3>Historial de Retiros</h3>
     <table id="historial">
       <thead>
         <tr>
@@ -219,15 +219,59 @@
 
     async function enviarRetiro() {
       const tipo = document.querySelector('input[name="tipo-retiro"]:checked')?.value;
+
+      const nombres = document.getElementById("ret-nombres").value.trim();
+      const apellido = document.getElementById("ret-apellido").value.trim();
+      const dni = document.getElementById("ret-dni").value.trim();
+      const cantidad = parseFloat(document.getElementById("ret-cantidad").value);
+      const cbu = document.getElementById("ret-cbu").value.trim();
+      const usdt = document.getElementById("ret-usdt").value.trim();
+
+      // Validar campos obligatorios
+      if (!nombres) {
+        alert("Por favor, ingresa tus nombres.");
+        return;
+      }
+      if (!apellido) {
+        alert("Por favor, ingresa tu apellido.");
+        return;
+      }
+      if (!dni) {
+        alert("Por favor, ingresa tu DNI.");
+        return;
+      }
+      if (!tipo) {
+        alert("Por favor, selecciona el tipo de retiro.");
+        return;
+      }
+      if (isNaN(cantidad) || cantidad <= 0) {
+        alert("Por favor, ingresa un monto válido.");
+        return;
+      }
+      // Validar montos mínimos
+      if ((tipo === "ARS" && cantidad < 5000) || (tipo === "USDT" && cantidad < 5)) {
+        alert(`El monto mínimo de retiro es ${tipo === "ARS" ? "5000 ARS" : "5 USDT"}.`);
+        return;
+      }
+      // Validar campos CBU o USDT según tipo
+      if (tipo === "ARS" && !cbu) {
+        alert("Por favor, ingresa el CBU para retiros en ARS.");
+        return;
+      }
+      if (tipo === "USDT" && !usdt) {
+        alert("Por favor, ingresa la dirección USDT para retiros en USDT.");
+        return;
+      }
+
       const retiro = {
         usuario_id: currentUserId,
-        nombres: document.getElementById("ret-nombres").value,
-        apellido: document.getElementById("ret-apellido").value,
-        dni: document.getElementById("ret-dni").value,
+        nombres,
+        apellido,
+        dni,
         tipo,
-        cantidad: parseFloat(document.getElementById("ret-cantidad").value),
-        cbu: tipo === "ARS" ? document.getElementById("ret-cbu").value : null,
-        usdt: tipo === "USDT" ? document.getElementById("ret-usdt").value : null,
+        cantidad,
+        cbu: tipo === "ARS" ? cbu : null,
+        usdt: tipo === "USDT" ? usdt : null,
         fecha: new Date().toISOString(),
         estado: "pendiente"
       };
@@ -236,6 +280,16 @@
       if (error) return alert("Error al enviar retiro: " + error.message);
 
       alert("✅ Retiro enviado correctamente.");
+      // Limpiar formulario después de enviar
+      document.getElementById("ret-nombres").value = "";
+      document.getElementById("ret-apellido").value = "";
+      document.getElementById("ret-dni").value = "";
+      document.getElementById("ret-cantidad").value = "";
+      document.getElementById("ret-cbu").value = "";
+      document.getElementById("ret-usdt").value = "";
+      document.querySelectorAll('input[name="tipo-retiro"]').forEach(el => el.checked = false);
+      toggleMetodoRetiro();
+
       await cargarHistorial();
     }
 
