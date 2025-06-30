@@ -166,7 +166,8 @@
       box-shadow: 0 0 10px #000;
       z-index: 1000;
     }
-#botAyuda {
+
+    #botAyuda {
       right: 25px;
     }
 
@@ -246,84 +247,84 @@
 <body>
 <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
 
-  <div class="sidebar" id="sidebar">
-    <button onclick="showSection('welcome')" class="active"><i class="fas fa-home"></i> Inicio</button>
-    <button onclick="showSection('perfil')"><i class="fas fa-user"></i> Perfil</button>
-    <button onclick="window.location.href='inversion.html'"><i class="fas fa-chart-line"></i> Nivel de inversión</button>
-    <button onclick="window.location.href='deposito.html'"><i class="fas fa-wallet"></i> Depósito</button>
-    <button onclick="window.location.href='retiro.html'"><i class="fas fa-arrow-circle-up"></i> Retiro</button>
-    <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Programa de referidos</button>
-    <button onclick="window.location.href='trivia.html'"><i class="fas fa-question"></i> Trivia</button>
-    <button onclick="window.location.href='minipool.html'"><i class="fas fa-coins"></i> Mini Pool</button>
-    <button onclick="window.location.href='mysterybox.html'"><i class="fas fa-box"></i> Mystery Box</button>
-    <button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>
-    <button onclick="window.location.href='preguntasfrecuentes.html'"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>
-    <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-alt"></i> Términos y condiciones</button>
-    <button onclick="logout()"><i class="fas fa-power-off"></i> Cerrar sesión</button>
-  </div>
-
-  <div class="content" onclick="closeSidebar()">
-    <div id="welcome" class="section active">
-      <h2>¡Bienvenido de nuevo!</h2>
-      <div class="dashboard-cards">
-        <div class="card" style="border-color: #00d4ff;">
-          <h3>Total Invertido</h3>
-          <p id="total-invertido" style="font-size: 28px; color: #00d4ff; font-weight: bold;">$0</p>
-        </div>
-        <div class="card" style="border-color: #c56cf0;">
-          <h3>Ganancias</h3>
-          <p id="ganancias" style="font-size: 28px; color: #c56cf0; font-weight: bold;">$0</p>
-        </div>
-        <div class="card" style="border-color: #ff6b81;">
-          <h3>Próximo Pago</h3>
-          <p id="proximo-pago" style="font-size: 28px; color: #ff6b81; font-weight: bold;">$0</p>
-        </div>
-        <div class="card" style="border-color: #2ed573;">
-          <h3>Saldo Disponible</h3>
-          <p id="saldo-disponible" style="font-size: 28px; color: #2ed573; font-weight: bold;">$0</p>
-        </div>
-      </div>
-      <canvas id="graficaGanancias"></canvas>
-    </div>
-
-    <div id="perfil" class="section">
-      <h2>Perfil</h2>
-      <div class="formulario">
-        <input type="text" id="nombres" placeholder="Nombres" />
-        <input type="text" id="apellido" placeholder="Apellido" />
-        <input type="text" id="dni" placeholder="DNI" />
-        <input type="text" id="celular" placeholder="Número de celular" />
-        <input type="email" id="email" placeholder="Correo electrónico" disabled />
-        <input type="text" id="cbu" placeholder="CBU o Dirección USDT (BEP20)" />
-        <button onclick="guardarPerfil()">Guardar</button>
-      </div>
-    </div>
+<div class="sidebar" id="sidebar">
+  <button onclick="showSection('welcome')" class="active"><i class="fas fa-home"></i> Inicio</button>
+  <button onclick="showSection('perfil')"><i class="fas fa-user"></i> Perfil</button>
+  <button onclick="window.location.href='inversion.html'"><i class="fas fa-chart-line"></i> Nivel de inversión</button>
+  <button onclick="window.location.href='deposito.html'"><i class="fas fa-wallet"></i> Depósito</button>
+  <button onclick="window.location.href='retiro.html'"><i class="fas fa-arrow-circle-up"></i> Retiro</button>
+  <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Programa de referidos</button>
+  <button onclick="window.location.href='trivia.html'"><i class="fas fa-question"></i> Trivia</button>
+  <button onclick="window.location.href='minipool.html'"><i class="fas fa-coins"></i> Mini Pool</button>
+  <button onclick="window.location.href='mysterybox.html'"><i class="fas fa-box"></i> Mystery Box</button>
+  <button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>
+  <button onclick="window.location.href='preguntasfrecuentes.html'"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>
+  <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-alt"></i> Términos y condiciones</button>
+  <button onclick="logout()"><i class="fas fa-power-off"></i> Cerrar sesión</button>
 </div>
 
-  <div id="botAyuda" onclick="toggleAyuda()"><i class="fas fa-comment-dots"></i></div>
-  <div id="modalAyuda" class="modal">
-    <div class="contenido-ayuda">
-      <h3>Soporte / Consulta</h3>
-      <input type="email" id="emailAyuda" placeholder="Tu correo electrónico" />
-      <input type="text" id="asuntoAyuda" placeholder="Asunto" />
-      <textarea id="mensajeAyuda" placeholder="Escribe tu mensaje aquí..."></textarea>
-      <button onclick="enviarTicket()">Enviar</button>
-      <span class="cerrar" onclick="toggleAyuda()">&times;</span>
-      <div id="historialTickets">
-        <h4 style="color:#00a8ff;">Últimos tickets</h4>
-        <ul id="listaTickets"></ul>
+<div class="content" onclick="closeSidebar()">
+  <div id="welcome" class="section active">
+    <h2>¡Bienvenido de nuevo!</h2>
+    <div class="dashboard-cards">
+      <div class="card" style="border-color: #00d4ff;">
+        <h3>Total Invertido</h3>
+        <p id="total-invertido" style="font-size: 28px; color: #00d4ff; font-weight: bold;">$0</p>
+      </div>
+      <div class="card" style="border-color: #c56cf0;">
+        <h3>Ganancias</h3>
+        <p id="ganancias" style="font-size: 28px; color: #c56cf0; font-weight: bold;">$0</p>
+      </div>
+      <div class="card" style="border-color: #ff6b81;">
+        <h3>Próximo Pago</h3>
+        <p id="proximo-pago" style="font-size: 28px; color: #ff6b81; font-weight: bold;">$0</p>
+      </div>
+      <div class="card" style="border-color: #2ed573;">
+        <h3>Saldo Disponible</h3>
+        <p id="saldo-disponible" style="font-size: 28px; color: #2ed573; font-weight: bold;">$0</p>
       </div>
     </div>
+    <canvas id="graficaGanancias"></canvas>
   </div>
 
-  <div id="botNotificacion" onclick="toggleNotificacion()"><i class="fas fa-bell"></i></div>
-  <div id="modalNotificacion" class="modal">
-    <div class="contenido-notificacion">
-      <h3>Notificaciones</h3>
-      <p>No tienes nuevas notificaciones.</p>
-      <span class="cerrar" onclick="toggleNotificacion()">&times;</span>
+  <div id="perfil" class="section">
+    <h2>Perfil</h2>
+    <div class="formulario">
+      <input type="text" id="nombres" placeholder="Nombres" />
+      <input type="text" id="apellido" placeholder="Apellido" />
+      <input type="text" id="dni" placeholder="DNI" />
+      <input type="text" id="celular" placeholder="Número de celular" />
+      <input type="email" id="email" placeholder="Correo electrónico" disabled />
+      <input type="text" id="cbu" placeholder="CBU o Dirección USDT (BEP20)" />
+      <button onclick="guardarPerfil()">Guardar</button>
     </div>
   </div>
+</div>
+
+<div id="botAyuda" onclick="toggleAyuda()"><i class="fas fa-comment-dots"></i></div>
+<div id="modalAyuda" class="modal">
+  <div class="contenido-ayuda">
+    <h3>Soporte / Consulta</h3>
+    <input type="email" id="emailAyuda" placeholder="Tu correo electrónico" />
+    <input type="text" id="asuntoAyuda" placeholder="Asunto" />
+    <textarea id="mensajeAyuda" placeholder="Escribe tu mensaje aquí..."></textarea>
+    <button onclick="enviarTicket()">Enviar</button>
+    <span class="cerrar" onclick="toggleAyuda()">&times;</span>
+    <div id="historialTickets">
+      <h4 style="color:#00a8ff;">Últimos tickets</h4>
+      <ul id="listaTickets"></ul>
+    </div>
+  </div>
+</div>
+
+<div id="botNotificacion" onclick="toggleNotificacion()"><i class="fas fa-bell"></i></div>
+<div id="modalNotificacion" class="modal">
+  <div class="contenido-notificacion">
+    <h3>Notificaciones</h3>
+    <p>No tienes nuevas notificaciones.</p>
+    <span class="cerrar" onclick="toggleNotificacion()">&times;</span>
+  </div>
+</div>
 
 <script>
   const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
