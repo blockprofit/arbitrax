@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Caja Misteriosa</title>
+  <link rel="icon" href="favicon.png" type="image/png" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <style>
@@ -192,40 +193,41 @@
       <button onclick="abrirCaja()">Abrir Caja ($5000)</button>
     </div>
   </div>
+
 <script>
-    const premios = [
-      "🎉 Entrada gratis a la Trivia Básica",
-      "🔥 Entrada gratis a la Mini Pool Básica",
-      "💰 Premio en efectivo: $2000",
-      "🚀 Bonificación del 10% por 7 días",
-      "🙁 Caja vacía. ¡Mejor suerte la próxima!"
-    ];
+  const premios = [
+    "🎉 Entrada gratis a la Trivia Básica",
+    "🔥 Entrada gratis a la Mini Pool Básica",
+    "💰 Premio en efectivo: $2000",
+    "🚀 Bonificación del 10% por 7 días",
+    "🙁 Caja vacía. ¡Mejor suerte la próxima!"
+  ];
 
-    function abrirCaja() {
-      const resultado = premios[Math.floor(Math.random() * premios.length)];
-      const resultadoElemento = document.getElementById("resultado");
-      const card = document.getElementById("flipCard");
+  function abrirCaja() {
+    const resultado = premios[Math.floor(Math.random() * premios.length)];
+    const resultadoElemento = document.getElementById("resultado");
+    const card = document.getElementById("flipCard");
 
-      resultadoElemento.textContent = resultado;
-      card.classList.add("flipped");
-    }
+    resultadoElemento.textContent = resultado;
+    card.classList.add("flipped");
+  }
 
-    function toggleSidebar() {
-      document.getElementById("sidebar").classList.toggle("active");
-    }
+  function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("active");
+  }
 
-    function closeSidebar() {
-      document.getElementById("sidebar").classList.remove("active");
-    }
+  function closeSidebar() {
+    document.getElementById("sidebar").classList.remove("active");
+  }
 
-    async function logout() {
-      const client = supabase.createClient(
-        'https://ovulezkcxwrjvyxlxsdv.supabase.co',
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI'
-      );
-      await client.auth.signOut();
-      window.location.href = "index.html";
-    }
-  </script>
+  async function logout() {
+    const client = supabase.createClient(
+      'https://ovulezkcxwrjvyxlxsdv.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI'
+    );
+    await client.auth.signOut();
+    window.location.href = "index.html";
+  }
+</script>
 </body>
 </html>
