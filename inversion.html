@@ -4,9 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Nivel de Inversión</title>
+  <link rel="icon" href="favicon.png" type="image/png" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-
-  <!-- ✅ Se agregó Font Awesome para que funcionen los íconos -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
   <style>
@@ -89,6 +88,7 @@
       flex-wrap: wrap;
       gap: 20px;
       justify-content: center;
+      margin-top: 30px;
     }
     .card {
       background: rgba(255,255,255,0.1);
@@ -97,7 +97,7 @@
       padding: 20px;
       width: 220px;
       text-align: center;
-      backdrop-filter: blur(8px);
+      backdrop-filter: blur(4px);
     }
     .card h3 {
       font-size: 20px;
@@ -135,7 +135,6 @@
     <strong>Nivel de inversión</strong>
   </div>
 
-  <!-- ✅ Menú con íconos actualizado -->
   <div class="menu" id="mainMenu">
     <button onclick="window.location.href='principal.html#welcome'"><i class="fas fa-home"></i> Inicio</button>
     <button onclick="window.location.href='principal.html#perfil'"><i class="fas fa-user"></i> Perfil</button>
@@ -151,7 +150,8 @@
     <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-contract"></i> Términos y condiciones</button>
     <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
   </div>
-<div class="container">
+
+  <div class="container">
     <h2>Selecciona tu nivel de inversión</h2>
     <div class="mensaje-inversion">OBTÉN ENTRE UN 60% HASTA 180% DE TU INVERSIÓN</div>
 
@@ -170,7 +170,7 @@
         <p>Interés semanal: 10% - 15%<br>RETIROS CADA 7 DÍAS</p>
         <button onclick="seleccionar('Medio')">Seleccionar</button>
       </div>
-      <div class="card">
+<div class="card">
         <h3>Avanzado</h3>
         <label><input type="radio" name="plan-Avanzado" value="ARS" checked> 100.000 ARS</label>
         <label><input type="radio" name="plan-Avanzado" value="USDT"> 84 USDT</label>
@@ -178,7 +178,7 @@
         <button onclick="seleccionar('Avanzado')">Seleccionar</button>
       </div>
       <div class="card">
-        <h3>Profesional</h3>
+        <h3>Avanzado Pro</h3>
         <label><input type="radio" name="plan-Avanzado Pro" value="ARS" checked> 500.000 ARS</label>
         <label><input type="radio" name="plan-Avanzado Pro" value="USDT"> 417 USDT</label>
         <p>15% + premios<br>RETIROS CADA 7 DÍAS</p>
@@ -189,13 +189,17 @@
 
   <script>
     const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...ToI'; // clave truncada por privacidad
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let currentUserId = null;
 
     async function validarSesion() {
-      const { data: { session } } = await client.auth.getSession();
-      if (!session) return window.location.href = "index.html";
+      const { data: { session }, error } = await client.auth.getSession();
+      if (!session || error) {
+        alert("Sesión expirada. Iniciá sesión nuevamente.");
+        window.location.href = "index.html";
+        return;
+      }
       currentUserId = session.user.id;
     }
 
