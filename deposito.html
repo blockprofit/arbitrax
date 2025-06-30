@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Depósito</title>
+  <link rel="icon" href="favicon.png" type="image/png" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
@@ -93,25 +94,36 @@
       padding: 20px;
     }
 
-    .formulario input {
+    .formulario label {
+      display: block;
+      margin-top: 12px;
+      font-weight: bold;
+    }
+
+    .formulario input[type="text"],
+    .formulario input[type="number"] {
       width: 100%;
       padding: 10px;
-      margin: 8px 0;
+      margin-top: 6px;
       border-radius: 8px;
       border: none;
       background: #fff;
       color: #000;
+      font-size: 16px;
     }
 
     .formulario button {
-      padding: 10px;
+      padding: 12px;
       border: none;
       border-radius: 8px;
       background: #00a8ff;
       color: white;
       font-weight: bold;
       cursor: pointer;
-      margin-top: 10px;
+      margin-top: 20px;
+      width: 100%;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
     }
 
     .formulario button:hover {
@@ -121,28 +133,44 @@
     .info-cuenta {
       background: rgba(255,255,255,0.2);
       border-radius: 8px;
-      padding: 10px;
-      font-size: 14px;
-      margin-bottom: 10px;
+      padding: 12px 15px;
+      font-size: 16px;
+      margin-top: 12px;
       color: #fff;
       text-align: center;
       position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      user-select: text;
     }
 
     .info-cuenta button {
       position: absolute;
-      right: 10px;
-      top: 8px;
-      background: transparent;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #00a8ff;
       border: none;
       color: white;
       cursor: pointer;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background-color 0.3s ease;
+    }
+
+    .info-cuenta button:hover {
+      background: #007acc;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 20px;
+      margin-top: 40px;
       background: rgba(255,255,255,0.1);
       backdrop-filter: blur(4px);
       border-radius: 12px;
@@ -183,16 +211,16 @@
   <div class="content" onclick="closeSidebar()">
     <h2>Formulario de Depósito</h2>
     <div class="formulario">
-      <label>Tipo de moneda:</label>
+      <label for="tipo">Tipo de moneda:</label>
       <input type="text" id="tipo" readonly />
 
       <div class="info-cuenta" id="cuentaDestino">
         <span id="datoCuenta"></span>
-        <button onclick="copiarTexto()">📋</button>
+        <button onclick="copiarTexto()" title="Copiar al portapapeles"><i class="fas fa-copy"></i> Copiar</button>
       </div>
 
-      <label>Monto:</label>
-      <input type="number" id="monto" readonly />
+      <label for="monto">Monto (editable):</label>
+      <input type="number" id="monto" min="0" step="0.01" />
 
       <button onclick="registrarDeposito()">Confirmar depósito</button>
     </div>
@@ -211,99 +239,116 @@
     </table>
   </div>
 <script>
-    const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
-    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    let currentUserId = null;
+  const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let currentUserId = null;
 
-    async function init() {
-      const { data: { session } } = await client.auth.getSession();
-      if (!session) return window.location.href = "index.html";
-      currentUserId = session.user.id;
+  async function init() {
+    const { data: { session } } = await client.auth.getSession();
+    if (!session) return window.location.href = "index.html";
+    currentUserId = session.user.id;
 
-      const tipo = localStorage.getItem("tipoMoneda");
-      const monto = localStorage.getItem("montoInversion");
+    const tipo = localStorage.getItem("tipoMoneda");
+    const monto = localStorage.getItem("montoInversion");
 
-      document.getElementById("tipo").value = tipo;
-      document.getElementById("monto").value = monto;
+    document.getElementById("tipo").value = tipo || '';
+    document.getElementById("monto").value = monto || '';
 
-      const cuenta = tipo === "ARS"
-        ? "CVU: 0000267900000000189224"
-        : "Dirección USDT: 0x9748Fbc81045609Ab16583677eB5A75c73d1DeEf";
-      document.getElementById("datoCuenta").innerText = cuenta;
+    const cuenta = tipo === "ARS"
+      ? "CVU: 0000267900000000189224"
+      : "Dirección USDT: 0x9748Fbc81045609Ab16583677eB5A75c73d1DeEf";
 
-      await cargarHistorial();
+    document.getElementById("datoCuenta").innerText = cuenta;
+
+    await cargarHistorial();
+  }
+
+  async function registrarDeposito() {
+    const tipo = document.getElementById("tipo").value;
+    const monto = parseFloat(document.getElementById("monto").value);
+    const fecha = new Date().toISOString().split("T")[0];
+
+    if (!monto || !tipo || monto <= 0) {
+      alert("Por favor, ingresá un monto válido y tipo de moneda.");
+      return;
     }
 
-    async function registrarDeposito() {
-      const tipo = document.getElementById("tipo").value;
-      const monto = parseFloat(document.getElementById("monto").value);
-      const fecha = new Date().toISOString().split("T")[0];
+    // Validar depósito mínimo
+    if ((tipo === "ARS" && monto < 2000) || (tipo === "USDT" && monto < 3)) {
+      alert(`El depósito mínimo para ${tipo} es de ${tipo === "ARS" ? '2000 ARS' : '3 USDT'}.`);
+      return;
+    }
 
-      if (!monto || !tipo) return alert("Faltan datos para confirmar el depósito.");
+    const { error } = await client.from("depositos").insert({
+      usuario_id: currentUserId,
+      tipo,
+      monto,
+      fecha,
+      estado: "pendiente"
+    });
 
-      const { error } = await client.from("depositos").insert({
-        usuario_id: currentUserId,
-        tipo,
-        monto,
-        fecha,
-        estado: "pendiente"
+    if (error) {
+      alert("Error al guardar depósito: " + error.message);
+      return;
+    }
+
+    alert("✅ Depósito registrado correctamente.");
+    // Opcional: limpiar el monto o mantenerlo
+    // document.getElementById("monto").value = "";
+    localStorage.removeItem("montoInversion");
+    await cargarHistorial();
+  }
+
+  async function cargarHistorial() {
+    const { data } = await client
+      .from("depositos")
+      .select("*")
+      .eq("usuario_id", currentUserId)
+      .order("fecha", { ascending: false })
+      .limit(10);
+
+    const tbody = document.querySelector("#historial tbody");
+    tbody.innerHTML = "";
+
+    if (data?.length) {
+      data.forEach(dep => {
+        const fecha = new Date(dep.fecha).toLocaleDateString('es-AR');
+        const row = `<tr>
+          <td>${fecha}</td>
+          <td>${dep.tipo}</td>
+          <td>${dep.monto}</td>
+          <td>${dep.estado || 'pendiente'}</td>
+        </tr>`;
+        tbody.innerHTML += row;
       });
-
-      if (error) return alert("Error al guardar depósito: " + error.message);
-
-      alert("✅ Depósito registrado correctamente.");
-      await cargarHistorial();
+    } else {
+      tbody.innerHTML = `<tr><td colspan="4">Sin depósitos registrados.</td></tr>`;
     }
+  }
 
-    async function cargarHistorial() {
-      const { data } = await client
-        .from("depositos")
-        .select("*")
-        .eq("usuario_id", currentUserId)
-        .order("fecha", { ascending: false })
-        .limit(10);
+  function copiarTexto() {
+    const text = document.getElementById("datoCuenta").innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      alert("✅ Copiado al portapapeles.");
+    });
+  }
 
-      const tbody = document.querySelector("#historial tbody");
-      tbody.innerHTML = "";
+  function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("active");
+  }
 
-      if (data?.length) {
-        data.forEach(dep => {
-          const fecha = new Date(dep.fecha).toLocaleDateString('es-AR');
-          const row = `<tr>
-            <td>${fecha}</td>
-            <td>${dep.tipo}</td>
-            <td>${dep.monto}</td>
-            <td>${dep.estado || 'pendiente'}</td>
-          </tr>`;
-          tbody.innerHTML += row;
-        });
-      } else {
-        tbody.innerHTML = `<tr><td colspan="4">Sin depósitos registrados.</td></tr>`;
-      }
-    }
+  function closeSidebar() {
+    document.getElementById("sidebar").classList.remove("active");
+  }
 
-    function copiarTexto() {
-      const text = document.getElementById("datoCuenta").innerText;
-      navigator.clipboard.writeText(text).then(() => {
-        alert("Copiado al portapapeles.");
-      });
-    }
+  async function logout() {
+    await client.auth.signOut();
+    window.location.href = "index.html";
+  }
 
-    function toggleSidebar() {
-      document.getElementById("sidebar").classList.toggle("active");
-    }
+  init();
+</script>
 
-    function closeSidebar() {
-      document.getElementById("sidebar").classList.remove("active");
-    }
-
-    async function logout() {
-      await client.auth.signOut();
-      window.location.href = "index.html";
-    }
-
-    init();
-  </script>
 </body>
 </html>
