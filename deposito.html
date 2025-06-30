@@ -100,7 +100,7 @@
       font-weight: bold;
     }
 
-    .formulario input[type="text"],
+    .formulario select,
     .formulario input[type="number"] {
       width: 100%;
       padding: 10px;
@@ -140,16 +140,18 @@
       text-align: center;
       position: relative;
       display: flex;
-      justify-content: center;
+      justify-content: space-between;
       align-items: center;
+    }
+
+    .info-cuenta span {
+      flex: 1;
+      text-align: left;
+      font-size: 15px;
       user-select: text;
     }
 
     .info-cuenta button {
-      position: absolute;
-      right: 15px;
-      top: 50%;
-      transform: translateY(-50%);
       background: #00a8ff;
       border: none;
       color: white;
@@ -160,7 +162,6 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      transition: background-color 0.3s ease;
     }
 
     .info-cuenta button:hover {
@@ -211,15 +212,20 @@
   <div class="content" onclick="closeSidebar()">
     <h2>Formulario de Depósito</h2>
     <div class="formulario">
-      <label for="tipo">Tipo de moneda:</label>
-      <input type="text" id="tipo" readonly />
+      <label for="tipo">Seleccioná el tipo de moneda:</label>
+      <select id="tipo" onchange="actualizarCuenta()">
+        <option value="ARS">ARS</option>
+        <option value="USDT">USDT</option>
+      </select>
 
       <div class="info-cuenta" id="cuentaDestino">
         <span id="datoCuenta"></span>
-        <button onclick="copiarTexto()" title="Copiar al portapapeles"><i class="fas fa-copy"></i> Copiar</button>
+        <button onclick="copiarTexto()" title="Copiar al portapapeles">
+          <i class="fas fa-copy"></i>
+        </button>
       </div>
 
-      <label for="monto">Monto (editable):</label>
+      <label for="monto">Monto a depositar:</label>
       <input type="number" id="monto" min="0" step="0.01" />
 
       <button onclick="registrarDeposito()">Confirmar depósito</button>
@@ -252,16 +258,21 @@
     const tipo = localStorage.getItem("tipoMoneda");
     const monto = localStorage.getItem("montoInversion");
 
-    document.getElementById("tipo").value = tipo || '';
-    document.getElementById("monto").value = monto || '';
+    if (tipo && monto) {
+      document.getElementById("tipo").value = tipo;
+      document.getElementById("monto").value = monto;
+    }
 
+    actualizarCuenta();
+    await cargarHistorial();
+  }
+
+  function actualizarCuenta() {
+    const tipo = document.getElementById("tipo").value;
     const cuenta = tipo === "ARS"
       ? "CVU: 0000267900000000189224"
       : "Dirección USDT: 0x9748Fbc81045609Ab16583677eB5A75c73d1DeEf";
-
     document.getElementById("datoCuenta").innerText = cuenta;
-
-    await cargarHistorial();
   }
 
   async function registrarDeposito() {
@@ -269,14 +280,13 @@
     const monto = parseFloat(document.getElementById("monto").value);
     const fecha = new Date().toISOString().split("T")[0];
 
-    if (!monto || !tipo || monto <= 0) {
-      alert("Por favor, ingresá un monto válido y tipo de moneda.");
+    if (!tipo || !monto) {
+      alert("Por favor, completa todos los campos.");
       return;
     }
 
-    // Validar depósito mínimo
     if ((tipo === "ARS" && monto < 2000) || (tipo === "USDT" && monto < 3)) {
-      alert(`El depósito mínimo para ${tipo} es de ${tipo === "ARS" ? '2000 ARS' : '3 USDT'}.`);
+      alert(`El depósito mínimo es de ${tipo === "ARS" ? "$2000" : "3 USDT"}.`);
       return;
     }
 
@@ -289,15 +299,11 @@
     });
 
     if (error) {
-      alert("Error al guardar depósito: " + error.message);
-      return;
+      alert("Error al registrar el depósito: " + error.message);
+    } else {
+      alert("✅ Depósito registrado correctamente.");
+      await cargarHistorial();
     }
-
-    alert("✅ Depósito registrado correctamente.");
-    // Opcional: limpiar el monto o mantenerlo
-    // document.getElementById("monto").value = "";
-    localStorage.removeItem("montoInversion");
-    await cargarHistorial();
   }
 
   async function cargarHistorial() {
@@ -328,9 +334,9 @@
   }
 
   function copiarTexto() {
-    const text = document.getElementById("datoCuenta").innerText;
-    navigator.clipboard.writeText(text).then(() => {
-      alert("✅ Copiado al portapapeles.");
+    const texto = document.getElementById("datoCuenta").innerText;
+    navigator.clipboard.writeText(texto).then(() => {
+      alert("Copiado al portapapeles.");
     });
   }
 
@@ -349,6 +355,5 @@
 
   init();
 </script>
-
 </body>
 </html>
