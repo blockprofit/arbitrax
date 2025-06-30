@@ -149,23 +149,32 @@
       text-align: left;
       font-size: 15px;
       user-select: text;
+      word-break: break-all;
     }
 
+    /* Botón copiar estilo semitransparente pero visible y con hover */
     .info-cuenta button {
-      background: #00a8ff;
-      border: none;
+      background: rgba(0, 168, 255, 0.35);
+      border: 1.5px solid #00a8ff;
       color: white;
       cursor: pointer;
-      border-radius: 6px;
-      padding: 6px 10px;
+      border-radius: 8px;
+      padding: 6px 12px;
       font-size: 14px;
       display: flex;
       align-items: center;
       gap: 6px;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+      user-select: none;
+      min-width: 90px;
+      justify-content: center;
+      box-shadow: 0 0 6px rgba(0,168,255,0.6);
     }
 
     .info-cuenta button:hover {
-      background: #007acc;
+      background: rgba(0, 168, 255, 0.7);
+      border-color: #007acc;
+      box-shadow: 0 0 10px rgba(0,122,204,0.8);
     }
 
     table {
@@ -220,8 +229,8 @@
 
       <div class="info-cuenta" id="cuentaDestino">
         <span id="datoCuenta"></span>
-        <button onclick="copiarTexto()" title="Copiar al portapapeles">
-          <i class="fas fa-copy"></i>
+        <button onclick="copiarTexto()" title="Copiar al portapapeles" aria-label="Copiar al portapapeles">
+          <i class="fas fa-copy"></i> Copiar
         </button>
       </div>
 
