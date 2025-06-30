@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Retiro</title>
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="icon" href="favicon.png" type="image/png" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
@@ -167,7 +167,7 @@
       <input type="text" id="ret-apellido" placeholder="Apellido" />
       <input type="text" id="ret-dni" placeholder="DNI" />
       <input type="number" id="ret-cantidad" placeholder="Monto a retirar" />
-<label>Tipo de retiro:</label><br>
+      <label>Tipo de retiro:</label><br>
       <input type="radio" name="tipo-retiro" value="ARS" onchange="toggleMetodoRetiro()"> ARS
       <input type="radio" name="tipo-retiro" value="USDT" onchange="toggleMetodoRetiro()"> USDT (BEP20)
 
@@ -248,11 +248,13 @@
         alert("Por favor, ingresa un monto válido.");
         return;
       }
+
       // Validar montos mínimos
       if ((tipo === "ARS" && cantidad < 5000) || (tipo === "USDT" && cantidad < 5)) {
         alert(`El monto mínimo de retiro es ${tipo === "ARS" ? "5000 ARS" : "5 USDT"}.`);
         return;
       }
+
       // Validar campos CBU o USDT según tipo
       if (tipo === "ARS" && !cbu) {
         alert("Por favor, ingresa el CBU para retiros en ARS.");
@@ -280,7 +282,8 @@
       if (error) return alert("Error al enviar retiro: " + error.message);
 
       alert("✅ Retiro enviado correctamente.");
-      // Limpiar formulario después de enviar
+
+      // Limpiar formulario
       document.getElementById("ret-nombres").value = "";
       document.getElementById("ret-apellido").value = "";
       document.getElementById("ret-dni").value = "";
