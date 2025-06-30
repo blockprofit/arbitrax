@@ -137,11 +137,10 @@
       font-size: 16px;
       margin-top: 12px;
       color: #fff;
-      text-align: center;
-      position: relative;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
+      gap: 10px;
     }
 
     .info-cuenta span {
@@ -149,6 +148,7 @@
       text-align: left;
       font-size: 15px;
       user-select: text;
+      word-break: break-word;
     }
 
     .info-cuenta button {
@@ -156,12 +156,14 @@
       border: none;
       color: white;
       cursor: pointer;
-      border-radius: 6px;
-      padding: 6px 10px;
+      border-radius: 50%;
+      padding: 8px;
       font-size: 14px;
       display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
+      min-width: 36px;
+      height: 36px;
     }
 
     .info-cuenta button:hover {
@@ -190,8 +192,7 @@
   </style>
 </head>
 <body>
-
-  <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
+<div class="menu-toggle" onclick="toggleSidebar()">☰</div>
 
   <div class="sidebar" id="sidebar">
     <button onclick="window.location.href='principal.html#welcome'"><i class="fas fa-home"></i> Inicio</button>
