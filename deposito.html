@@ -137,44 +137,37 @@
       font-size: 16px;
       margin-top: 12px;
       color: #fff;
-      text-align: center;
+      text-align: left;
       position: relative;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      /* quitamos flex para mejor acomodo */
     }
 
     .info-cuenta span {
-      flex: 1;
-      text-align: left;
       font-size: 15px;
       user-select: text;
-      word-break: break-all;
+      display: inline-block;
+      vertical-align: middle;
     }
 
-    /* Botón copiar estilo semitransparente pero visible y con hover */
-    .info-cuenta button {
-      background: rgba(0, 168, 255, 0.35);
-      border: 1.5px solid #00a8ff;
+    /* Nuevo estilo para botón copiar: semitransparente, pequeño, con margen al lado derecho */
+    .btn-copiar {
+      background: rgba(0, 168, 255, 0.6);
+      border: none;
       color: white;
       cursor: pointer;
-      border-radius: 8px;
-      padding: 6px 12px;
+      border-radius: 6px;
+      padding: 6px 10px;
       font-size: 14px;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: background-color 0.3s ease, border-color 0.3s ease;
-      user-select: none;
-      min-width: 90px;
-      justify-content: center;
-      box-shadow: 0 0 6px rgba(0,168,255,0.6);
+      vertical-align: middle;
+      margin-left: 10px;
+      transition: background-color 0.3s ease;
     }
 
-    .info-cuenta button:hover {
-      background: rgba(0, 168, 255, 0.7);
-      border-color: #007acc;
-      box-shadow: 0 0 10px rgba(0,122,204,0.8);
+    .btn-copiar:hover {
+      background: rgba(0, 122, 204, 0.8);
     }
 
     table {
@@ -229,7 +222,8 @@
 
       <div class="info-cuenta" id="cuentaDestino">
         <span id="datoCuenta"></span>
-        <button onclick="copiarTexto()" title="Copiar al portapapeles" aria-label="Copiar al portapapeles">
+        <!-- Botón copiado a inline junto al texto CVU/Dirección -->
+        <button class="btn-copiar" onclick="copiarTexto()" title="Copiar al portapapeles">
           <i class="fas fa-copy"></i> Copiar
         </button>
       </div>
@@ -252,7 +246,7 @@
       </thead>
       <tbody></tbody>
     </table>
-  </div>
+</div>
 <script>
   const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
@@ -343,6 +337,7 @@
   }
 
   function copiarTexto() {
+    // Copiar el texto visible (sin el texto del botón)
     const texto = document.getElementById("datoCuenta").innerText;
     navigator.clipboard.writeText(texto).then(() => {
       alert("Copiado al portapapeles.");
