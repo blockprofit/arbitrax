@@ -207,8 +207,7 @@
     <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-alt"></i> Términos y condiciones</button>
     <button onclick="logout()"><i class="fas fa-power-off"></i> Cerrar sesión</button>
   </div>
-
-  <div class="content" onclick="closeSidebar()">
+<div class="content" onclick="closeSidebar()">
     <h2>Formulario de Depósito</h2>
     <div class="formulario">
       <label for="tipo">Seleccioná el tipo de moneda:</label>
@@ -243,151 +242,154 @@
       <tbody></tbody>
     </table>
   </div>
+
 <script>
-    const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
-    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    let currentUserId = null;
+  const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let currentUserId = null;
 
-    async function init() {
-      const { data: { user }, error } = await client.auth.getUser();
+  async function init() {
+    const { data: { user }, error } = await client.auth.getUser();
 
-      if (error || !user) {
-        alert("Debes iniciar sesión para ver esta página.");
-        return window.location.href = "index.html";
-      }
+    if (error || !user) {
+      alert("Debes iniciar sesión para ver esta página.");
+      return window.location.href = "index.html";
+    }
 
-      currentUserId = user.id;
+    currentUserId = user.id;
 
-      // Cargar valores guardados en localStorage (si hay)
-      const tipo = localStorage.getItem("tipoMoneda");
-      const monto = localStorage.getItem("montoInversion");
+    const tipo = localStorage.getItem("tipoMoneda");
+    const monto = localStorage.getItem("montoInversion");
 
-      if (tipo && monto) {
-        document.getElementById("tipo").value = tipo;
-        document.getElementById("monto").value = monto;
-      }
+    if (tipo && monto) {
+      document.getElementById("tipo").value = tipo;
+      document.getElementById("monto").value = monto;
+    }
 
-      actualizarCuenta();
+    await actualizarCuenta();
+    await cargarHistorial();
+  }
+
+  async function actualizarCuenta() {
+    const tipo = document.getElementById("tipo").value;
+
+    const { data, error } = await client
+      .from("config_depositos")
+      .select("cbu, usdt")
+      .eq("id", 1)
+      .single();
+
+    if (error) {
+      console.error("Error al obtener datos de depósito:", error);
+      return;
+    }
+
+    const cuenta = tipo === "ARS" ? data.cbu : data.usdt;
+    document.getElementById("datoCuenta").innerText = cuenta;
+  }
+
+  async function registrarDeposito() {
+    const tipo = document.getElementById("tipo").value;
+    const montoInput = document.getElementById("monto").value;
+    const monto = parseFloat(montoInput);
+    const fechaISO = new Date().toISOString();
+    const fecha = fechaISO.split("T")[0];
+
+    if (!tipo || !montoInput || isNaN(monto)) {
+      alert("Por favor, completa todos los campos correctamente.");
+      return;
+    }
+
+    if ((tipo === "ARS" && monto < 2000) || (tipo === "USDT" && monto < 3)) {
+      alert(`El depósito mínimo es de ${tipo === "ARS" ? "$2000" : "3 USDT"}.`);
+      return;
+    }
+
+    localStorage.setItem("tipoMoneda", tipo);
+    localStorage.setItem("montoInversion", monto);
+
+    const { error } = await client
+      .from("depositos")
+      .insert({
+        usuario_id: currentUserId,
+        tipo,
+        monto,
+        fecha,
+        estado: "pendiente",
+        created_at: fechaISO
+      });
+
+    if (error) {
+      alert("Error al registrar el depósito: " + error.message);
+    } else {
+      alert("✅ Depósito registrado correctamente.");
+      document.getElementById("monto").value = "";
       await cargarHistorial();
     }
+  }
 
-    function actualizarCuenta() {
-      const tipo = document.getElementById("tipo").value;
-      const cuenta = tipo === "ARS"
-        ? "CVU: 0000267900000000189224"
-        : "Dirección USDT: 0x9748Fbc81045609Ab16583677eB5A75c73d1DeEf";
-      document.getElementById("datoCuenta").innerText = cuenta;
+  async function cargarHistorial() {
+    const { data, error } = await client
+      .from("depositos")
+      .select("*")
+      .eq("usuario_id", currentUserId)
+      .order("created_at", { ascending: false })
+      .limit(10);
+
+    if (error) {
+      console.error("Error al cargar historial de depósitos:", error);
+      return;
     }
 
-    async function registrarDeposito() {
-      const tipo = document.getElementById("tipo").value;
-      const montoInput = document.getElementById("monto").value;
-      const monto = parseFloat(montoInput);
-      const fechaISO = new Date().toISOString();
-      // extraer sólo fecha para columna 'fecha'
-      const fecha = fechaISO.split("T")[0];
+    const tbody = document.querySelector("#historial tbody");
+    tbody.innerHTML = "";
 
-      if (!tipo || !montoInput || isNaN(monto)) {
-        alert("Por favor, completa todos los campos correctamente.");
-        return;
-      }
+    if (data && data.length > 0) {
+      data.forEach(dep => {
+        const fechaMostrar = dep.fecha
+          ? new Date(dep.fecha).toLocaleDateString('es-AR')
+          : "N/A";
+        const estadoMostrar = dep.estado || "pendiente";
+        const montoMostrar = dep.monto != null ? dep.monto : "N/A";
+        const tipoMostrar = dep.tipo || "N/A";
 
-      if ((tipo === "ARS" && monto < 2000) || (tipo === "USDT" && monto < 3)) {
-        alert(`El depósito mínimo es de ${tipo === "ARS" ? "$2000" : "3 USDT"}.`);
-        return;
-      }
-
-      // Guardar en localStorage para recordar elección
-      localStorage.setItem("tipoMoneda", tipo);
-      localStorage.setItem("montoInversion", monto);
-
-      // Insertar en la tabla 'depositos'
-      const { error } = await client
-        .from("depositos")
-        .insert({
-          usuario_id: currentUserId,
-          tipo,
-          monto,
-          fecha,
-          estado: "pendiente",
-          created_at: fechaISO
-        });
-
-      if (error) {
-        alert("Error al registrar el depósito: " + error.message);
-      } else {
-        alert("✅ Depósito registrado correctamente.");
-        // limpiar monto para nuevo ingreso
-        document.getElementById("monto").value = "";
-        await cargarHistorial();
-      }
-    }
-
-    async function cargarHistorial() {
-      const { data, error } = await client
-        .from("depositos")
-        .select("*")
-        .eq("usuario_id", currentUserId)
-        .order("created_at", { ascending: false })
-        .limit(10);
-
-      if (error) {
-        console.error("Error al cargar historial de depósitos:", error);
-        return;
-      }
-
-      const tbody = document.querySelector("#historial tbody");
-      tbody.innerHTML = "";
-
-      if (data && data.length > 0) {
-        data.forEach(dep => {
-          // Convertir fecha a formato local
-          const fechaMostrar = dep.fecha
-            ? new Date(dep.fecha).toLocaleDateString('es-AR')
-            : "N/A";
-
-          const estadoMostrar = dep.estado || "pendiente";
-          const montoMostrar = dep.monto != null ? dep.monto : "N/A";
-          const tipoMostrar = dep.tipo || "N/A";
-
-          const row = `<tr>
-            <td>${fechaMostrar}</td>
-            <td>${tipoMostrar}</td>
-            <td>${montoMostrar}</td>
-            <td>${estadoMostrar}</td>
-          </tr>`;
-          tbody.innerHTML += row;
-        });
-      } else {
-        tbody.innerHTML = `<tr><td colspan="4">Sin depósitos registrados.</td></tr>`;
-      }
-    }
-
-    function copiarTexto() {
-      const texto = document.getElementById("datoCuenta").innerText;
-      navigator.clipboard.writeText(texto).then(() => {
-        alert("Copiado al portapapeles.");
-      }).catch(() => {
-        alert("Error al copiar al portapapeles.");
+        const row = `<tr>
+          <td>${fechaMostrar}</td>
+          <td>${tipoMostrar}</td>
+          <td>${montoMostrar}</td>
+          <td>${estadoMostrar}</td>
+        </tr>`;
+        tbody.innerHTML += row;
       });
+    } else {
+      tbody.innerHTML = `<tr><td colspan="4">Sin depósitos registrados.</td></tr>`;
     }
+  }
 
-    function toggleSidebar() {
-      document.getElementById("sidebar").classList.toggle("active");
-    }
+  function copiarTexto() {
+    const texto = document.getElementById("datoCuenta").innerText;
+    navigator.clipboard.writeText(texto).then(() => {
+      alert("Copiado al portapapeles.");
+    }).catch(() => {
+      alert("Error al copiar al portapapeles.");
+    });
+  }
 
-    function closeSidebar() {
-      document.getElementById("sidebar").classList.remove("active");
-    }
+  function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("active");
+  }
 
-    async function logout() {
-      await client.auth.signOut();
-      window.location.href = "index.html";
-    }
+  function closeSidebar() {
+    document.getElementById("sidebar").classList.remove("active");
+  }
 
-    // Inicializar cuando carga la página
-    init();
-  </script>
+  async function logout() {
+    await client.auth.signOut();
+    window.location.href = "index.html";
+  }
+
+  init();
+</script>
 </body>
 </html>
