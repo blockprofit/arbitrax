@@ -139,7 +139,6 @@
       color: #fff;
       text-align: left;
       position: relative;
-      /* quitamos flex para mejor acomodo */
     }
 
     .info-cuenta span {
@@ -149,7 +148,6 @@
       vertical-align: middle;
     }
 
-    /* Nuevo estilo para botón copiar: semitransparente, pequeño, con margen al lado derecho */
     .btn-copiar {
       background: rgba(0, 168, 255, 0.6);
       border: none;
@@ -192,8 +190,7 @@
   </style>
 </head>
 <body>
-
-  <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
+<div class="menu-toggle" onclick="toggleSidebar()">☰</div>
 
   <div class="sidebar" id="sidebar">
     <button onclick="window.location.href='principal.html#welcome'"><i class="fas fa-home"></i> Inicio</button>
@@ -222,7 +219,6 @@
 
       <div class="info-cuenta" id="cuentaDestino">
         <span id="datoCuenta"></span>
-        <!-- Botón copiado a inline junto al texto CVU/Dirección -->
         <button class="btn-copiar" onclick="copiarTexto()" title="Copiar al portapapeles">
           <i class="fas fa-copy"></i> Copiar
         </button>
@@ -246,118 +242,128 @@
       </thead>
       <tbody></tbody>
     </table>
-</div>
-<script>
-  const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
-  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  let currentUserId = null;
+  </div>
 
-  async function init() {
-    const { data: { session } } = await client.auth.getSession();
-    if (!session) return window.location.href = "index.html";
-    currentUserId = session.user.id;
+  <script>
+    const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let currentUserId = null;
 
-    const tipo = localStorage.getItem("tipoMoneda");
-    const monto = localStorage.getItem("montoInversion");
+    async function init() {
+      const { data: { user }, error } = await client.auth.getUser();
 
-    if (tipo && monto) {
-      document.getElementById("tipo").value = tipo;
-      document.getElementById("monto").value = monto;
-    }
+      if (error || !user) {
+        alert("Debes iniciar sesión para ver esta página.");
+        return window.location.href = "index.html";
+      }
 
-    actualizarCuenta();
-    await cargarHistorial();
-  }
+      currentUserId = user.id;
 
-  function actualizarCuenta() {
-    const tipo = document.getElementById("tipo").value;
-    const cuenta = tipo === "ARS"
-      ? "CVU: 0000267900000000189224"
-      : "Dirección USDT: 0x9748Fbc81045609Ab16583677eB5A75c73d1DeEf";
-    document.getElementById("datoCuenta").innerText = cuenta;
-  }
+      const tipo = localStorage.getItem("tipoMoneda");
+      const monto = localStorage.getItem("montoInversion");
 
-  async function registrarDeposito() {
-    const tipo = document.getElementById("tipo").value;
-    const monto = parseFloat(document.getElementById("monto").value);
-    const fecha = new Date().toISOString().split("T")[0];
+      if (tipo && monto) {
+        document.getElementById("tipo").value = tipo;
+        document.getElementById("monto").value = monto;
+      }
 
-    if (!tipo || !monto) {
-      alert("Por favor, completa todos los campos.");
-      return;
-    }
-
-    if ((tipo === "ARS" && monto < 2000) || (tipo === "USDT" && monto < 3)) {
-      alert(`El depósito mínimo es de ${tipo === "ARS" ? "$2000" : "3 USDT"}.`);
-      return;
-    }
-
-    const { error } = await client.from("depositos").insert({
-      usuario_id: currentUserId,
-      tipo,
-      monto,
-      fecha,
-      estado: "pendiente"
-    });
-
-    if (error) {
-      alert("Error al registrar el depósito: " + error.message);
-    } else {
-      alert("✅ Depósito registrado correctamente.");
+      actualizarCuenta();
       await cargarHistorial();
     }
-  }
 
-  async function cargarHistorial() {
-    const { data } = await client
-      .from("depositos")
-      .select("*")
-      .eq("usuario_id", currentUserId)
-      .order("fecha", { ascending: false })
-      .limit(10);
-
-    const tbody = document.querySelector("#historial tbody");
-    tbody.innerHTML = "";
-
-    if (data?.length) {
-      data.forEach(dep => {
-        const fecha = new Date(dep.fecha).toLocaleDateString('es-AR');
-        const row = `<tr>
-          <td>${fecha}</td>
-          <td>${dep.tipo}</td>
-          <td>${dep.monto}</td>
-          <td>${dep.estado || 'pendiente'}</td>
-        </tr>`;
-        tbody.innerHTML += row;
-      });
-    } else {
-      tbody.innerHTML = `<tr><td colspan="4">Sin depósitos registrados.</td></tr>`;
+    function actualizarCuenta() {
+      const tipo = document.getElementById("tipo").value;
+      const cuenta = tipo === "ARS"
+        ? "CVU: 0000267900000000189224"
+        : "Dirección USDT: 0x9748Fbc81045609Ab16583677eB5A75c73d1DeEf";
+      document.getElementById("datoCuenta").innerText = cuenta;
     }
-  }
 
-  function copiarTexto() {
-    // Copiar el texto visible (sin el texto del botón)
-    const texto = document.getElementById("datoCuenta").innerText;
-    navigator.clipboard.writeText(texto).then(() => {
-      alert("Copiado al portapapeles.");
-    });
-  }
+    async function registrarDeposito() {
+      const tipo = document.getElementById("tipo").value;
+      const monto = parseFloat(document.getElementById("monto").value);
+      const fecha = new Date().toISOString().split("T")[0];
 
-  function toggleSidebar() {
-    document.getElementById("sidebar").classList.toggle("active");
-  }
+      if (!tipo || !monto) {
+        alert("Por favor, completa todos los campos.");
+        return;
+      }
 
-  function closeSidebar() {
-    document.getElementById("sidebar").classList.remove("active");
-  }
+      if ((tipo === "ARS" && monto < 2000) || (tipo === "USDT" && monto < 3)) {
+        alert(`El depósito mínimo es de ${tipo === "ARS" ? "$2000" : "3 USDT"}.`);
+        return;
+      }
 
-  async function logout() {
-    await client.auth.signOut();
-    window.location.href = "index.html";
-  }
+      const { error } = await client.from("depositos").insert({
+        usuario_id: currentUserId,
+        tipo,
+        monto,
+        fecha,
+        estado: "pendiente"
+      });
 
-  init();
-</script>
+      if (error) {
+        alert("Error al registrar el depósito: " + error.message);
+      } else {
+        alert("✅ Depósito registrado correctamente.");
+        await cargarHistorial();
+      }
+    }
+
+    async function cargarHistorial() {
+      const { data, error } = await client
+        .from("depositos")
+        .select("*")
+        .eq("usuario_id", currentUserId)
+        .order("fecha", { ascending: false })
+        .limit(10);
+
+      if (error) {
+        console.error("Error al cargar historial de depósitos:", error);
+        return;
+      }
+
+      const tbody = document.querySelector("#historial tbody");
+      tbody.innerHTML = "";
+
+      if (data?.length) {
+        data.forEach(dep => {
+          const fecha = new Date(dep.fecha).toLocaleDateString('es-AR');
+          const row = `<tr>
+            <td>${fecha}</td>
+            <td>${dep.tipo}</td>
+            <td>${dep.monto}</td>
+            <td>${dep.estado || 'pendiente'}</td>
+          </tr>`;
+          tbody.innerHTML += row;
+        });
+      } else {
+        tbody.innerHTML = `<tr><td colspan="4">Sin depósitos registrados.</td></tr>`;
+      }
+    }
+
+    function copiarTexto() {
+      const texto = document.getElementById("datoCuenta").innerText;
+      navigator.clipboard.writeText(texto).then(() => {
+        alert("Copiado al portapapeles.");
+      });
+    }
+
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("active");
+    }
+
+    function closeSidebar() {
+      document.getElementById("sidebar").classList.remove("active");
+    }
+
+    async function logout() {
+      await client.auth.signOut();
+      window.location.href = "index.html";
+    }
+
+    init();
+  </script>
 </body>
 </html>
