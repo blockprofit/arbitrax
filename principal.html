@@ -286,8 +286,7 @@
     </div>
     <canvas id="graficaGanancias"></canvas>
   </div>
-
-  <div id="perfil" class="section">
+<div id="perfil" class="section">
     <h2>Perfil</h2>
     <div class="formulario">
       <input type="text" id="nombres" placeholder="Nombres" />
@@ -452,8 +451,7 @@
     await client.auth.signOut();
     window.location.href = "index.html";
   }
-
-  async function obtenerSaldoDisponible() {
+async function obtenerSaldoDisponible() {
     const { data, error } = await client
       .from("balances")
       .select("saldo")
