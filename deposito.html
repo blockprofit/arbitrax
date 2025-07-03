@@ -243,8 +243,7 @@
       <tbody></tbody>
     </table>
   </div>
-
-  <script>
+<script>
     const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -260,6 +259,7 @@
 
       currentUserId = user.id;
 
+      // Cargar valores guardados en localStorage (si hay)
       const tipo = localStorage.getItem("tipoMoneda");
       const monto = localStorage.getItem("montoInversion");
 
@@ -282,11 +282,14 @@
 
     async function registrarDeposito() {
       const tipo = document.getElementById("tipo").value;
-      const monto = parseFloat(document.getElementById("monto").value);
-      const fecha = new Date().toISOString().split("T")[0];
+      const montoInput = document.getElementById("monto").value;
+      const monto = parseFloat(montoInput);
+      const fechaISO = new Date().toISOString();
+      // extraer sólo fecha para columna 'fecha'
+      const fecha = fechaISO.split("T")[0];
 
-      if (!tipo || !monto) {
-        alert("Por favor, completa todos los campos.");
+      if (!tipo || !montoInput || isNaN(monto)) {
+        alert("Por favor, completa todos los campos correctamente.");
         return;
       }
 
@@ -295,18 +298,28 @@
         return;
       }
 
-      const { error } = await client.from("depositos").insert({
-        usuario_id: currentUserId,
-        tipo,
-        monto,
-        fecha,
-        estado: "pendiente"
-      });
+      // Guardar en localStorage para recordar elección
+      localStorage.setItem("tipoMoneda", tipo);
+      localStorage.setItem("montoInversion", monto);
+
+      // Insertar en la tabla 'depositos'
+      const { error } = await client
+        .from("depositos")
+        .insert({
+          usuario_id: currentUserId,
+          tipo,
+          monto,
+          fecha,
+          estado: "pendiente",
+          created_at: fechaISO
+        });
 
       if (error) {
         alert("Error al registrar el depósito: " + error.message);
       } else {
         alert("✅ Depósito registrado correctamente.");
+        // limpiar monto para nuevo ingreso
+        document.getElementById("monto").value = "";
         await cargarHistorial();
       }
     }
@@ -316,7 +329,7 @@
         .from("depositos")
         .select("*")
         .eq("usuario_id", currentUserId)
-        .order("fecha", { ascending: false })
+        .order("created_at", { ascending: false })
         .limit(10);
 
       if (error) {
@@ -327,14 +340,22 @@
       const tbody = document.querySelector("#historial tbody");
       tbody.innerHTML = "";
 
-      if (data?.length) {
+      if (data && data.length > 0) {
         data.forEach(dep => {
-          const fecha = new Date(dep.fecha).toLocaleDateString('es-AR');
+          // Convertir fecha a formato local
+          const fechaMostrar = dep.fecha
+            ? new Date(dep.fecha).toLocaleDateString('es-AR')
+            : "N/A";
+
+          const estadoMostrar = dep.estado || "pendiente";
+          const montoMostrar = dep.monto != null ? dep.monto : "N/A";
+          const tipoMostrar = dep.tipo || "N/A";
+
           const row = `<tr>
-            <td>${fecha}</td>
-            <td>${dep.tipo}</td>
-            <td>${dep.monto}</td>
-            <td>${dep.estado || 'pendiente'}</td>
+            <td>${fechaMostrar}</td>
+            <td>${tipoMostrar}</td>
+            <td>${montoMostrar}</td>
+            <td>${estadoMostrar}</td>
           </tr>`;
           tbody.innerHTML += row;
         });
@@ -347,6 +368,8 @@
       const texto = document.getElementById("datoCuenta").innerText;
       navigator.clipboard.writeText(texto).then(() => {
         alert("Copiado al portapapeles.");
+      }).catch(() => {
+        alert("Error al copiar al portapapeles.");
       });
     }
 
@@ -363,6 +386,7 @@
       window.location.href = "index.html";
     }
 
+    // Inicializar cuando carga la página
     init();
   </script>
 </body>
