@@ -213,24 +213,25 @@
     const email = document.getElementById("regEmail").value.trim();
     const pass1 = document.getElementById("regPass").value;
     const pass2 = document.getElementById("regRepeat").value;
+
     if (pass1 !== pass2) return alert("Las contraseñas no coinciden.");
 
-    const { error } = await client.auth.signUp({ email, password: pass1 });
+    const { data: signupData, error } = await client.auth.signUp({ email, password: pass1 });
     if (error) return alert("Error al registrar: " + error.message);
 
-    const { data: sessionData } = await client.auth.getSession();
-    const nuevoUsuarioId = sessionData?.session?.user?.id;
     const referidoPor = localStorage.getItem("referido_por");
 
-    if (referidoPor && nuevoUsuarioId) {
+    if (referidoPor && signupData?.user?.id) {
       await client.from("referidos").insert({
-        usuario_id: nuevoUsuarioId,
+        usuario_id: signupData.user.id,
         referido_por: referidoPor,
-        completado: false
+        email: email,
+        aprobado: false,
+        fecha: new Date().toISOString()
       });
     }
 
-    alert("Cuenta creada. Revisa tu correo.");
+    alert("Cuenta creada. Revisa tu correo para verificarla.");
     showForm("loginForm");
   }
 
