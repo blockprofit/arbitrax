@@ -186,8 +186,7 @@
   </style>
 </head>
 <body>
-
-  <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
+<div class="menu-toggle" onclick="toggleSidebar()">☰</div>
 
   <div class="sidebar" id="sidebar">
     <button onclick="window.location.href='principal.html#welcome'"><i class="fas fa-home"></i> Inicio</button>
@@ -196,7 +195,7 @@
     <button onclick="window.location.href='deposito.html'"><i class="fas fa-wallet"></i> Depósito</button>
     <button onclick="window.location.href='retiro.html'"><i class="fas fa-hand-holding-usd"></i> Retiro</button>
     <button class="active"><i class="fas fa-users"></i> Programa de referidos</button>
-<button onclick="window.location.href='trivia.html'"><i class="fas fa-question"></i> Trivia</button>
+    <button onclick="window.location.href='trivia.html'"><i class="fas fa-question"></i> Trivia</button>
     <button onclick="window.location.href='minipool.html'"><i class="fas fa-coins"></i> Mini Pool</button>
     <button onclick="window.location.href='mysterybox.html'"><i class="fas fa-box-open"></i> Mystery Box</button>
     <button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>
@@ -258,26 +257,48 @@
       }
 
       currentUserId = session.user.id;
+      const userEmail = session.user.email;
 
+      // Mostrar link de referido
       const origin = window.location.origin;
       const link = `${origin}/index.html?ref=${currentUserId}`;
       document.getElementById("linkReferido").value = link;
 
-      const { data: referidos, error: refError } = await client
+      // Verificar si se registró con referencia
+      const params = new URLSearchParams(window.location.search);
+      const referidoPor = params.get("ref");
+
+      if (referidoPor && referidoPor !== currentUserId) {
+        // Verificar si ya está en la tabla
+        const { data: yaExiste } = await client
+          .from("referidos")
+          .select("id")
+          .eq("email", userEmail)
+          .maybeSingle();
+
+        if (!yaExiste) {
+          await client.from("referidos").insert({
+            referido_por: referidoPor,
+            email: userEmail,
+            completado: false
+          });
+        }
+      }
+
+      const { data: referidos } = await client
         .from("referidos")
         .select("id")
         .eq("referido_por", currentUserId)
-        .eq("completado", true);
+        .eq("aprobado", true);
 
       document.getElementById("referidosCompletados").innerText = referidos?.length || 0;
-
       await cargarHistorial();
     }
 
     async function cargarHistorial() {
       const { data, error } = await client
         .from("referidos")
-        .select("email, created_at, completado")
+        .select("email, created_at, aprobado")
         .eq("referido_por", currentUserId)
         .order("created_at", { ascending: false })
         .limit(10);
@@ -295,7 +316,7 @@
         const fila = `<tr>
           <td>${ref.email || "Sin email"}</td>
           <td>${fecha}</td>
-          <td>${ref.completado ? "✅" : "❌"}</td>
+          <td>${ref.aprobado ? "✅" : "❌"}</td>
         </tr>`;
         tbody.innerHTML += fila;
       });
