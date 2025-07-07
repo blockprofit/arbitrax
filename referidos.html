@@ -257,50 +257,28 @@
       }
 
       currentUserId = session.user.id;
-      const userEmail = session.user.email;
 
-      // Mostrar link de referido
       const origin = window.location.origin;
       const link = `${origin}/index.html?ref=${currentUserId}`;
       document.getElementById("linkReferido").value = link;
 
-      // Verificar si se registró con referencia
-      const params = new URLSearchParams(window.location.search);
-      const referidoPor = params.get("ref");
-
-      if (referidoPor && referidoPor !== currentUserId) {
-        // Verificar si ya está en la tabla
-        const { data: yaExiste } = await client
-          .from("referidos")
-          .select("id")
-          .eq("email", userEmail)
-          .maybeSingle();
-
-        if (!yaExiste) {
-          await client.from("referidos").insert({
-            referido_por: referidoPor,
-            email: userEmail,
-            completado: false
-          });
-        }
-      }
-
-      const { data: referidos } = await client
+      const { data: referidos, error: refError } = await client
         .from("referidos")
         .select("id")
         .eq("referido_por", currentUserId)
         .eq("aprobado", true);
 
       document.getElementById("referidosCompletados").innerText = referidos?.length || 0;
+
       await cargarHistorial();
     }
 
     async function cargarHistorial() {
       const { data, error } = await client
         .from("referidos")
-        .select("email, created_at, aprobado")
+        .select("email, fecha, aprobado")
         .eq("referido_por", currentUserId)
-        .order("created_at", { ascending: false })
+        .order("fecha", { ascending: false })
         .limit(10);
 
       const tbody = document.getElementById("tablaReferidos");
@@ -312,7 +290,7 @@
       }
 
       data.forEach(ref => {
-        const fecha = new Date(ref.created_at).toLocaleDateString('es-AR');
+        const fecha = new Date(ref.fecha).toLocaleDateString('es-AR');
         const fila = `<tr>
           <td>${ref.email || "Sin email"}</td>
           <td>${fecha}</td>
