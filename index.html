@@ -216,14 +216,16 @@
 
     if (pass1 !== pass2) return alert("Las contraseñas no coinciden.");
 
-    const { data: signupData, error } = await client.auth.signUp({ email, password: pass1 });
+    const { data, error } = await client.auth.signUp({ email, password: pass1 });
     if (error) return alert("Error al registrar: " + error.message);
 
+    const userId = data?.user?.id;
     const referidoPor = localStorage.getItem("referido_por");
 
-    if (referidoPor && signupData?.user?.id) {
+    if (referidoPor && userId) {
       await client.from("referidos").insert({
-        usuario_id: signupData.user.id,
+        id: crypto.randomUUID(),
+        usuario_id: userId,
         referido_por: referidoPor,
         email: email,
         aprobado: false,
