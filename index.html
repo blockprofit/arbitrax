@@ -3,324 +3,304 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Programa de Referidos</title>
-  <link rel="icon" href="favicon.png" type="image/png" />
+  <title>Login con Email - Supabase</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png" />
+
+  <!-- Open Graph Meta Tags -->
+  <meta property="og:title" content="Arbitrax - Plataforma de inversión cripto" />
+  <meta property="og:description" content="Invertí y multiplicá tu capital con nuestras funciones: inversión, trivia, mini pool y más." />
+  <meta property="og:image" content="https://res.cloudinary.com/dghk6h3es/image/upload/v1750960886/arbitrax-preview_sywhbe.jpg" />
+  <meta property="og:url" content="https://arbitrax-livid.vercel.app/" />
+  <meta property="og:type" content="website" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Arbitrax - Plataforma de inversión cripto">
+  <meta name="twitter:description" content="Sumate al ecosistema de inversión más dinámico y transparente.">
+  <meta name="twitter:image" content="https://res.cloudinary.com/dghk6h3es/image/upload/v1750960886/arbitrax-preview_sywhbe.jpg">
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-image: url('fondodepantallaprincipal1.jpeg');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      color: white;
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
       margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background: url('fondodepantallainicio.jpeg') no-repeat center center fixed;
+      background-size: cover;
       display: flex;
+      justify-content: center;
+      align-items: center;
       min-height: 100vh;
-    }
-
-    .menu-toggle {
-      position: fixed;
-      top: 15px;
-      left: 15px;
-      font-size: 24px;
-      cursor: pointer;
-      z-index: 1001;
-      background-color: rgba(0, 0, 0, 0.6);
-      padding: 10px 15px;
-      border-radius: 6px;
-    }
-
-    .sidebar {
-      width: 230px;
-      background-color: rgba(0, 0, 0, 0.85);
-      height: 100vh;
-      padding-top: 60px;
-      display: flex;
-      flex-direction: column;
-      position: fixed;
-      top: 0;
-      left: 0;
-      transform: translateX(-100%);
-      transition: transform 0.3s ease;
-      z-index: 1000;
-    }
-
-    .sidebar.active {
-      transform: translateX(0%);
-    }
-
-    .sidebar button {
-      background: none;
-      border: none;
       color: white;
-      font-size: 15px;
-      padding: 12px 20px;
-      text-align: left;
-      cursor: pointer;
+    }
+
+    .login-container {
+      background: rgba(0, 0, 0, 0.75);
+      border-radius: 16px;
+      padding: 35px 30px;
       width: 100%;
+      max-width: 400px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+      position: relative;
+    }
+
+    .language-menu {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+    }
+
+    .language-menu button {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      color: white;
       display: flex;
       align-items: center;
+      gap: 6px;
     }
 
-    .sidebar button:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-    }
-
-    .sidebar button i {
-      margin-right: 12px;
-      width: 20px;
-      text-align: center;
-    }
-
-    .content {
-      flex: 1;
-      padding: 30px;
-      margin-left: 0;
-      width: 100%;
-    }
-
-    h2, h3 {
-      text-align: center;
-    }
-
-    .formulario {
-      max-width: 500px;
-      margin: 20px auto;
-      text-align: center;
-    }
-
-    .formulario input {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
+    .language-menu ul {
+      display: none;
+      position: absolute;
+      top: 40px;
+      right: 0;
+      list-style: none;
+      background: rgba(0, 0, 0, 0.7);
       border-radius: 8px;
+      padding: 0;
+      margin: 0;
+      width: 100%;
+      z-index: 99;
+    }
+
+    .language-menu ul li {
+      padding: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .language-menu ul li:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
       border: none;
-      background: #fff;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    input {
+      background: #e6f0e8;
       color: #000;
     }
 
-    .formulario button {
-      margin-top: 10px;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      background: #00a8ff;
+    button {
+      background: #00c85a;
       color: white;
       font-weight: bold;
       cursor: pointer;
     }
 
-    .formulario button:hover {
-      background: #007acc;
-    }
-
-    .cards {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: center;
-      margin-top: 30px;
-    }
-
-    .card {
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 12px;
-      padding: 20px;
-      width: 200px;
+    .form-switch {
       text-align: center;
-      backdrop-filter: blur(4px);
+      margin-top: 15px;
+      font-size: 14px;
     }
 
-    .historial {
-      max-width: 700px;
-      margin: 40px auto;
-      background: rgba(0, 0, 0, 0.5);
-      border-radius: 12px;
-      padding: 20px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
+    .form-switch a {
       color: white;
-      font-size: 15px;
-    }
-
-    th, td {
-      padding: 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.2);
-      text-align: center;
-    }
-
-    th {
-      background: rgba(255,255,255,0.1);
-    }
-
-    .credit {
-      margin-top: 40px;
-      text-align: center;
-      font-size: 12px;
-    }
-
-    .credit a {
-      color: #ccc;
-      text-decoration: none;
-    }
-
-    .volver {
-      display: block;
-      text-align: center;
-      margin: 30px auto 10px;
-      font-size: 16px;
-      color: #00a8ff;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    .volver:hover {
       text-decoration: underline;
+      cursor: pointer;
+      display: inline-block;
+      margin-top: 5px;
+    }
+
+    .hidden {
+      display: none;
     }
   </style>
 </head>
 <body>
-<div class="menu-toggle" onclick="toggleSidebar()">☰</div>
+  <div class="login-container">
+    <!-- Menú de idioma -->
+    <div class="language-menu">
+      <button onclick="toggleLangMenu()" id="currentLang">
+        <img src="https://flagcdn.com/es.svg" width="20" /> ESP
+      </button>
+      <ul id="langOptions">
+        <li onclick="setLang('es')"><img src="https://flagcdn.com/es.svg" width="20" /> ESP</li>
+        <li onclick="setLang('en')"><img src="https://flagcdn.com/gb.svg" width="20" /> ENG</li>
+        <li onclick="setLang('pt')"><img src="https://flagcdn.com/br.svg" width="20" /> POR</li>
+      </ul>
+    </div>
 
-  <div class="sidebar" id="sidebar">
-    <button onclick="window.location.href='principal.html#welcome'"><i class="fas fa-home"></i> Inicio</button>
-    <button onclick="window.location.href='principal.html#perfil'"><i class="fas fa-user"></i> Perfil</button>
-    <button onclick="window.location.href='inversion.html'"><i class="fas fa-chart-line"></i> Nivel de inversión</button>
-    <button onclick="window.location.href='deposito.html'"><i class="fas fa-wallet"></i> Depósito</button>
-    <button onclick="window.location.href='retiro.html'"><i class="fas fa-hand-holding-usd"></i> Retiro</button>
-    <button class="active"><i class="fas fa-users"></i> Programa de referidos</button>
-    <button onclick="window.location.href='trivia.html'"><i class="fas fa-question"></i> Trivia</button>
-    <button onclick="window.location.href='minipool.html'"><i class="fas fa-coins"></i> Mini Pool</button>
-    <button onclick="window.location.href='mysterybox.html'"><i class="fas fa-box-open"></i> Mystery Box</button>
-    <button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>
-    <button onclick="window.location.href='preguntasfrecuentes.html'"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>
-    <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-contract"></i> Términos y condiciones</button>
-    <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
+    <!-- Login -->
+    <div id="loginForm">
+      <h2 id="loginTitle">Iniciar Sesión</h2>
+      <input type="email" id="loginEmail" placeholder="Correo electrónico" />
+      <input type="password" id="loginPass" placeholder="Contraseña" />
+      <button onclick="login()" id="loginBtn">Entrar</button>
+      <div class="form-switch">
+        <span id="noAccount">¿No tienes cuenta?</span>
+        <a onclick="showForm('registerForm')" id="registerLink">Registrarse</a><br>
+        <a onclick="showForm('recoverForm')" id="forgotPass">¿Olvidaste tu contraseña?</a>
+      </div>
+    </div>
+<!-- Registro -->
+    <div id="registerForm" class="hidden">
+      <h2 id="registerTitle">Registrarse</h2>
+      <input type="email" id="regEmail" placeholder="Correo electrónico" />
+      <input type="password" id="regPass" placeholder="Contraseña" />
+      <input type="password" id="regRepeat" placeholder="Repetir contraseña" />
+      <button onclick="register()" id="createBtn">Crear cuenta</button>
+      <div class="form-switch">
+        <a onclick="showForm('loginForm')" id="backLogin">Volver al inicio</a>
+      </div>
+    </div>
+
+    <!-- Recuperar contraseña -->
+    <div id="recoverForm" class="hidden">
+      <h2 id="recoverTitle">Recuperar Contraseña</h2>
+      <input type="email" id="recoveryEmail" placeholder="Correo electrónico" />
+      <button onclick="recoverPassword()" id="sendBtn">Enviar</button>
+      <div class="form-switch">
+        <a onclick="showForm('loginForm')" id="backLogin2">Volver al inicio</a>
+      </div>
+    </div>
   </div>
 
-  <div class="content" onclick="closeSidebar()">
-    <h2>Programa de Referidos</h2>
+<script>
+  const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    <div class="formulario">
-      <p>Compartí tu enlace de invitación:</p>
-      <input type="text" id="linkReferido" readonly />
-      <button onclick="copiarTexto('linkReferido')">Copiar enlace</button>
-    </div>
+  const urlParams = new URLSearchParams(window.location.search);
+  const ref = urlParams.get("ref");
+  if (ref) localStorage.setItem("referido_por", ref);
 
-    <h3>Referidos completados: <span id="referidosCompletados">0</span></h3>
+  function showForm(id) {
+    ["loginForm", "registerForm", "recoverForm"].forEach(f => {
+      document.getElementById(f).classList.add("hidden");
+    });
+    document.getElementById(id).classList.remove("hidden");
+  }
 
-    <div class="cards">
-      <div class="card"><h3>5 Referidos</h3><p>20.000 ARS o 17 USDT</p></div>
-      <div class="card"><h3>10 Referidos</h3><p>80.000 ARS o 60 USDT</p></div>
-      <div class="card"><h3>20 Referidos</h3><p>100.000 ARS o 80 USDT</p></div>
-      <div class="card"><h3>50 Referidos</h3><p>250.000 ARS o 200 USDT</p></div>
-    </div>
+  async function register() {
+    const email = document.getElementById("regEmail").value.trim();
+    const pass1 = document.getElementById("regPass").value;
+    const pass2 = document.getElementById("regRepeat").value;
 
-    <div class="historial">
-      <h3>Últimos referidos registrados</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Correo</th>
-            <th>Fecha</th>
-            <th>Completado</th>
-          </tr>
-        </thead>
-        <tbody id="tablaReferidos">
-          <tr><td colspan="3">Cargando...</td></tr>
-        </tbody>
-      </table>
-    </div>
+    if (pass1 !== pass2) return alert("Las contraseñas no coinciden.");
 
-    <a href="principal.html" class="volver">← Volver al menú principal</a>
-    <div class="credit">Imagen de fondo: fondodepantallaprincipal1.jpeg</div>
-  </div>
+    const { data, error } = await client.auth.signUp({ email, password: pass1 });
+    if (error) return alert("Error al registrar: " + error.message);
 
-  <script>
-    const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
-    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    let currentUserId = null;
+    const userId = data?.user?.id;
+    const referidoPor = localStorage.getItem("referido_por");
 
-    async function iniciar() {
-      const { data: { session }, error } = await client.auth.getSession();
-      if (error || !session) {
-        alert("Sesión expirada. Iniciá sesión nuevamente.");
-        window.location.href = "index.html";
-        return;
-      }
-
-      currentUserId = session.user.id;
-
-      const origin = window.location.origin;
-      const link = `${origin}/index.html?ref=${currentUserId}`;
-      document.getElementById("linkReferido").value = link;
-
-      const { data: referidos, error: refError } = await client
-        .from("referidos")
-        .select("id")
-        .eq("referido_por", currentUserId)
-        .eq("aprobado", true);
-
-      document.getElementById("referidosCompletados").innerText = referidos?.length || 0;
-
-      await cargarHistorial();
-    }
-
-    async function cargarHistorial() {
-      const { data, error } = await client
-        .from("referidos")
-        .select("email, fecha, aprobado")
-        .eq("referido_por", currentUserId)
-        .order("fecha", { ascending: false })
-        .limit(10);
-
-      const tbody = document.getElementById("tablaReferidos");
-      tbody.innerHTML = "";
-
-      if (error || !data?.length) {
-        tbody.innerHTML = `<tr><td colspan="3">No hay registros aún.</td></tr>`;
-        return;
-      }
-
-      data.forEach(ref => {
-        const fecha = new Date(ref.fecha).toLocaleDateString('es-AR');
-        const fila = `<tr>
-          <td>${ref.email || "Sin email"}</td>
-          <td>${fecha}</td>
-          <td>${ref.aprobado ? "✅" : "❌"}</td>
-        </tr>`;
-        tbody.innerHTML += fila;
+    if (referidoPor && userId) {
+      await client.from("referidos").insert({
+        id: crypto.randomUUID(),
+        usuario_id: userId,
+        referido_por: referidoPor,
+        email: email,
+        aprobado: false,
+        fecha: new Date().toISOString()
       });
     }
 
-    function copiarTexto(id) {
-      const texto = document.getElementById(id).value;
-      navigator.clipboard.writeText(texto).then(() => {
-        alert("✅ Enlace copiado al portapapeles.");
-      });
-    }
+    alert("Cuenta creada. Revisa tu correo para verificarla.");
+    showForm("loginForm");
+  }
 
-    function toggleSidebar() {
-      document.getElementById("sidebar").classList.toggle("active");
-    }
+  async function login() {
+    const email = document.getElementById("loginEmail").value.trim();
+    const pass = document.getElementById("loginPass").value;
+    const { error } = await client.auth.signInWithPassword({ email, password: pass });
+    if (error) return alert("Error al iniciar sesión: " + error.message);
+    window.location.href = "principal.html";
+  }
 
-    function closeSidebar() {
-      document.getElementById("sidebar").classList.remove("active");
-    }
+  async function recoverPassword() {
+    const email = document.getElementById("recoveryEmail").value.trim();
+    const { error } = await client.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + '/reset.html'
+    });
+    if (error) return alert("Error al enviar el correo: " + error.message);
+    alert("Correo de recuperación enviado.");
+    showForm("loginForm");
+  }
 
-    async function logout() {
-      await client.auth.signOut();
-      window.location.href = "index.html";
+  const translations = {
+    es: {
+      loginTitle: "Iniciar Sesión", registerTitle: "Registrarse", recoverTitle: "Recuperar Contraseña",
+      loginBtn: "Entrar", createBtn: "Crear cuenta", sendBtn: "Enviar",
+      noAccount: "¿No tienes cuenta?", registerLink: "Registrarse", forgotPass: "¿Olvidaste tu contraseña?",
+      backLogin: "Volver al inicio", backLogin2: "Volver al inicio"
+    },
+    en: {
+      loginTitle: "Login", registerTitle: "Register", recoverTitle: "Reset Password",
+      loginBtn: "Login", createBtn: "Create account", sendBtn: "Send",
+      noAccount: "Don't have an account?", registerLink: "Register", forgotPass: "Forgot password?",
+      backLogin: "Back to login", backLogin2: "Back to login"
+    },
+    pt: {
+      loginTitle: "Entrar", registerTitle: "Registrar", recoverTitle: "Recuperar Senha",
+      loginBtn: "Acessar", createBtn: "Criar conta", sendBtn: "Enviar",
+      noAccount: "Não tem uma conta?", registerLink: "Registrar-se", forgotPass: "Esqueceu a senha?",
+      backLogin: "Voltar", backLogin2: "Voltar"
     }
+  };
 
-    iniciar();
-  </script>
+  function toggleLangMenu() {
+    const menu = document.getElementById("langOptions");
+    menu.style.display = menu.style.display === "block" ? "none" : "block";
+  }
+
+  function setLang(lang) {
+    const t = translations[lang];
+    document.getElementById("loginTitle").innerText = t.loginTitle;
+    document.getElementById("registerTitle").innerText = t.registerTitle;
+    document.getElementById("recoverTitle").innerText = t.recoverTitle;
+    document.getElementById("loginBtn").innerText = t.loginBtn;
+    document.getElementById("createBtn").innerText = t.createBtn;
+    document.getElementById("sendBtn").innerText = t.sendBtn;
+    document.getElementById("noAccount").innerText = t.noAccount;
+    document.getElementById("registerLink").innerText = t.registerLink;
+    document.getElementById("forgotPass").innerText = t.forgotPass;
+    document.getElementById("backLogin").innerText = t.backLogin;
+    document.getElementById("backLogin2").innerText = t.backLogin2;
+
+    const flags = { es: "es", en: "gb", pt: "br" };
+    const names = { es: "ESP", en: "ENG", pt: "POR" };
+    document.getElementById("currentLang").innerHTML =
+      `<img src="https://flagcdn.com/${flags[lang]}.svg" width="20" /> ${names[lang]}`;
+    document.getElementById("langOptions").style.display = "none";
+  }
+</script>
 </body>
 </html>
