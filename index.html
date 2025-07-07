@@ -23,13 +23,17 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
+
     html, body {
       margin: 0;
       padding: 0;
       height: 100%;
       font-family: 'Segoe UI', sans-serif;
     }
+
     body {
       background: url('fondodepantallainicio.jpeg') no-repeat center center fixed;
       background-size: cover;
@@ -39,6 +43,7 @@
       min-height: 100vh;
       color: white;
     }
+
     .login-container {
       background: rgba(0, 0, 0, 0.75);
       border-radius: 16px;
@@ -48,11 +53,13 @@
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
       position: relative;
     }
+
     .language-menu {
       position: absolute;
       top: 15px;
       right: 15px;
     }
+
     .language-menu button {
       background: rgba(255, 255, 255, 0.1);
       border: none;
@@ -65,6 +72,7 @@
       align-items: center;
       gap: 6px;
     }
+
     .language-menu ul {
       display: none;
       position: absolute;
@@ -78,6 +86,7 @@
       width: 100%;
       z-index: 99;
     }
+
     .language-menu ul li {
       padding: 10px;
       cursor: pointer;
@@ -85,13 +94,16 @@
       align-items: center;
       gap: 8px;
     }
+
     .language-menu ul li:hover {
       background: rgba(255, 255, 255, 0.1);
     }
+
     h2 {
       text-align: center;
       margin-bottom: 20px;
     }
+
     input, button {
       width: 100%;
       padding: 12px;
@@ -100,21 +112,25 @@
       border-radius: 8px;
       font-size: 16px;
     }
+
     input {
       background: #e6f0e8;
       color: #000;
     }
+
     button {
       background: #00c85a;
       color: white;
       font-weight: bold;
       cursor: pointer;
     }
+
     .form-switch {
       text-align: center;
       margin-top: 15px;
       font-size: 14px;
     }
+
     .form-switch a {
       color: white;
       text-decoration: underline;
@@ -122,6 +138,7 @@
       display: inline-block;
       margin-top: 5px;
     }
+
     .hidden {
       display: none;
     }
@@ -176,16 +193,16 @@
       </div>
     </div>
   </div>
-<script>
-  const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
-  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const ref = urlParams.get("ref");
-  if (ref) localStorage.setItem("referido_por", ref);
+  <script>
+    const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  function showForm(id) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const ref = urlParams.get("ref");
+    if (ref) localStorage.setItem("referido_por", ref);
+function showForm(id) {
     ["loginForm", "registerForm", "recoverForm"].forEach(f => {
       document.getElementById(f).classList.add("hidden");
     });
@@ -203,22 +220,15 @@
     if (error) return alert("Error al registrar: " + error.message);
 
     const referidoPor = localStorage.getItem("referido_por");
-    const usuario_id = data?.user?.id;
 
-    if (referidoPor && usuario_id) {
-      const insertResult = await client.from("referidos").insert([{
-        usuario_id,
+    if (referidoPor && data?.user?.id) {
+      await client.from("referidos").insert({
+        usuario_id: data.user.id,
         referido_por: referidoPor,
-        email,
+        email: email,
         aprobado: false,
         fecha: new Date().toISOString()
-      }]);
-
-      if (insertResult.error) {
-        console.error("Error insertando referido:", insertResult.error);
-      } else {
-        console.log("Referido registrado correctamente");
-      }
+      });
     }
 
     alert("Cuenta creada. Revisa tu correo para verificarla.");
