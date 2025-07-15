@@ -287,8 +287,7 @@
     </div>
     <canvas id="graficaGanancias"></canvas>
   </div>
-
-  <div id="perfil" class="section">
+<div id="perfil" class="section">
     <h2>Perfil</h2>
     <div class="formulario">
       <input type="text" id="nombre" placeholder="Nombre" />
@@ -331,7 +330,7 @@
 <!-- SCRIPT FINAL -->
 <script>
 const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUserId = null;
 let currentEmail = null;
@@ -346,7 +345,7 @@ async function validateSession() {
   cargarHistorialTickets();
   obtenerSaldoDisponible();
   cargarCuadrosFinancieros();
-  setInterval(cargarCuadrosFinancieros, 60000); // ✅ Actualiza cada 60s
+  setInterval(cargarCuadrosFinancieros, 60000); // ✅ Actualiza cada minuto
 }
 
 async function cargarPerfil() {
