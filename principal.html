@@ -52,7 +52,8 @@
     .sidebar.active {
       transform: translateX(0%);
     }
-.sidebar button {
+
+    .sidebar button {
       background: none;
       border: none;
       color: white;
@@ -345,6 +346,7 @@ async function validateSession() {
   cargarHistorialTickets();
   obtenerSaldoDisponible();
   cargarCuadrosFinancieros();
+  setInterval(cargarCuadrosFinancieros, 60000); // ✅ Actualiza cada 60s
 }
 
 async function cargarPerfil() {
