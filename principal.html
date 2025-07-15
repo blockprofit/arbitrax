@@ -290,7 +290,6 @@
   <div id="perfil" class="section">
     <h2>Perfil</h2>
     <div class="formulario">
-      <!-- Cambié id de nombres a nombre -->
       <input type="text" id="nombre" placeholder="Nombre" />
       <input type="text" id="apellido" placeholder="Apellido" />
       <input type="text" id="dni" placeholder="DNI" />
@@ -302,12 +301,12 @@
   </div>
 </div>
 
+<!-- Modales -->
 <div id="botAyuda" onclick="toggleAyuda()"><i class="fas fa-comment-dots"></i></div>
 <div id="modalAyuda" class="modal">
   <div class="contenido-ayuda">
     <h3>Soporte / Consulta</h3>
-    <input type="email" id="emailAyuda" placeholder="Tu
-correo electrónico" />
+    <input type="email" id="emailAyuda" placeholder="Tu correo electrónico" />
     <input type="text" id="asuntoAyuda" placeholder="Asunto" />
     <textarea id="mensajeAyuda" placeholder="Escribe tu mensaje aquí..."></textarea>
     <button onclick="enviarTicket()">Enviar</button>
@@ -328,179 +327,176 @@ correo electrónico" />
   </div>
 </div>
 
+<!-- SCRIPT FINAL -->
 <script>
-  const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
-  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
+const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let currentUserId = null;
+let currentEmail = null;
 
-  let currentUserId = null;
-  let currentEmail = null;
+async function validateSession() {
+  const { data: { session } } = await client.auth.getSession();
+  if (!session) return window.location.href = "index.html";
+  currentUserId = session.user.id;
+  currentEmail = session.user.email;
+  document.getElementById("emailAyuda").value = currentEmail;
+  cargarPerfil();
+  cargarHistorialTickets();
+  obtenerSaldoDisponible();
+  cargarCuadrosFinancieros();
+}
 
-  async function validateSession() {
-    const { data: { session } } = await client.auth.getSession();
-    if (!session) return window.location.href = "index.html";
-    currentUserId = session.user.id;
-    currentEmail = session.user.email;
-    document.getElementById("emailAyuda").value = currentEmail;
-    cargarPerfil();
-    cargarHistorialTickets();
-    obtenerSaldoDisponible();
+async function cargarPerfil() {
+  const { data, error } = await client.from("profiles").select("*").eq("id", currentUserId).single();
+  if (!error && data) {
+    document.getElementById("nombre").value = data.nombre || "";
+    document.getElementById("apellido").value = data.apellido || "";
+    document.getElementById("dni").value = data.dni || "";
+    document.getElementById("celular").value = data.celular || "";
+    document.getElementById("cbu").value = data.cbu || "";
+    document.getElementById("email").value = data.email || currentEmail;
+  } else {
+    document.getElementById("email").value = currentEmail;
   }
+}
 
-  async function cargarPerfil() {
-    const { data, error } = await client
-      .from("profiles")
-      .select("*")
-      .eq("id", currentUserId)
-      .single();
+async function guardarPerfil() {
+  const perfil = {
+    id: currentUserId,
+    email: currentEmail,
+    nombre: document.getElementById("nombre").value,
+    apellido: document.getElementById("apellido").value,
+    dni: document.getElementById("dni").value,
+    celular: document.getElementById("celular").value,
+    cbu: document.getElementById("cbu").value
+  };
+  await client.from("profiles").upsert(perfil, { onConflict: 'id' });
+  cargarPerfil();
+  showSection("welcome");
+}
 
-    if (!error && data) {
-      document.getElementById("nombre").value = data.nombre || "";
-      document.getElementById("apellido").value = data.apellido || "";
-      document.getElementById("dni").value = data.dni || "";
-      document.getElementById("celular").value = data.celular || "";
-      document.getElementById("cbu").value = data.cbu || "";
-      document.getElementById("email").value = data.email || currentEmail;
-    } else {
-      document.getElementById("email").value = currentEmail;
-    }
+async function cargarCuadrosFinancieros() {
+  const { data, error } = await client.from("profiles").select("monto_confirmado, porcentaje").eq("id", currentUserId).single();
+  if (error || !data) return;
+
+  const monto = parseFloat(data.monto_confirmado) || 0;
+  const porcentaje = parseFloat(data.porcentaje) || 0;
+  const ganancias = monto * (porcentaje / 100);
+  const proximoPago = ganancias / 30;
+
+  document.getElementById("total-invertido").textContent = `$${monto.toFixed(2)}`;
+  document.getElementById("ganancias").textContent = `$${ganancias.toFixed(2)}`;
+  document.getElementById("proximo-pago").textContent = `$${proximoPago.toFixed(2)}`;
+}
+
+async function obtenerSaldoDisponible() {
+  const { data, error } = await client.from("balances").select("saldo").eq("usuario_id", currentUserId).single();
+  if (!error && data && data.saldo !== undefined) {
+    document.getElementById("saldo-disponible").textContent = `$${data.saldo.toFixed(2)}`;
+  } else {
+    document.getElementById("saldo-disponible").textContent = "$0.00";
   }
+}
 
-  async function guardarPerfil() {
-    const perfil = {
-      id: currentUserId,
-      email: currentEmail,
-      nombre: document.getElementById("nombre").value,
-      apellido: document.getElementById("apellido").value,
-      dni: document.getElementById("dni").value,
-      celular: document.getElementById("celular").value,
-      cbu: document.getElementById("cbu").value
-    };
-    await client.from("profiles").upsert(perfil, { onConflict: 'id' });
-    cargarPerfil();
-    showSection("welcome");
-  }
+function toggleSidebar() {
+  document.getElementById("sidebar").classList.toggle("active");
+}
 
-  async function enviarTicket() {
-    const email = document.getElementById("emailAyuda").value.trim();
-    const asunto = document.getElementById("asuntoAyuda").value.trim();
-    const mensaje = document.getElementById("mensajeAyuda").value.trim();
-    if (!email || !asunto || !mensaje) return;
+function closeSidebar() {
+  document.getElementById("sidebar").classList.remove("active");
+}
 
-    await client.from("tickets").insert({
-      usuario_id: currentUserId,
-      email,
-      asunto,
-      mensaje,
-      fecha: new Date().toISOString()
-    });
+function showSection(id) {
+  document.querySelectorAll(".section").forEach(el => el.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
 
-    document.getElementById("asuntoAyuda").value = "";
-    document.getElementById("mensajeAyuda").value = "";
-    cargarHistorialTickets();
-  }
+  document.querySelectorAll(".sidebar button").forEach(btn => btn.classList.remove("active"));
+  const allButtons = document.querySelectorAll(".sidebar button");
+  if (id === "welcome") allButtons[0].classList.add("active");
+  if (id === "perfil") allButtons[1].classList.add("active");
+}
 
-  async function cargarHistorialTickets() {
-    const { data } = await client
-      .from("tickets")
-      .select("*")
-      .eq("usuario_id", currentUserId)
-      .order("fecha", { ascending: false })
-      .limit(3);
-
-    const lista = document.getElementById("listaTickets");
-    lista.innerHTML = "";
-
-    if (data && data.length > 0) {
-      data.forEach(ticket => {
-        const li = document.createElement("li");
-        li.textContent = `${ticket.asunto}: ${ticket.mensaje}`;
-        lista.appendChild(li);
-      });
-    } else {
-      lista.innerHTML = "<li>No hay tickets recientes.</li>";
-    }
-  }
 function toggleAyuda() {
-    const modal = document.getElementById("modalAyuda");
-    modal.style.display = modal.style.display === "block" ? "none" : "block";
-  }
+  const modal = document.getElementById("modalAyuda");
+  modal.style.display = modal.style.display === "block" ? "none" : "block";
+}
 
-  function toggleNotificacion() {
-    const modal = document.getElementById("modalNotificacion");
-    modal.style.display = modal.style.display === "block" ? "none" : "block";
-  }
+function toggleNotificacion() {
+  const modal = document.getElementById("modalNotificacion");
+  modal.style.display = modal.style.display === "block" ? "none" : "block";
+}
 
-  function toggleSidebar() {
-    document.getElementById("sidebar").classList.toggle("active");
-  }
+async function enviarTicket() {
+  const email = document.getElementById("emailAyuda").value.trim();
+  const asunto = document.getElementById("asuntoAyuda").value.trim();
+  const mensaje = document.getElementById("mensajeAyuda").value.trim();
+  if (!email || !asunto || !mensaje) return;
 
-  function closeSidebar() {
-    document.getElementById("sidebar").classList.remove("active");
-  }
-
-  function showSection(id) {
-    document.querySelectorAll(".section").forEach(el => el.classList.remove("active"));
-    document.getElementById(id).classList.add("active");
-
-    document.querySelectorAll(".sidebar button").forEach(btn => btn.classList.remove("active"));
-    const allButtons = document.querySelectorAll(".sidebar button");
-    if (id === "welcome") allButtons[0].classList.add("active");
-    if (id === "perfil") allButtons[1].classList.add("active");
-  }
-
-  async function logout() {
-    await client.auth.signOut();
-    window.location.href = "index.html";
-  }
-
-  async function obtenerSaldoDisponible() {
-    const { data, error } = await client
-      .from("balances")
-      .select("saldo")
-      .eq("usuario_id", currentUserId)
-      .single();
-
-    if (!error && data && data.saldo !== undefined) {
-      document.getElementById("saldo-disponible").textContent = `$${data.saldo.toFixed(2)}`;
-    } else {
-      document.getElementById("saldo-disponible").textContent = "$0.00";
-    }
-  }
-
-  new Chart(document.getElementById('graficaGanancias').getContext('2d'), {
-    type: 'line',
-    data: {
-      labels: ['L', 'M', 'X', 'J', 'V', 'S', 'D'],
-      datasets: [{
-        label: 'Ganancias diarias',
-        data: [120, 300, 180, 260, 210, 400, 370],
-        borderColor: '#00d4ff',
-        backgroundColor: 'transparent',
-        tension: 0.4,
-        pointBackgroundColor: '#00d4ff',
-        pointRadius: 4
-      }]
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: { color: 'white' },
-          grid: { color: 'rgba(255,255,255,0.1)' }
-        },
-        x: {
-          ticks: { color: 'white' },
-          grid: { color: 'rgba(255,255,255,0.05)' }
-        }
-      },
-      plugins: {
-        legend: { display: false }
-      }
-    }
+  await client.from("tickets").insert({
+    usuario_id: currentUserId,
+    email, asunto, mensaje, fecha: new Date().toISOString()
   });
 
-  validateSession();
+  document.getElementById("asuntoAyuda").value = "";
+  document.getElementById("mensajeAyuda").value = "";
+  cargarHistorialTickets();
+}
+
+async function cargarHistorialTickets() {
+  const { data } = await client.from("tickets").select("*").eq("usuario_id", currentUserId).order("fecha", { ascending: false }).limit(3);
+  const lista = document.getElementById("listaTickets");
+  lista.innerHTML = "";
+
+  if (data && data.length > 0) {
+    data.forEach(ticket => {
+      const li = document.createElement("li");
+      li.textContent = `${ticket.asunto}: ${ticket.mensaje}`;
+      lista.appendChild(li);
+    });
+  } else {
+    lista.innerHTML = "<li>No hay tickets recientes.</li>";
+  }
+}
+
+async function logout() {
+  await client.auth.signOut();
+  window.location.href = "index.html";
+}
+
+new Chart(document.getElementById('graficaGanancias').getContext('2d'), {
+  type: 'line',
+  data: {
+    labels: ['L', 'M', 'X', 'J', 'V', 'S', 'D'],
+    datasets: [{
+      label: 'Ganancias diarias',
+      data: [120, 300, 180, 260, 210, 400, 370],
+      borderColor: '#00d4ff',
+      backgroundColor: 'transparent',
+      tension: 0.4,
+      pointBackgroundColor: '#00d4ff',
+      pointRadius: 4
+    }]
+  },
+  options: {
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { color: 'white' },
+        grid: { color: 'rgba(255,255,255,0.1)' }
+      },
+      x: {
+        ticks: { color: 'white' },
+        grid: { color: 'rgba(255,255,255,0.05)' }
+      }
+    },
+    plugins: {
+      legend: { display: false }
+    }
+  }
+});
+
+validateSession();
 </script>
 </body>
 </html>
