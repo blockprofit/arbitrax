@@ -334,6 +334,12 @@ const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUserId = null;
 let currentEmail = null;
 
+let montoInvertido = 0;
+let porcentajeSemanal = 0;
+let gananciaAcumulada = 0;
+// Guardamos el último cálculo con persistencia:
+let ultimoCalculo = null;
+
 async function validateSession() {
   const { data: { session } } = await client.auth.getSession();
   if (!session) return window.location.href = "index.html";
@@ -347,10 +353,8 @@ async function validateSession() {
   obtenerSaldoDisponible();
   await cargarDatosFinancierosDinamicos();
 
-  // Ejecutar el cálculo de ganancias iniciales
   actualizarGananciasDinamicas();
 
-  // Actualizar ganancias cada 60 segundos
   setInterval(actualizarGananciasDinamicas, 60000);
 }
 
@@ -367,6 +371,7 @@ async function cargarPerfil() {
     document.getElementById("email").value = currentEmail;
   }
 }
+
 async function guardarPerfil() {
   const perfil = {
     id: currentUserId,
@@ -378,7 +383,8 @@ async function guardarPerfil() {
     cbu: document.getElementById("cbu").value
   };
   await client.from("profiles").upsert(perfil, { onConflict: 'id' });
-  cargarPerfil();
+  // Recargar datos perfil sin perder la vista:
+  await cargarPerfil();
   showSection("welcome");
 }
 
@@ -391,26 +397,23 @@ async function obtenerSaldoDisponible() {
   }
 }
 
-let montoInvertido = 0;
-let porcentajeSemanal = 0;
-let gananciaAcumulada = 0;
-let ultimoTimestamp = Date.now();
-
 async function cargarDatosFinancierosDinamicos() {
-  const { data, error } = await client.from("profiles").select("monto_confirmado, porcentaje, ganancia_acumulada").eq("id", currentUserId).single();
+  const { data, error } = await client.from("profiles").select("monto_confirmado, porcentaje, ganancia_acumulada, ultimo_calculo").eq("id", currentUserId).single();
   if (error || !data) return;
 
   montoInvertido = parseFloat(data.monto_confirmado) || 0;
   porcentajeSemanal = parseFloat(data.porcentaje) || 0;
   gananciaAcumulada = parseFloat(data.ganancia_acumulada) || 0;
-  ultimoTimestamp = Date.now();
+
+  if (data.ultimo_calculo) {
+    ultimoCalculo = new Date(data.ultimo_calculo).getTime();
+  } else {
+    ultimoCalculo = Date.now();
+  }
 
   document.getElementById("total-invertido").textContent = `$${montoInvertido.toFixed(2)}`;
   document.getElementById("ganancias").textContent = `$${gananciaAcumulada.toFixed(2)}`;
-
-  actualizarGananciasDinamicas();
 }
-
 async function actualizarGananciasDinamicas() {
   if (montoInvertido <= 0 || porcentajeSemanal <= 0) {
     document.getElementById("ganancias").textContent = "$0.00";
@@ -419,8 +422,8 @@ async function actualizarGananciasDinamicas() {
   }
 
   const ahora = Date.now();
-  const minutosTranscurridos = (ahora - ultimoTimestamp) / 60000;
-  ultimoTimestamp = ahora;
+  const minutosTranscurridos = (ahora - ultimoCalculo) / 60000;
+  ultimoCalculo = ahora;
 
   const porcentajePorMinuto = porcentajeSemanal / (7 * 24 * 60);
   gananciaAcumulada += montoInvertido * (porcentajePorMinuto / 100) * minutosTranscurridos;
@@ -429,9 +432,13 @@ async function actualizarGananciasDinamicas() {
   const proximoPago = gananciaAcumulada / 30;
   document.getElementById("proximo-pago").textContent = `$${proximoPago.toFixed(2)}`;
 
-  const { error } = await client.from("profiles").update({ ganancia_acumulada: gananciaAcumulada }).eq("id", currentUserId);
+  const { error } = await client.from("profiles").update({
+    ganancia_acumulada: gananciaAcumulada,
+    ultimo_calculo: new Date(ultimoCalculo).toISOString()
+  }).eq("id", currentUserId);
+
   if (error) {
-    console.error("Error actualizando ganancia_acumulada:", error);
+    console.error("Error actualizando ganancia_acumulada o ultimo_calculo:", error);
   }
 }
 
