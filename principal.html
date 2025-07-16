@@ -340,10 +340,17 @@ async function validateSession() {
   currentUserId = session.user.id;
   currentEmail = session.user.email;
   document.getElementById("emailAyuda").value = currentEmail;
-  cargarPerfil();
+
+  await cargarPerfil();
+
   cargarHistorialTickets();
   obtenerSaldoDisponible();
   await cargarDatosFinancierosDinamicos();
+
+  // Ejecutar el cálculo de ganancias iniciales
+  actualizarGananciasDinamicas();
+
+  // Actualizar ganancias cada 60 segundos
   setInterval(actualizarGananciasDinamicas, 60000);
 }
 
@@ -360,7 +367,6 @@ async function cargarPerfil() {
     document.getElementById("email").value = currentEmail;
   }
 }
-
 async function guardarPerfil() {
   const perfil = {
     id: currentUserId,
@@ -378,8 +384,8 @@ async function guardarPerfil() {
 
 async function obtenerSaldoDisponible() {
   const { data, error } = await client.from("balances").select("saldo").eq("usuario_id", currentUserId).single();
-  if (!error && data && data.saldo !== undefined) {
-    document.getElementById("saldo-disponible").textContent = `$${data.saldo.toFixed(2)}`;
+  if (!error && data && data.saldo !== undefined && data.saldo !== null) {
+    document.getElementById("saldo-disponible").textContent = `$${parseFloat(data.saldo).toFixed(2)}`;
   } else {
     document.getElementById("saldo-disponible").textContent = "$0.00";
   }
@@ -388,7 +394,7 @@ async function obtenerSaldoDisponible() {
 let montoInvertido = 0;
 let porcentajeSemanal = 0;
 let gananciaAcumulada = 0;
-let ultimoTimestamp = null;
+let ultimoTimestamp = Date.now();
 
 async function cargarDatosFinancierosDinamicos() {
   const { data, error } = await client.from("profiles").select("monto_confirmado, porcentaje, ganancia_acumulada").eq("id", currentUserId).single();
