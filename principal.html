@@ -287,7 +287,8 @@
     </div>
     <canvas id="graficaGanancias"></canvas>
   </div>
-<div id="perfil" class="section">
+
+  <div id="perfil" class="section">
     <h2>Perfil</h2>
     <div class="formulario">
       <input type="text" id="nombre" placeholder="Nombre" />
@@ -327,18 +328,12 @@
   </div>
 </div>
 
-<!-- SCRIPT FINAL -->
 <script>
 const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUserId = null;
 let currentEmail = null;
-
-let montoInvertido = 0;
-let porcentajeSemanal = 0;
-let gananciaAcumulada = 0;
-let ultimoTimestamp = null;
 
 async function validateSession() {
   const { data: { session } } = await client.auth.getSession();
@@ -391,6 +386,11 @@ async function obtenerSaldoDisponible() {
   }
 }
 
+let montoInvertido = 0;
+let porcentajeSemanal = 0;
+let gananciaAcumulada = 0;
+let ultimoTimestamp = null;
+
 async function cargarDatosFinancierosDinamicos() {
   const { data, error } = await client.from("profiles").select("monto_confirmado, porcentaje, ganancia_acumulada").eq("id", currentUserId).single();
   if (error || !data) return;
@@ -424,10 +424,7 @@ async function actualizarGananciasDinamicas() {
   const proximoPago = gananciaAcumulada / 30;
   document.getElementById("proximo-pago").textContent = `$${proximoPago.toFixed(2)}`;
 
-  // Guarda ganancia_acumulada actualizada en Supabase
-  const { error } = await client.from("profiles")
-    .update({ ganancia_acumulada: gananciaAcumulada })
-    .eq("id", currentUserId);
+  const { error } = await client.from("profiles").update({ ganancia_acumulada: gananciaAcumulada }).eq("id", currentUserId);
   if (error) {
     console.error("Error actualizando ganancia_acumulada:", error);
   }
