@@ -327,7 +327,6 @@
     <span class="cerrar" onclick="toggleNotificacion()">&times;</span>
   </div>
 </div>
-
 <script>
 const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
@@ -491,6 +490,11 @@ async function cargarHistorialTickets() {
 }
 
 async function logout() {
+  if (currentUserId) {
+    await client.from("profiles").update({
+      ultima_salida: new Date().toISOString()
+    }).eq("id", currentUserId);
+  }
   await client.auth.signOut();
   window.location.href = "index.html";
 }
