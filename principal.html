@@ -397,25 +397,32 @@ async function obtenerSaldoDisponible() {
 
 // Carga datos financieros base y prepara variables para cálculo dinámico
 async function cargarDatosFinancierosDinamicos() {
-  const { data, error } = await client.from("profiles").select("monto_confirmado, porcentaje").eq("id", currentUserId).single();
+  const { data, error } = await client.from("profiles").select("monto_confirmado, porcentaje, ganancia_acumulada, ultimo_calculo").eq("id", currentUserId).single();
   if (error || !data) return;
 
   montoInvertido = parseFloat(data.monto_confirmado) || 0;
   porcentajeSemanal = parseFloat(data.porcentaje) || 0;
 
-  // Reiniciar acumulados
-  gananciaAcumulada = 0;
-  ultimoTimestamp = Date.now();
+  // Cargar ganancia acumulada previa si existe
+  gananciaAcumulada = parseFloat(data.ganancia_acumulada) || 0;
+
+  // Cargar timestamp previo si existe, sino usar ahora
+  ultimoTimestamp = data.ultimo_calculo ? new Date(data.ultimo_calculo).getTime() : Date.now();
 
   // Mostrar monto invertido fijo
   document.getElementById("total-invertido").textContent = `$${montoInvertido.toFixed(2)}`;
 
-  // Mostrar valores iniciales
-  actualizarGananciasDinamicas();
+  // Mostrar ganancias acumuladas al cargar
+  document.getElementById("ganancias").textContent = `$${gananciaAcumulada.toFixed(2)}`;
+
+  // Mostrar próximo pago basado en ganancia acumulada
+  const proximoPago = gananciaAcumulada / 30;
+  document.getElementById("proximo-pago").textContent = `$${proximoPago.toFixed(2)}`;
 }
+// Continúa desde la parte anterior...
 
 // Función que calcula y actualiza ganancias dinámicamente cada minuto
-function actualizarGananciasDinamicas() {
+async function actualizarGananciasDinamicas() {
   if (montoInvertido <= 0 || porcentajeSemanal <= 0) {
     // Mostrar 0 si no hay inversión o porcentaje válido
     document.getElementById("ganancias").textContent = "$0.00";
@@ -425,6 +432,7 @@ function actualizarGananciasDinamicas() {
 
   const ahora = Date.now();
   const minutosTranscurridos = (ahora - ultimoTimestamp) / 60000; // minutos desde última actualización
+  if (minutosTranscurridos <= 0) return; // evitar cálculos negativos o cero
   ultimoTimestamp = ahora;
 
   // Calcular porcentaje por minuto (semanal / (7 días * 24 horas * 60 minutos))
@@ -439,6 +447,12 @@ function actualizarGananciasDinamicas() {
   // Próximo pago = ganancia acumulada / 30 (suponiendo pago mensual de ganancias)
   const proximoPago = gananciaAcumulada / 30;
   document.getElementById("proximo-pago").textContent = `$${proximoPago.toFixed(2)}`;
+
+  // Guardar la ganancia acumulada y el timestamp en Supabase para persistencia
+  await client.from("profiles").update({
+    ganancia_acumulada: gananciaAcumulada,
+    ultimo_calculo: new Date(ultimoTimestamp).toISOString()
+  }).eq("id", currentUserId);
 }
 
 function toggleSidebar() {
@@ -473,7 +487,7 @@ async function enviarTicket() {
   const email = document.getElementById("emailAyuda").value.trim();
   const asunto = document.getElementById("asuntoAyuda").value.trim();
   const mensaje = document.getElementById("mensajeAyuda").value.trim();
-  if (!email || !asunto || !mensaje) return;
+  if (!email || !asunto || !mensaje) return alert("Por favor completa todos los campos del ticket.");
 
   await client.from("tickets").insert({
     usuario_id: currentUserId,
@@ -483,6 +497,7 @@ async function enviarTicket() {
   document.getElementById("asuntoAyuda").value = "";
   document.getElementById("mensajeAyuda").value = "";
   cargarHistorialTickets();
+  alert("Ticket enviado correctamente.");
 }
 
 async function cargarHistorialTickets() {
@@ -493,7 +508,8 @@ async function cargarHistorialTickets() {
   if (data && data.length > 0) {
     data.forEach(ticket => {
       const li = document.createElement("li");
-      li.textContent = `${ticket.asunto}: ${ticket.mensaje}`;
+      const fecha = new Date(ticket.fecha).toLocaleDateString();
+      li.textContent = `[${fecha}] ${ticket.asunto}: ${ticket.mensaje}`;
       lista.appendChild(li);
     });
   } else {
@@ -506,6 +522,7 @@ async function logout() {
   window.location.href = "index.html";
 }
 
+// Inicializar gráfico con datos estáticos (puedes modificar para que sea dinámico)
 new Chart(document.getElementById('graficaGanancias').getContext('2d'), {
   type: 'line',
   data: {
@@ -538,7 +555,9 @@ new Chart(document.getElementById('graficaGanancias').getContext('2d'), {
   }
 });
 
+// Ejecutar validación de sesión y carga inicial
 validateSession();
+
 </script>
 </body>
 </html>
