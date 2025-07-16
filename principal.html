@@ -287,8 +287,7 @@
     </div>
     <canvas id="graficaGanancias"></canvas>
   </div>
-
-  <div id="perfil" class="section">
+<div id="perfil" class="section">
     <h2>Perfil</h2>
     <div class="formulario">
       <input type="text" id="nombre" placeholder="Nombre" />
@@ -327,6 +326,7 @@
     <span class="cerrar" onclick="toggleNotificacion()">&times;</span>
   </div>
 </div>
+
 <!-- SCRIPT FINAL -->
 <script>
 const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
@@ -335,11 +335,10 @@ const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUserId = null;
 let currentEmail = null;
 
-// Variables para cálculo dinámico de ganancias
 let montoInvertido = 0;
 let porcentajeSemanal = 0;
 let gananciaAcumulada = 0;
-let ultimoTimestamp = null;  // Marca temporal en milisegundos
+let ultimoTimestamp = null;
 
 async function validateSession() {
   const { data: { session } } = await client.auth.getSession();
@@ -351,10 +350,9 @@ async function validateSession() {
   cargarHistorialTickets();
   obtenerSaldoDisponible();
   await cargarDatosFinancierosDinamicos();
-  setInterval(actualizarGananciasDinamicas, 60000); // Actualiza cada minuto
+  setInterval(actualizarGananciasDinamicas, 60000);
 }
 
-// Carga perfil de usuario
 async function cargarPerfil() {
   const { data, error } = await client.from("profiles").select("*").eq("id", currentUserId).single();
   if (!error && data) {
@@ -369,7 +367,6 @@ async function cargarPerfil() {
   }
 }
 
-// Guarda perfil en Supabase
 async function guardarPerfil() {
   const perfil = {
     id: currentUserId,
@@ -385,7 +382,6 @@ async function guardarPerfil() {
   showSection("welcome");
 }
 
-// Carga saldo disponible de balances
 async function obtenerSaldoDisponible() {
   const { data, error } = await client.from("balances").select("saldo").eq("usuario_id", currentUserId).single();
   if (!error && data && data.saldo !== undefined) {
@@ -395,71 +391,46 @@ async function obtenerSaldoDisponible() {
   }
 }
 
-// Carga datos financieros base y prepara variables para cálculo dinámico
 async function cargarDatosFinancierosDinamicos() {
   const { data, error } = await client.from("profiles").select("monto_confirmado, porcentaje, ganancia_acumulada").eq("id", currentUserId).single();
-  
-  console.log("DATA DE PROFILES:", data);
-  console.log("ERROR:", error);
-
   if (error || !data) return;
 
   montoInvertido = parseFloat(data.monto_confirmado) || 0;
   porcentajeSemanal = parseFloat(data.porcentaje) || 0;
-
-  // Inicializar ganancia acumulada con valor en DB si existe
   gananciaAcumulada = parseFloat(data.ganancia_acumulada) || 0;
-
   ultimoTimestamp = Date.now();
 
-  // Mostrar monto invertido fijo
   document.getElementById("total-invertido").textContent = `$${montoInvertido.toFixed(2)}`;
-
-  // Mostrar ganancias iniciales
   document.getElementById("ganancias").textContent = `$${gananciaAcumulada.toFixed(2)}`;
 
   actualizarGananciasDinamicas();
 }
 
-// Función que calcula y actualiza ganancias dinámicamente cada minuto
 async function actualizarGananciasDinamicas() {
   if (montoInvertido <= 0 || porcentajeSemanal <= 0) {
-    // Mostrar 0 si no hay inversión o porcentaje válido
     document.getElementById("ganancias").textContent = "$0.00";
     document.getElementById("proximo-pago").textContent = "$0.00";
     return;
   }
 
   const ahora = Date.now();
-  const minutosTranscurridos = (ahora - ultimoTimestamp) / 60000; // minutos desde última actualización
+  const minutosTranscurridos = (ahora - ultimoTimestamp) / 60000;
   ultimoTimestamp = ahora;
 
-  // Calcular porcentaje por minuto (semanal / (7 días * 24 horas * 60 minutos))
   const porcentajePorMinuto = porcentajeSemanal / (7 * 24 * 60);
-
-  // Incrementar ganancia acumulada
   gananciaAcumulada += montoInvertido * (porcentajePorMinuto / 100) * minutosTranscurridos;
 
-  // Mostrar ganancias acumuladas
   document.getElementById("ganancias").textContent = `$${gananciaAcumulada.toFixed(2)}`;
-
-  // Próximo pago = ganancia acumulada / 30 (suponiendo pago mensual de ganancias)
-  const proximoPago = gananciaAcumulada
-/ 30;
+  const proximoPago = gananciaAcumulada / 30;
   document.getElementById("proximo-pago").textContent = `$${proximoPago.toFixed(2)}`;
 
-  // Opcional: guardar ganancia_acumulada actualizada en la base de datos
-  // Descomenta si quieres guardar cada minuto (considera costos y limites de Supabase)
-  /*
-  const { error } = await client
-    .from("profiles")
+  // Guarda ganancia_acumulada actualizada en Supabase
+  const { error } = await client.from("profiles")
     .update({ ganancia_acumulada: gananciaAcumulada })
     .eq("id", currentUserId);
-
   if (error) {
     console.error("Error actualizando ganancia_acumulada:", error);
   }
-  */
 }
 
 function toggleSidebar() {
