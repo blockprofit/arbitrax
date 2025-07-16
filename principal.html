@@ -397,29 +397,29 @@ async function obtenerSaldoDisponible() {
 
 // Carga datos financieros base y prepara variables para cálculo dinámico
 async function cargarDatosFinancierosDinamicos() {
-  const { data, error } = await client.from("profiles").select("monto_confirmado, porcentaje, ganancia_acumulada, ultimo_calculo").eq("id", currentUserId).single();
+  const { data, error } = await client.from("profiles").select("monto_confirmado, porcentaje, ganancia_acumulada").eq("id", currentUserId).single();
+  
+  console.log("DATA DE PROFILES:", data);
+  console.log("ERROR:", error);
+
   if (error || !data) return;
 
   montoInvertido = parseFloat(data.monto_confirmado) || 0;
   porcentajeSemanal = parseFloat(data.porcentaje) || 0;
 
-  // Cargar ganancia acumulada previa si existe
+  // Inicializar ganancia acumulada con valor en DB si existe
   gananciaAcumulada = parseFloat(data.ganancia_acumulada) || 0;
 
-  // Cargar timestamp previo si existe, sino usar ahora
-  ultimoTimestamp = data.ultimo_calculo ? new Date(data.ultimo_calculo).getTime() : Date.now();
+  ultimoTimestamp = Date.now();
 
   // Mostrar monto invertido fijo
   document.getElementById("total-invertido").textContent = `$${montoInvertido.toFixed(2)}`;
 
-  // Mostrar ganancias acumuladas al cargar
+  // Mostrar ganancias iniciales
   document.getElementById("ganancias").textContent = `$${gananciaAcumulada.toFixed(2)}`;
 
-  // Mostrar próximo pago basado en ganancia acumulada
-  const proximoPago = gananciaAcumulada / 30;
-  document.getElementById("proximo-pago").textContent = `$${proximoPago.toFixed(2)}`;
+  actualizarGananciasDinamicas();
 }
-// Continúa desde la parte anterior...
 
 // Función que calcula y actualiza ganancias dinámicamente cada minuto
 async function actualizarGananciasDinamicas() {
@@ -432,7 +432,6 @@ async function actualizarGananciasDinamicas() {
 
   const ahora = Date.now();
   const minutosTranscurridos = (ahora - ultimoTimestamp) / 60000; // minutos desde última actualización
-  if (minutosTranscurridos <= 0) return; // evitar cálculos negativos o cero
   ultimoTimestamp = ahora;
 
   // Calcular porcentaje por minuto (semanal / (7 días * 24 horas * 60 minutos))
@@ -445,14 +444,22 @@ async function actualizarGananciasDinamicas() {
   document.getElementById("ganancias").textContent = `$${gananciaAcumulada.toFixed(2)}`;
 
   // Próximo pago = ganancia acumulada / 30 (suponiendo pago mensual de ganancias)
-  const proximoPago = gananciaAcumulada / 30;
+  const proximoPago = gananciaAcumulada
+/ 30;
   document.getElementById("proximo-pago").textContent = `$${proximoPago.toFixed(2)}`;
 
-  // Guardar la ganancia acumulada y el timestamp en Supabase para persistencia
-  await client.from("profiles").update({
-    ganancia_acumulada: gananciaAcumulada,
-    ultimo_calculo: new Date(ultimoTimestamp).toISOString()
-  }).eq("id", currentUserId);
+  // Opcional: guardar ganancia_acumulada actualizada en la base de datos
+  // Descomenta si quieres guardar cada minuto (considera costos y limites de Supabase)
+  /*
+  const { error } = await client
+    .from("profiles")
+    .update({ ganancia_acumulada: gananciaAcumulada })
+    .eq("id", currentUserId);
+
+  if (error) {
+    console.error("Error actualizando ganancia_acumulada:", error);
+  }
+  */
 }
 
 function toggleSidebar() {
@@ -487,7 +494,7 @@ async function enviarTicket() {
   const email = document.getElementById("emailAyuda").value.trim();
   const asunto = document.getElementById("asuntoAyuda").value.trim();
   const mensaje = document.getElementById("mensajeAyuda").value.trim();
-  if (!email || !asunto || !mensaje) return alert("Por favor completa todos los campos del ticket.");
+  if (!email || !asunto || !mensaje) return;
 
   await client.from("tickets").insert({
     usuario_id: currentUserId,
@@ -497,7 +504,6 @@ async function enviarTicket() {
   document.getElementById("asuntoAyuda").value = "";
   document.getElementById("mensajeAyuda").value = "";
   cargarHistorialTickets();
-  alert("Ticket enviado correctamente.");
 }
 
 async function cargarHistorialTickets() {
@@ -508,8 +514,7 @@ async function cargarHistorialTickets() {
   if (data && data.length > 0) {
     data.forEach(ticket => {
       const li = document.createElement("li");
-      const fecha = new Date(ticket.fecha).toLocaleDateString();
-      li.textContent = `[${fecha}] ${ticket.asunto}: ${ticket.mensaje}`;
+      li.textContent = `${ticket.asunto}: ${ticket.mensaje}`;
       lista.appendChild(li);
     });
   } else {
@@ -522,7 +527,6 @@ async function logout() {
   window.location.href = "index.html";
 }
 
-// Inicializar gráfico con datos estáticos (puedes modificar para que sea dinámico)
 new Chart(document.getElementById('graficaGanancias').getContext('2d'), {
   type: 'line',
   data: {
@@ -555,9 +559,7 @@ new Chart(document.getElementById('graficaGanancias').getContext('2d'), {
   }
 });
 
-// Ejecutar validación de sesión y carga inicial
 validateSession();
-
 </script>
 </body>
 </html>
