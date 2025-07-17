@@ -431,11 +431,9 @@ async function actualizarGananciasDinamicas() {
   const porcentajePorMinuto = porcentajeSemanal / (7 * 24 * 60);
   gananciaAcumulada += montoInvertido * (porcentajePorMinuto / 100) * minutosTranscurridos;
 
+  // Mostrar el mismo valor exacto en Ganancias y Próximo Pago (sin sumar saldo disponible ni dividir)
   document.getElementById("ganancias").textContent = `$${gananciaAcumulada.toFixed(2)}`;
-
-  // Cálculo actualizado para próximo pago: ganancia acumulada + saldo disponible dividido en 30 días
-  const proximoPago = (gananciaAcumulada + saldoDisponible) / 30;
-  document.getElementById("proximo-pago").textContent = `$${proximoPago.toFixed(2)}`;
+  document.getElementById("proximo-pago").textContent = `$${gananciaAcumulada.toFixed(2)}`;
 
   const { error } = await client.from("profiles").update({
     ganancia_acumulada: gananciaAcumulada,
@@ -446,7 +444,7 @@ async function actualizarGananciasDinamicas() {
     console.error("Error actualizando ganancia_acumulada o ultimo_calculo:", error);
   }
 }
-
+  
 // Funciones auxiliares originales
 
 function toggleSidebar() {
