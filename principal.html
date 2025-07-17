@@ -337,6 +337,7 @@ let currentEmail = null;
 let montoInvertido = 0;
 let porcentajeSemanal = 0;
 let gananciaAcumulada = 0;
+let saldoDisponible = 0;    // NUEVO: saldo disponible que solo cambia con admin
 // Guardamos el último cálculo con persistencia:
 let ultimoCalculo = null;
 
@@ -350,7 +351,7 @@ async function validateSession() {
   await cargarPerfil();
 
   cargarHistorialTickets();
-  obtenerSaldoDisponible();
+  await obtenerSaldoDisponible();
   await cargarDatosFinancierosDinamicos();
 
   actualizarGananciasDinamicas();
@@ -391,12 +392,13 @@ async function guardarPerfil() {
 async function obtenerSaldoDisponible() {
   const { data, error } = await client.from("balances").select("saldo").eq("usuario_id", currentUserId).single();
   if (!error && data && data.saldo !== undefined && data.saldo !== null) {
-    document.getElementById("saldo-disponible").textContent = `$${parseFloat(data.saldo).toFixed(2)}`;
+    saldoDisponible = parseFloat(data.saldo);
+    document.getElementById("saldo-disponible").textContent = `$${saldoDisponible.toFixed(2)}`;
   } else {
+    saldoDisponible = 0;
     document.getElementById("saldo-disponible").textContent = "$0.00";
   }
 }
-
 async function cargarDatosFinancierosDinamicos() {
   const { data, error } = await client.from("profiles").select("monto_confirmado, porcentaje, ganancia_acumulada, ultimo_calculo").eq("id", currentUserId).single();
   if (error || !data) return;
@@ -414,6 +416,7 @@ async function cargarDatosFinancierosDinamicos() {
   document.getElementById("total-invertido").textContent = `$${montoInvertido.toFixed(2)}`;
   document.getElementById("ganancias").textContent = `$${gananciaAcumulada.toFixed(2)}`;
 }
+
 async function actualizarGananciasDinamicas() {
   if (montoInvertido <= 0 || porcentajeSemanal <= 0) {
     document.getElementById("ganancias").textContent = "$0.00";
@@ -429,7 +432,9 @@ async function actualizarGananciasDinamicas() {
   gananciaAcumulada += montoInvertido * (porcentajePorMinuto / 100) * minutosTranscurridos;
 
   document.getElementById("ganancias").textContent = `$${gananciaAcumulada.toFixed(2)}`;
-  const proximoPago = gananciaAcumulada / 30;
+
+  // Cálculo actualizado para próximo pago: ganancia acumulada + saldo disponible dividido en 30 días
+  const proximoPago = (gananciaAcumulada + saldoDisponible) / 30;
   document.getElementById("proximo-pago").textContent = `$${proximoPago.toFixed(2)}`;
 
   const { error } = await client.from("profiles").update({
@@ -442,6 +447,8 @@ async function actualizarGananciasDinamicas() {
   }
 }
 
+// Funciones auxiliares originales
+
 function toggleSidebar() {
   document.getElementById("sidebar").classList.toggle("active");
 }
@@ -450,110 +457,103 @@ function closeSidebar() {
   document.getElementById("sidebar").classList.remove("active");
 }
 
-function showSection(id)
-// Continúa parte 1...
+function showSection(id) {
+  document.querySelectorAll(".section").forEach(el => el.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
 
-  function showSection(id) {
-    document.querySelectorAll(".section").forEach(el => el.classList.remove("active"));
-    document.getElementById(id).classList.add("active");
+  document.querySelectorAll(".sidebar button").forEach(btn => btn.classList.remove("active"));
+  const allButtons = document.querySelectorAll(".sidebar button");
+  if (id === "welcome") allButtons[0].classList.add("active");
+  if (id === "perfil") allButtons[1].classList.add("active");
+}
 
-    document.querySelectorAll(".sidebar button").forEach(btn => btn.classList.remove("active"));
-    const allButtons = document.querySelectorAll(".sidebar button");
-    if (id === "welcome") allButtons[0].classList.add("active");
-    if (id === "perfil") allButtons[1].classList.add("active");
-  }
+function toggleAyuda() {
+  const modal = document.getElementById("modalAyuda");
+  modal.style.display = modal.style.display === "block" ? "none" : "block";
+}
 
-  function toggleAyuda() {
-    const modal = document.getElementById("modalAyuda");
-    modal.style.display = modal.style.display === "block" ? "none" : "block";
-  }
+function toggleNotificacion() {
+  const modal = document.getElementById("modalNotificacion");
+  modal.style.display = modal.style.display === "block" ? "none" : "block";
+}
 
-  function toggleNotificacion() {
-    const modal = document.getElementById("modalNotificacion");
-    modal.style.display = modal.style.display === "block" ? "none" : "block";
-  }
+async function enviarTicket() {
+  const email = document.getElementById("emailAyuda").value.trim();
+  const asunto = document.getElementById("asuntoAyuda").value.trim();
+  const mensaje = document.getElementById("mensajeAyuda").value.trim();
+  if (!email || !asunto || !mensaje) return;
 
-  async function enviarTicket() {
-    const email = document.getElementById("emailAyuda").value.trim();
-    const asunto = document.getElementById("asuntoAyuda").value.trim();
-    const mensaje = document.getElementById("mensajeAyuda").value.trim();
-    if (!email || !asunto || !mensaje) return;
-
-    await client.from("tickets").insert({
-      usuario_id: currentUserId,
-      email,
-      asunto,
-      mensaje,
-      fecha: new Date().toISOString()
-    });
-
-    document.getElementById("asuntoAyuda").value = "";
-    document.getElementById("mensajeAyuda").value = "";
-    cargarHistorialTickets();
-  }
-
-  async function cargarHistorialTickets() {
-    const { data } = await client.from("tickets").select("*").eq("usuario_id", currentUserId).order("fecha", { ascending: false }).limit(3);
-    const lista = document.getElementById("listaTickets");
-    lista.innerHTML = "";
-
-    if (data && data.length > 0) {
-      data.forEach(ticket => {
-        const li = document.createElement("li");
-        li.textContent = `${ticket.asunto}: ${ticket.mensaje}`;
-        lista.appendChild(li);
-      });
-    } else {
-      lista.innerHTML = "<li>No hay tickets recientes.</li>";
-    }
-  }
-
-  async function logout() {
-    if (currentUserId) {
-      await client.from("profiles").update({
-        ultima_salida: new Date().toISOString()
-      }).eq("id", currentUserId);
-    }
-    await client.auth.signOut();
-    window.location.href = "index.html";
-  }
-
-  // Inicialización del gráfico de ganancias
-  new Chart(document.getElementById('graficaGanancias').getContext('2d'), {
-    type: 'line',
-    data: {
-      labels: ['L', 'M', 'X', 'J', 'V', 'S', 'D'],
-      datasets: [{
-        label: 'Ganancias diarias',
-        data: [120, 300, 180, 260, 210, 400, 370],
-        borderColor: '#00d4ff',
-        backgroundColor: 'transparent',
-        tension: 0.4,
-        pointBackgroundColor: '#00d4ff',
-        pointRadius: 4
-      }]
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: { color: 'white' },
-          grid: { color: 'rgba(255,255,255,0.1)' }
-        },
-        x: {
-          ticks: { color: 'white' },
-          grid: { color: 'rgba(255,255,255,0.05)' }
-        }
-      },
-      plugins: {
-        legend: { display: false }
-      }
-    }
+  await client.from("tickets").insert({
+    usuario_id: currentUserId,
+    email, asunto, mensaje, fecha: new Date().toISOString()
   });
 
-  // Valida sesión y carga datos al iniciar la app
-  validateSession();
+  document.getElementById("asuntoAyuda").value = "";
+  document.getElementById("mensajeAyuda").value = "";
+  cargarHistorialTickets();
+}
 
+async function cargarHistorialTickets() {
+  const { data } = await client.from("tickets").select("*").eq("usuario_id", currentUserId).order("fecha", { ascending: false }).limit(3);
+  const lista = document.getElementById("listaTickets");
+  lista.innerHTML = "";
+
+  if (data && data.length > 0) {
+    data.forEach(ticket => {
+      const li = document.createElement("li");
+      li.textContent = `${ticket.asunto}: ${ticket.mensaje}`;
+      lista.appendChild(li);
+    });
+  } else {
+    lista.innerHTML = "<li>No hay tickets recientes.</li>";
+  }
+}
+
+async function logout() {
+  if (currentUserId) {
+    await client.from("profiles").update({
+      ultima_salida: new Date().toISOString()
+    }).eq("id", currentUserId);
+  }
+  await client.auth.signOut();
+  window.location.href = "index.html";
+}
+
+// Gráfica original
+
+new Chart(document.getElementById('graficaGanancias').getContext('2d'), {
+  type: 'line',
+  data: {
+    labels: ['L', 'M', 'X', 'J', 'V', 'S', 'D'],
+    datasets: [{
+      label: 'Ganancias diarias',
+      data: [120, 300, 180, 260, 210, 400, 370],
+      borderColor: '#00d4ff',
+      backgroundColor: 'transparent',
+      tension: 0.4,
+      pointBackgroundColor: '#00d4ff',
+      pointRadius: 4
+    }]
+  },
+  options: {
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { color: 'white' },
+        grid: { color: 'rgba(255,255,255,0.1)' }
+      },
+      x: {
+        ticks: { color: 'white' },
+        grid: { color: 'rgba(255,255,255,0.05)' }
+      }
+    },
+    plugins: {
+      legend: { display: false }
+    }
+  }
+});
+
+validateSession();
 </script>
 </body>
 </html>
