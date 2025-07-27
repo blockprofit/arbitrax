@@ -7,6 +7,7 @@
 
   <!-- Agrego favicon -->
   <link rel="icon" href="favicon.png" type="image/png" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />  
   <style>  
@@ -98,6 +99,7 @@
       cursor: pointer;  
       transition: background 0.3s, transform 0.3s;  
       user-select: none;  
+      position: relative;
     }  
   
     .nivel-card:hover {  
@@ -115,7 +117,27 @@
     .nivel-entrada {  
       font-size: 1.2rem;  
       margin-bottom: 8px;  
-    }  
+    }
+
+    .nivel-info {
+      font-size: 0.9rem;
+      margin-top: 10px;
+      opacity: 0.8;
+    }
+
+    .loader {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: #00c3ff;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
   
     .btn-iniciar {  
       display: block;  
@@ -134,7 +156,12 @@
   
     .btn-iniciar:hover {  
       background: #0099cc;  
-    }  
+    }
+
+    .btn-iniciar:disabled {
+      background: #666;
+      cursor: not-allowed;
+    }
   
     .pregunta {  
       background: rgba(0,0,0,0.7);  
@@ -149,7 +176,24 @@
       text-align: right;  
       margin-bottom: 20px;  
       color: #00ffcc;  
-    }  
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .progreso {
+      background: rgba(255,255,255,0.2);
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .progreso-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #00c3ff, #00ffcc);
+      transition: width 0.3s ease;
+    }
   
     .pregunta-texto {  
       font-size: 1.4rem;  
@@ -171,14 +215,30 @@
       font-size: 1.1rem;  
       cursor: pointer;  
       user-select: none;  
-      transition: background 0.3s, color 0.3s;  
+      transition: all 0.3s;  
       text-align: center;  
     }  
   
     .opciones button:hover {  
       background: #00c3ff;  
       color: black;  
-    }  
+      transform: translateX(5px);
+    }
+
+    .opciones button.correcta {
+      background: #28a745;
+      border-color: #28a745;
+    }
+
+    .opciones button.incorrecta {
+      background: #dc3545;
+      border-color: #dc3545;
+    }
+
+    .opciones button:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
   
     .resultado {  
       text-align: center;  
@@ -189,12 +249,75 @@
       border-radius: 16px;  
       color: black;  
       font-weight: bold;  
-    }  
+    }
+
+    .ranking-section {
+      background: rgba(0,0,0,0.7);
+      padding: 25px;
+      border-radius: 12px;
+      margin-top: 30px;
+    }
+
+    .ranking-title {
+      color: #00c3ff;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .ranking-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255,255,255,0.1);
+      padding: 12px 16px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border-left: 4px solid #00c3ff;
+    }
+
+    .ranking-pos {
+      font-weight: bold;
+      color: #00ffcc;
+      width: 30px;
+    }
+
+    .ranking-user {
+      flex: 1;
+      margin-left: 15px;
+    }
+
+    .ranking-stats {
+      text-align: right;
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+
+    .error-message {
+      background: rgba(220, 53, 69, 0.2);
+      border: 1px solid #dc3545;
+      color: #ff6b7a;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .success-message {
+      background: rgba(40, 167, 69, 0.2);
+      border: 1px solid #28a745;
+      color: #6bcf7f;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+      text-align: center;
+    }
   </style>  
 </head>  
 <body>  
   <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
-<div class="sidebar" id="sidebar">  
+  
+  <div class="sidebar" id="sidebar">  
     <button onclick="window.location.href='principal.html#welcome'"><i class="fas fa-home"></i> Inicio</button>  
     <button onclick="window.location.href='principal.html#perfil'"><i class="fas fa-user"></i> Perfil</button>  
     <button onclick="window.location.href='inversion.html'"><i class="fas fa-chart-line"></i> Nivel de inversión</button>  
@@ -207,6 +330,7 @@
     <button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>  
     <button onclick="window.location.href='preguntasfrecuentes.html'"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>  
     <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-contract"></i> Términos y condiciones</button>  
+    <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-crown"></i> Panel Admin</button>  
     <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>  
   </div>  
   
@@ -214,176 +338,483 @@
     <h1 style="text-align:center; margin-bottom: 40px; font-weight: 900; font-size: 2rem; color:#00c3ff;">  
       GANA ENTRE UN ×5 Y HASTA UN ×10 DE TU APUESTA  
     </h1>  
+
+    <div id="loadingMessage" style="text-align: center; margin: 40px 0;">
+      <div class="loader"></div>
+      <p style="margin-top: 15px;">Cargando niveles y precios...</p>
+    </div>
+
+    <div id="errorMessage" class="error-message" style="display: none;"></div>
   
-    <div id="nivelesContainer" class="niveles-container">  
-      <div class="nivel-card" data-nivel="basico" data-tiempo="15">  
-        <div class="nivel-titulo">Nivel Básico</div>  
-        <div class="nivel-entrada">Entrada: 2.000 ARS</div>  
-      </div>  
-      <div class="nivel-card" data-nivel="medio" data-tiempo="20">  
-        <div class="nivel-titulo">Nivel Medio</div>  
-        <div class="nivel-entrada">Entrada: 5.000 ARS</div>  
-      </div>  
-      <div class="nivel-card" data-nivel="avanzado" data-tiempo="20">  
-        <div class="nivel-titulo">Nivel Avanzado</div>  
-        <div class="nivel-entrada">Entrada: 10.000 ARS</div>  
-      </div>  
-    </div>  
-<button id="btnIniciar" class="btn-iniciar" disabled>Iniciar Trivia</button>  
+    <div id="nivelesContainer" class="niveles-container" style="display: none;">
+      <!-- Los niveles se cargan dinámicamente -->
+    </div>
+
+    <button id="btnIniciar" class="btn-iniciar" disabled style="display: none;">Iniciar Trivia</button>  
   
     <div class="pregunta" id="triviaBox" style="display:none">  
-      <div class="temporizador">Tiempo: <span id="tiempo">0</span>s</div>  
+      <div class="temporizador">
+        <span>Pregunta <span id="preguntaNumero">1</span> de <span id="totalPreguntas">10</span></span>
+        <span>Tiempo: <span id="tiempo">15</span>s</span>
+      </div>  
+      <div class="progreso">
+        <div class="progreso-bar" id="progresoBar"></div>
+      </div>
       <div class="pregunta-texto" id="preguntaText">Pregunta aquí</div>  
       <div class="opciones" id="opcionesBox"></div>  
     </div>  
   
     <div id="resultadoFinal" class="resultado" style="display:none;"></div>  
+
+    <div id="rankingSection" class="ranking-section" style="display:none;">
+      <div class="ranking-title">🏆 Ranking del Nivel</div>
+      <div id="rankingContent"></div>
+    </div>
   </div>  
-  
   <script>  
-    const preguntasBasico = [  
-      { pregunta: "¿Qué es Bitcoin?", opciones: ["Un banco", "Una criptomoneda", "Una app", "Una empresa"], respuesta: "Una criptomoneda" },  
-      { pregunta: "¿Qué es un wallet?", opciones: ["Una moneda", "Una billetera digital", "Una app de comida"], respuesta: "Una billetera digital" },  
-      { pregunta: "¿Qué es una blockchain?", opciones: ["Una cadena de bloques", "Una app", "Un token"], respuesta: "Una cadena de bloques" },  
-      { pregunta: "¿Qué es Ethereum?", opciones: ["Un país", "Una criptomoneda", "Un banco"], respuesta: "Una criptomoneda" },  
-      { pregunta: "¿Qué es USDT?", opciones: ["Una stablecoin", "Una acción", "Un juego"], respuesta: "Una stablecoin" },  
-      { pregunta: "¿Qué se necesita para invertir?", opciones: ["Conexión WiFi", "Un wallet", "Una tarjeta"], respuesta: "Un wallet" },  
-      { pregunta: "¿Qué es un token?", opciones: ["Una criptomoneda", "Una cadena", "Un billete"], respuesta: "Una criptomoneda" },  
-      { pregunta: "¿Qué significa minar?", opciones: ["Crear bloques", "Jugar online", "Gastar energía"], respuesta: "Crear bloques" },  
-      { pregunta: "¿Qué red usamos para USDT?", opciones: ["TRC20", "BEP20", "ERC20"], respuesta: "BEP20" },  
-      { pregunta: "¿Qué hace un exchange?", opciones: ["Guarda fotos", "Intercambia criptos", "Vende autos"], respuesta: "Intercambia criptos" }  
-    ];  
-  
-    const preguntasMedio = [  
-      { pregunta: "¿Qué es un NFT?", opciones: ["Un token único", "Un juego", "Una red"], respuesta: "Un token único" },  
-      { pregunta: "¿Qué es staking?", opciones: ["Apostar", "Guardar criptos para interés", "Jugar"], respuesta: "Guardar criptos para interés" },  
-      { pregunta: "¿Qué significa DeFi?", opciones: ["Fiat Digital", "Finanzas Descentralizadas", "Dinero Fácil"], respuesta: "Finanzas Descentralizadas" },  
-      { pregunta: "¿Qué red se usa para transacciones rápidas?", opciones: ["Ethereum", "Solana", "Bitcoin"], respuesta: "Solana" },  
-      { pregunta: "¿Qué es BEP20?", opciones: ["Un juego", "Un estándar de Binance", "Un NFT"], respuesta: "Un estándar de Binance" },  
-      { pregunta: "¿Cuál es el símbolo de Ethereum?", opciones: ["ETH", "ETC", "ETN"], respuesta: "ETH" },  
-      { pregunta: "¿Qué hace un smart contract?", opciones: ["Contrata personas", "Ejecuta condiciones", "Crea música"], respuesta: "Ejecuta condiciones" },  
-      { pregunta: "¿Qué significa criptoactivo?", opciones: ["Un activo físico", "Activo digital", "Token falso"], respuesta: "Activo digital" },  
-      { pregunta: "¿Dónde se guardan los NFT?", opciones: ["En billetera", "En correo", "En banco"], respuesta: "En billetera" },  
-      { pregunta: "¿Qué es una DAO?", opciones: ["Una organización descentralizada", "Un exchange", "Una stablecoin"], respuesta: "Una organización descentralizada" },  
-      { pregunta: "¿Qué es un gas fee?", opciones: ["Impuesto de gobierno", "Costo por transacción", "Propina"], respuesta: "Costo por transacción" },  
-      { pregunta: "¿Qué es una llave privada?", opciones: ["Tu contraseña", "Un código público", "Una app"], respuesta: "Tu contraseña" }  
-    ];  
-  
-    const preguntasAvanzado = [  
-      { pregunta: "¿Qué es un fork?", opciones: ["Cambio en blockchain", "App duplicada", "Wallet física"], respuesta: "Cambio en blockchain" },  
-      { pregunta: "¿Qué red usa contratos rápidos?", opciones: ["Ethereum", "Cardano", "Solana"], respuesta: "Solana" },  
-      { pregunta: "¿Qué es una testnet?", opciones: ["Red de pruebas", "Red lenta", "Red ilegal"], respuesta: "Red de pruebas" },  
-      { pregunta: "¿Qué hace un oráculo en DeFi?", opciones: ["Da datos externos", "Minar", "Enviar tokens"], respuesta: "Da datos externos" },  
-      { pregunta: "¿Qué es un rug pull?", opciones: ["Estafa", "Token valioso", "Minería"], respuesta: "Estafa" },  
-      { pregunta: "¿Qué significa Layer 2?", opciones: ["Capa extra para velocidad", "Segunda app", "Token duplicado"], respuesta: "Capa extra para velocidad" },  
-      { pregunta: "¿Qué es yield farming?", opciones: ["Cultivar tokens", "Recompensas por staking", "NFTs"], respuesta: "Recompensas por staking" },  
-      { pregunta: "¿Qué es la liquidez?", opciones: ["Cantidad disponible", "Red lenta", "App"], respuesta: "Cantidad disponible" },  
-      { pregunta: "¿Qué es una seed phrase?", opciones: ["Frase para recuperar wallet", "Clave de red", "Nombre NFT"], respuesta: "Frase para recuperar wallet" },  
-      { pregunta: "¿Qué significa HODL?", opciones: ["Mantener criptos", "Vender urgente", "Hackear"], respuesta: "Mantener criptos" },  
-      { pregunta: "¿Qué es un bridge?", opciones: ["Puente entre blockchains", "Wallet", "Token estable"], respuesta: "Puente entre blockchains" },  
-      { pregunta: "¿Qué es una cold wallet?", opciones: ["Offline segura", "App web", "Token"], respuesta: "Offline segura" },  
-      { pregunta: "¿Qué es una hot wallet?", opciones: ["Wallet conectada", "Frase secreta", "Bridge"], respuesta: "Wallet conectada" },  
-      { pregunta: "¿Qué protocolo usa BEP20?", opciones: ["Binance Smart Chain", "Ethereum", "Solana"], respuesta: "Binance Smart Chain" },  
-      { pregunta: "¿Qué hace un DAO token?", opciones: ["Voto en DAO", "NFT", "Gas Fee"], respuesta: "Voto en DAO" }  
-    ];  
-  
-    let preguntas = [], actual = 0, tiempo = 0, timer = null, correctas = 0;  
-    let nivelSeleccionado = null;  
-    const nivelesContainer = document.getElementById('nivelesContainer');  
-    const btnIniciar = document.getElementById('btnIniciar');  
-    const triviaBox = document.getElementById('triviaBox');  
-    const preguntaText = document.getElementById('preguntaText');  
-    const opcionesBox = document.getElementById('opcionesBox');  
-    const tiempoDisplay = document.getElementById('tiempo');  
-    const resultadoFinal = document.getElementById('resultadoFinal');  
-  
-    nivelesContainer.addEventListener('click', e => {  
-      const card = e.target.closest('.nivel-card');  
-      if (!card) return;  
-      document.querySelectorAll('.nivel-card').forEach(c => {  
-        c.style.background = "rgba(0, 195, 255, 0.2)";  
-        c.style.color = "white";  
-      });  
-      card.style.background = "#00c3ff";  
-      card.style.color = "black";  
-      nivelSeleccionado = card.getAttribute('data-nivel');  
-      btnIniciar.disabled = false;  
-    });  
-  
-    btnIniciar.addEventListener('click', () => {  
-      if (!nivelSeleccionado) return;  
-      if (nivelSeleccionado === 'basico') preguntas = preguntasBasico;  
-      else if (nivelSeleccionado === 'medio') preguntas = preguntasMedio;  
-      else if (nivelSeleccionado === 'avanzado') preguntas = preguntasAvanzado;  
-      else return;  
-      actual = 0;  
-      correctas = 0;  
-      nivelesContainer.style.display = 'none';  
-      btnIniciar.style.display = 'none';  
-      triviaBox.style.display = 'block';  
-      mostrarPregunta();  
-    });  
-  
-    function mostrarPregunta() {  
-      if (actual >= preguntas.length) return terminarTrivia();  
-      const p = preguntas[actual];  
-      preguntaText.textContent = `${actual + 1}. ${p.pregunta}`;  
-      opcionesBox.innerHTML = '';  
-      p.opciones.forEach(opcion => {  
-        const btn = document.createElement('button');  
-        btn.textContent = opcion;  
-        btn.onclick = () => {  
-          clearInterval(timer);  
-          if (opcion === p.respuesta) correctas++;  
-          actual++;  
-          mostrarPregunta();  
-        };  
-        opcionesBox.appendChild(btn);  
-      });  
-      tiempo = 15;  
-      tiempoDisplay.textContent = tiempo;  
-      clearInterval(timer);  
-      timer = setInterval(() => {  
-        tiempo--;  
-        tiempoDisplay.textContent = tiempo;  
-        if (tiempo <= 0) {  
-          clearInterval(timer);  
-          actual++;  
-          mostrarPregunta();  
-        }  
-      }, 1000);  
-    }  
-  
-    function terminarTrivia() {  
-      triviaBox.style.display = 'none';  
-      resultadoFinal.style.display = 'block';  
-      resultadoFinal.innerHTML = `  
-        🎉 <strong>¡Felicidades!</strong><br><br>  
-        Arbitrax premia tu conocimiento.<br>  
-        Respuestas correctas: ${correctas} de ${preguntas.length}.<br><br>  
-        Volverás al inicio en 10 segundos...  
-      `;  
-      setTimeout(() => {  
-        resultadoFinal.style.display = 'none';  
-        nivelesContainer.style.display = 'flex';  
-        btnIniciar.style.display = 'block';  
-        btnIniciar.disabled = true;  
-        nivelSeleccionado = null;  
-        document.querySelectorAll('.nivel-card').forEach(c => {  
-          c.style.background = "rgba(0, 195, 255, 0.2)";  
-          c.style.color = "white";  
-        });  
-      }, 10000);  
-    }  
-  
+    // Configuración de Supabase
+    const supabaseUrl = "https://ovulezkcxwrjvyxlxsdv.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI";
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+    // Variables globales
+    let preguntas = [], actual = 0, tiempo = 15, timer = null, correctas = 0;
+    let nivelSeleccionado = null, tiempoInicio = null, totalPreguntas = 0;
+    let usuarioActual = null;
+
+    // Elementos DOM
+    const loadingMessage = document.getElementById('loadingMessage');
+    const errorMessage = document.getElementById('errorMessage');
+    const nivelesContainer = document.getElementById('nivelesContainer');
+    const btnIniciar = document.getElementById('btnIniciar');
+    const triviaBox = document.getElementById('triviaBox');
+    const preguntaText = document.getElementById('preguntaText');
+    const opcionesBox = document.getElementById('opcionesBox');
+    const tiempoDisplay = document.getElementById('tiempo');
+    const resultadoFinal = document.getElementById('resultadoFinal');
+    const rankingSection = document.getElementById('rankingSection');
+    const preguntaNumero = document.getElementById('preguntaNumero');
+    const totalPreguntasSpan = document.getElementById('totalPreguntas');
+    const progresoBar = document.getElementById('progresoBar');
+
+    // Inicializar aplicación
+    async function inicializarApp() {
+      try {
+        await verificarUsuario();
+        await cargarNivelesYPrecios();
+        loadingMessage.style.display = 'none';
+        nivelesContainer.style.display = 'flex';
+        btnIniciar.style.display = 'block';
+      } catch (error) {
+        console.error('Error inicializando app:', error);
+        mostrarError('Error al cargar la aplicación. Por favor, recarga la página.');
+      }
+    }
+
+    async function verificarUsuario() {
+      const { data: { user }, error } = await supabaseClient.auth.getUser();
+      
+      if (error || !user) {
+        mostrarError('No estás autenticado. Por favor, inicia sesión.');
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 3000);
+        return;
+      }
+
+      // Obtener datos del usuario desde profiles
+      const { data: profile, error: profileError } = await supabaseClient
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError || !profile) {
+        mostrarError('Error al obtener datos del usuario.');
+        return;
+      }
+
+      usuarioActual = {
+        id: user.id,
+        email: user.email,
+        nombre: profile.username || profile.email || 'Usuario'
+      };
+    }
+
+    async function cargarNivelesYPrecios() {
+      const { data: niveles, error } = await supabaseClient
+        .from('niveles_trivia')
+        .select('*')
+        .order('precio', { ascending: true });
+
+      if (error) {
+        mostrarError('Error al cargar los niveles: ' + error.message);
+        return;
+      }
+
+      if (!niveles || niveles.length === 0) {
+        mostrarError('No hay niveles configurados. Contacta al administrador.');
+        return;
+      }
+
+      mostrarNiveles(niveles);
+    }
+
+    function mostrarNiveles(niveles) {
+      nivelesContainer.innerHTML = '';
+      
+      const limitesPreguntas = {
+        'basico': { max: 10, tiempo: 15 },
+        'medio': { max: 12, tiempo: 15 },
+        'avanzado': { max: 15, tiempo: 15 }
+      };
+
+      niveles.forEach(nivel => {
+        const limite = limitesPreguntas[nivel.nombre] || { max: 10, tiempo: 15 };
+        
+        const card = document.createElement('div');
+        card.className = 'nivel-card';
+        card.setAttribute('data-nivel', nivel.nombre);
+        card.setAttribute('data-precio', nivel.precio);
+        card.setAttribute('data-tiempo', limite.tiempo);
+        
+        card.innerHTML = `
+          <div class="nivel-titulo">Nivel ${nivel.nombre.charAt(0).toUpperCase() + nivel.nombre.slice(1)}</div>
+          <div class="nivel-entrada">Entrada: $${nivel.precio.toLocaleString()} ARS</div>
+          <div class="nivel-info">${limite.max} preguntas • ${limite.tiempo}s por pregunta</div>
+        `;
+        
+        card.addEventListener('click', () => seleccionarNivel(card));
+        nivelesContainer.appendChild(card);
+      });
+    }
+
+    function seleccionarNivel(card) {
+      // Resetear estilos
+      document.querySelectorAll('.nivel-card').forEach(c => {
+        c.style.background = "rgba(0, 195, 255, 0.2)";
+        c.style.color = "white";
+      });
+      
+      // Marcar seleccionado
+      card.style.background = "#00c3ff";
+      card.style.color = "black";
+      
+      nivelSeleccionado = {
+        nombre: card.getAttribute('data-nivel'),
+        precio: parseInt(card.getAttribute('data-precio')),
+        tiempo: parseInt(card.getAttribute('data-tiempo'))
+      };
+      
+      btnIniciar.disabled = false;
+    }
+
+    async function cargarPreguntasDelNivel(nivel) {
+      const { data: preguntasDB, error } = await supabaseClient
+        .from('preguntas_trivia')
+        .select('*')
+        .eq('nivel', nivel)
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        throw new Error('Error al cargar preguntas: ' + error.message);
+      }
+
+      if (!preguntasDB || preguntasDB.length === 0) {
+        throw new Error(`No hay preguntas disponibles para el nivel ${nivel}. Contacta al administrador.`);
+      }
+
+      return preguntasDB.map(p => ({
+        id: p.id,
+        pregunta: p.texto,
+        opciones: p.opciones,
+        respuestaCorrecta: p.correcta
+      }));
+    }
+
+    btnIniciar.addEventListener('click', async () => {
+      if (!nivelSeleccionado) return;
+      
+      btnIniciar.disabled = true;
+      btnIniciar.innerHTML = '<div class="loader"></div> Cargando preguntas...';
+      
+      try {
+        preguntas = await cargarPreguntasDelNivel(nivelSeleccionado.nombre);
+        totalPreguntas = preguntas.length;
+        
+        // Resetear variables
+        actual = 0;
+        correctas = 0;
+        tiempoInicio = Date.now();
+        
+        // Mostrar interfaz de juego
+        nivelesContainer.style.display = 'none';
+        btnIniciar.style.display = 'none';
+        triviaBox.style.display = 'block';
+        totalPreguntasSpan.textContent = totalPreguntas;
+        
+        mostrarPregunta();
+      } catch (error) {
+        mostrarError(error.message);
+        btnIniciar.disabled = false;
+        btnIniciar.textContent = 'Iniciar Trivia';
+      }
+    });
+
+    function mostrarPregunta() {
+      if (actual >= preguntas.length) {
+        return terminarTrivia();
+      }
+
+      const p = preguntas[actual];
+      preguntaNumero.textContent = actual + 1;
+      preguntaText.textContent = p.pregunta;
+      
+      // Actualizar barra de progreso
+      const progreso = ((actual + 1) / totalPreguntas) * 100;
+      progresoBar.style.width = progreso + '%';
+      
+      // Crear opciones
+      opcionesBox.innerHTML = '';
+      p.opciones.forEach((opcion, index) => {
+        const btn = document.createElement('button');
+        btn.textContent = `${String.fromCharCode(65 + index)}. ${opcion}`;
+        btn.onclick = () => responderPregunta(index);
+        opcionesBox.appendChild(btn);
+      });
+
+      // Iniciar temporizador
+      tiempo = nivelSeleccionado.tiempo;
+      tiempoDisplay.textContent = tiempo;
+      clearInterval(timer);
+      
+      timer = setInterval(() => {
+        tiempo--;
+        tiempoDisplay.textContent = tiempo;
+        
+        if (tiempo <= 5) {
+          tiempoDisplay.style.color = '#ff6b7a';
+        } else {
+          tiempoDisplay.style.color = '#00ffcc';
+        }
+        
+        if (tiempo <= 0) {
+          clearInterval(timer);
+          responderPregunta(-1); // Tiempo agotado
+        }
+      }, 1000);
+    }
+
+    function responderPregunta(indiceSeleccionado) {
+      clearInterval(timer);
+      const p = preguntas[actual];
+      const botones = opcionesBox.querySelectorAll('button');
+      
+      // Deshabilitar todos los botones
+      botones.forEach(btn => btn.disabled = true);
+      
+      // Mostrar respuesta correcta
+      botones.forEach((btn, index) => {
+        if (index === p.respuestaCorrecta) {
+          btn.classList.add('correcta');
+        } else if (index === indiceSeleccionado && index !== p.respuestaCorrecta) {
+          btn.classList.add('incorrecta');
+        }
+      });
+      
+      // Verificar si es correcta
+      if (indiceSeleccionado === p.respuestaCorrecta) {
+        correctas++;
+      }
+      
+      // Avanzar después de 2 segundos
+      setTimeout(() => {
+        actual++;
+        mostrarPregunta();
+      }, 2000);
+    }
+
+    async function terminarTrivia() {
+      const tiempoTotal = Math.round((Date.now() - tiempoInicio) / 1000);
+      const porcentajeAciertos = (correctas / totalPreguntas * 100).toFixed(1);
+      
+      // Calcular premio (simplificado - puedes ajustar la lógica)
+      let multiplicador = 0;
+      if (porcentajeAciertos >= 90) multiplicador = 10;
+      else if (porcentajeAciertos >= 80) multiplicador = 8;
+      else if (porcentajeAciertos >= 70) multiplicador = 6;
+      else if (porcentajeAciertos >= 60) multiplicador = 5;
+      else if (porcentajeAciertos >= 50) multiplicador = 3;
+      
+      const premio = Math.round(nivelSeleccionado.precio * multiplicador * 0.5); // 50% para premios
+      
+      try {
+        // Guardar resultado en ranking_trivia
+        await guardarResultado(tiempoTotal, premio);
+        
+        // Mostrar resultado
+        triviaBox.style.display = 'none';
+        resultadoFinal.style.display = 'block';
+        
+        resultadoFinal.innerHTML = `
+          <h2>🎉 ¡Trivia Completada!</h2>
+          <div style="margin: 20px 0; font-size: 1.2rem;">
+            <strong>Nivel:</strong> ${nivelSeleccionado.nombre.charAt(0).toUpperCase() + nivelSeleccionado.nombre.slice(1)}<br>
+            <strong>Respuestas correctas:</strong> ${correctas} de ${totalPreguntas} (${porcentajeAciertos}%)<br>
+            <strong>Tiempo total:</strong> ${tiempoTotal} segundos<br>
+            <strong>Premio ganado:</strong> $${premio.toLocaleString()} ARS
+          </div>
+          ${premio > 0 ? 
+            '<div style="color: #28a745; font-size: 1.1rem; margin: 15px 0;">¡Felicidades! Has ganado un premio 🏆</div>' : 
+            '<div style="color: #ffc107; font-size: 1.1rem; margin: 15px 0;">¡Sigue practicando para obtener mejores resultados! 💪</div>'
+          }
+        `;
+        
+        // Cargar y mostrar ranking
+        await cargarRankingNivel();
+        
+        // Botón para volver
+        setTimeout(() => {
+          const btnVolver = document.createElement('button');
+          btnVolver.textContent = 'Jugar de Nuevo';
+          btnVolver.className = 'btn-iniciar';
+          btnVolver.style.marginTop = '20px';
+          btnVolver.onclick = volverAlInicio;
+          resultadoFinal.appendChild(btnVolver);
+        }, 3000);
+        
+      } catch (error) {
+        mostrarError('Error al guardar el resultado: ' + error.message);
+      }
+    }
+
+    async function guardarResultado(tiempoTotal, premio) {
+      const { error } = await supabaseClient
+        .from('ranking_trivia')
+        .insert([{
+          usuario_id: usuarioActual.id,
+          usuario_nombre: usuarioActual.nombre,
+          nivel: nivelSeleccionado.nombre,
+          acertadas: correctas,
+          tiempo: tiempoTotal,
+          premio: premio,
+          premio_liberado: false
+        }]);
+
+      if (error) {
+        throw error;
+      }
+    }
+
+    async function cargarRankingNivel() {
+      try {
+        const { data: ranking, error } = await supabaseClient
+          .from('ranking_trivia')
+          .select('*')
+          .eq('nivel', nivelSeleccionado.nombre)
+          .order('acertadas', { ascending: false })
+          .order('tiempo', { ascending: true })
+          .limit(10);
+
+        if (error) throw error;
+
+        rankingSection.style.display = 'block';
+        const rankingContent = document.getElementById('rankingContent');
+        
+        if (!ranking || ranking.length === 0) {
+          rankingContent.innerHTML = '<div style="text-align: center; color: #ccc;">No hay datos en el ranking</div>';
+          return;
+        }
+
+        rankingContent.innerHTML = '';
+        ranking.forEach((item, index) => {
+          const div = document.createElement('div');
+          div.className = 'ranking-item';
+          
+          const esUsuarioActual = item.usuario_id === usuarioActual.id;
+          if (esUsuarioActual) {
+            div.style.background = 'rgba(0, 195, 255, 0.3)';
+            div.style.borderLeftColor = '#00ffcc';
+          }
+          
+          div.innerHTML = `
+            <div class="ranking-pos">${index + 1}°</div>
+            <div class="ranking-user">
+              ${esUsuarioActual ? '👤 ' : ''}${item.usuario_nombre}
+              ${esUsuarioActual ? ' (Tú)' : ''}
+            </div>
+            <div class="ranking-stats">
+              ${item.acertadas} aciertos • ${item.tiempo}s<br>
+              <span style="color: #00ffcc;">$${item.premio.toLocaleString()}</span>
+            </div>
+          `;
+          
+          rankingContent.appendChild(div);
+        });
+        
+      } catch (error) {
+        console.error('Error cargando ranking:', error);
+      }
+    }
+
+    function volverAlInicio() {
+      resultadoFinal.style.display = 'none';
+      rankingSection.style.display = 'none';
+      nivelesContainer.style.display = 'flex';
+      btnIniciar.style.display = 'block';
+      btnIniciar.disabled = true;
+      btnIniciar.textContent = 'Iniciar Trivia';
+      nivelSeleccionado = null;
+      
+      // Resetear estilos de tarjetas
+      document.querySelectorAll('.nivel-card').forEach(c => {
+        c.style.background = "rgba(0, 195, 255, 0.2)";
+        c.style.color = "white";
+      });
+    }
+
+    function mostrarError(mensaje) {
+      errorMessage.textContent = mensaje;
+      errorMessage.style.display = 'block';
+      loadingMessage.style.display = 'none';
+      
+      setTimeout(() => {
+        errorMessage.style.display = 'none';
+      }, 5000);
+    }
+
+    function mostrarExito(mensaje) {
+      const successDiv = document.createElement('div');
+      successDiv.className = 'success-message';
+      successDiv.textContent = mensaje;
+      document.querySelector('.main').insertBefore(successDiv, nivelesContainer);
+      
+      setTimeout(() => {
+        successDiv.remove();
+      }, 5000);
+    }
+
     function toggleSidebar() {  
       document.getElementById("sidebar").classList.toggle("active");  
     }  
   
     function logout() {  
-      alert('Cerrando sesión...');  
-      window.location.href = 'index.html';  
-    }  
+      if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+        supabaseClient.auth.signOut().then(() => {
+          window.location.href = 'index.html';
+        });
+      }
+    }
+
+    // Inicializar la aplicación cuando cargue la página
+    document.addEventListener('DOMContentLoaded', inicializarApp);
+
+    // Manejar errores de autenticación
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        window.location.href = 'index.html';
+      }
+    });
   </script>  
 </body>  
 </html>
