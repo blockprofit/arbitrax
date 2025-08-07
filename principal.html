@@ -338,6 +338,7 @@ let montoInvertido = 0;
 let porcentajeSemanal = 0;
 let gananciaAcumulada = 0;
 let saldoDisponible = 0;    // NUEVO: saldo disponible que solo cambia con admin
+let saldoReferidos = 0;     // NUEVO: saldo por referidos aprobados
 // Guardamos el último cálculo con persistencia:
 let ultimoCalculo = null;
 
@@ -352,6 +353,7 @@ async function validateSession() {
 
   cargarHistorialTickets();
   await obtenerSaldoDisponible();
+  await obtenerSaldoReferidos(); // NUEVO: Cargar saldo de referidos
   await cargarDatosFinancierosDinamicos();
 
   actualizarGananciasDinamicas();
@@ -393,12 +395,30 @@ async function obtenerSaldoDisponible() {
   const { data, error } = await client.from("balances").select("saldo").eq("usuario_id", currentUserId).single();
   if (!error && data && data.saldo !== undefined && data.saldo !== null) {
     saldoDisponible = parseFloat(data.saldo);
-    document.getElementById("saldo-disponible").textContent = `$${saldoDisponible.toFixed(2)}`;
   } else {
     saldoDisponible = 0;
-    document.getElementById("saldo-disponible").textContent = "$0.00";
+  }
+  // MODIFICADO: Ahora suma el saldo de referidos al mostrar
+  const saldoTotal = saldoDisponible + saldoReferidos;
+  document.getElementById("saldo-disponible").textContent = `$${saldoTotal.toFixed(2)}`;
+}
+
+// NUEVA FUNCIÓN: Obtener saldo de referidos aprobados
+async function obtenerSaldoReferidos() {
+  const { data: pagosReferidos, error } = await client
+    .from("recompensas")
+    .select("monto")
+    .eq("usuario_id", currentUserId)
+    .eq("aprobado", true)
+    .eq("tipo", "referidos");
+
+  if (!error && pagosReferidos) {
+    saldoReferidos = pagosReferidos.reduce((total, pago) => total + parseFloat(pago.monto), 0);
+  } else {
+    saldoReferidos = 0;
   }
 }
+
 async function cargarDatosFinancierosDinamicos() {
   const { data, error } = await client.from("profiles").select("monto_confirmado, porcentaje, ganancia_acumulada, ultimo_calculo").eq("id", currentUserId).single();
   if (error || !data) return;
@@ -420,7 +440,8 @@ async function cargarDatosFinancierosDinamicos() {
 async function actualizarGananciasDinamicas() {
   if (montoInvertido <= 0 || porcentajeSemanal <= 0) {
     document.getElementById("ganancias").textContent = "$0.00";
-    document.getElementById("proximo-pago").textContent = "$0.00";
+    // MODIFICADO: Próximo pago ahora incluye saldo de referidos
+    document.getElementById("proximo-pago").textContent = `$${saldoReferidos.toFixed(2)}`;
     return;
   }
 
@@ -431,9 +452,12 @@ async function actualizarGananciasDinamicas() {
   const porcentajePorMinuto = porcentajeSemanal / (7 * 24 * 60);
   gananciaAcumulada += montoInvertido * (porcentajePorMinuto / 100) * minutosTranscurridos;
 
-  // Mostrar el mismo valor exacto en Ganancias y Próximo Pago (sin sumar saldo disponible ni dividir)
+  // Mostrar ganancias normales
   document.getElementById("ganancias").textContent = `$${gananciaAcumulada.toFixed(2)}`;
-  document.getElementById("proximo-pago").textContent = `$${gananciaAcumulada.toFixed(2)}`;
+  
+  // MODIFICADO: Próximo pago ahora suma ganancias + saldo de referidos
+  const proximoPagoTotal = gananciaAcumulada + saldoReferidos;
+  document.getElementById("proximo-pago").textContent = `$${proximoPagoTotal.toFixed(2)}`;
 
   const { error } = await client.from("profiles").update({
     ganancia_acumulada: gananciaAcumulada,
