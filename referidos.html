@@ -183,6 +183,23 @@
     .volver:hover {
       text-decoration: underline;
     }
+
+    /* Estilos específicos para la tabla de pagos */
+    .pagos-recibidos {
+      max-width: 800px;
+      margin: 40px auto;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .total-recibido {
+      text-align: center;
+      margin: 20px 0;
+      font-size: 18px;
+      font-weight: bold;
+      color: #00ff88;
+    }
   </style>
 </head>
 <body>
@@ -220,6 +237,28 @@
       <div class="card"><h3>10 Referidos</h3><p>80.000 ARS o 60 USDT</p></div>
       <div class="card"><h3>20 Referidos</h3><p>100.000 ARS o 80 USDT</p></div>
       <div class="card"><h3>50 Referidos</h3><p>250.000 ARS o 200 USDT</p></div>
+    </div>
+
+    <!-- NUEVA SECCIÓN: Pagos Recibidos -->
+    <div class="pagos-recibidos">
+      <h3><i class="fas fa-money-bill-wave"></i> Pagos Recibidos por Referidos</h3>
+      <div class="total-recibido" id="totalRecibido">
+        Total recibido: $0 ARS
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha de Pago</th>
+            <th>Meta Alcanzada</th>
+            <th>Monto</th>
+            <th>Moneda</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody id="tablaPagos">
+          <tr><td colspan="5">Cargando pagos...</td></tr>
+        </tbody>
+      </table>
     </div>
 
     <div class="historial">
@@ -271,6 +310,7 @@
       document.getElementById("referidosCompletados").innerText = referidos?.length || 0;
 
       await cargarHistorial();
+      await cargarPagosRecibidos();
     }
 
     async function cargarHistorial() {
@@ -298,6 +338,84 @@
         </tr>`;
         tbody.innerHTML += fila;
       });
+    }
+
+    async function cargarPagosRecibidos() {
+      const { data: pagos, error } = await client
+        .from("recompensas")
+        .select("*")
+        .eq("usuario_id", currentUserId)
+        .eq("aprobado", true)
+        .eq("tipo", "referidos")
+        .order("fecha", { ascending: false });
+
+      const tbody = document.getElementById("tablaPagos");
+      const totalElement = document.getElementById("totalRecibido");
+      
+      tbody.innerHTML = "";
+
+      if (error) {
+        console.error("Error al cargar pagos:", error);
+        tbody.innerHTML = `<tr><td colspan="5">Error al cargar los pagos</td></tr>`;
+        return;
+      }
+
+      if (!pagos || pagos.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5">Aún no has recibido pagos por referidos</td></tr>`;
+        totalElement.textContent = "Total recibido: $0 ARS";
+        return;
+      }
+
+      // Calcular total recibido
+      const totalARS = pagos
+        .filter(pago => pago.moneda === 'ARS')
+        .reduce((sum, pago) => sum + Number(pago.monto), 0);
+
+      const totalUSDT = pagos
+        .filter(pago => pago.moneda === 'USDT')
+        .reduce((sum, pago) => sum + Number(pago.monto), 0);
+
+      // Mostrar total
+      let textoTotal = "";
+      if (totalARS > 0 && totalUSDT > 0) {
+        textoTotal = `Total recibido: $${totalARS.toLocaleString()} ARS + ${totalUSDT} USDT`;
+      } else if (totalARS > 0) {
+        textoTotal = `Total recibido: $${totalARS.toLocaleString()} ARS`;
+      } else if (totalUSDT > 0) {
+        textoTotal = `Total recibido: ${totalUSDT} USDT`;
+      } else {
+        textoTotal = "Total recibido: $0 ARS";
+      }
+      
+      totalElement.textContent = textoTotal;
+
+      // Mostrar pagos en la tabla
+      pagos.forEach(pago => {
+        const fecha = new Date(pago.fecha).toLocaleDateString('es-AR');
+        const metaNombre = obtenerNombreMeta(pago.meta);
+        const montoFormateado = pago.moneda === 'ARS' 
+          ? `$${Number(pago.monto).toLocaleString()}` 
+          : Number(pago.monto);
+
+        const fila = `<tr>
+          <td>${fecha}</td>
+          <td>${metaNombre}</td>
+          <td>${montoFormateado}</td>
+          <td>${pago.moneda}</td>
+          <td>✅ Pagado</td>
+        </tr>`;
+        tbody.innerHTML += fila;
+      });
+    }
+
+    function obtenerNombreMeta(meta) {
+      const metas = {
+        5: "5 referidos",
+        15: "15 referidos (5+10)",
+        35: "35 referidos (5+10+20)",
+        85: "85 referidos (5+10+20+50)"
+      };
+      return metas[meta] || `${meta} referidos`;
     }
 
     function copiarTexto(id) {
