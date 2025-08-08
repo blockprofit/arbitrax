@@ -165,6 +165,8 @@
       background-clip: text;
       text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
       animation: titleGlow 3s ease-in-out infinite alternate;
+      font-weight: bold;
+      letter-spacing: 2px;
       position: relative;
       z-index: 10;
     }
@@ -181,6 +183,40 @@
       line-height: 1.6;
       position: relative;
       z-index: 10;
+    }
+
+    .info-bar {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 120px;
+    }
+
+    .info-label {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 5px;
+    }
+
+    .info-value {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #FFD700;
     }
 
     .treasure-chest-container {
@@ -219,7 +255,7 @@
       border: 3px solid #654321;
     }
 
-    .chest-lid {
+.chest-lid {
       width: 100%;
       height: 100px;
       background: linear-gradient(145deg, #A0522D, #CD853F, #DEB887);
@@ -359,7 +395,7 @@
       z-index: 20;
     }
 
-.light-explosion.active {
+    .light-explosion.active {
       opacity: 1;
       animation: lightBurst 2.5s ease-out;
     }
@@ -608,6 +644,35 @@
       }
     }
 
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .error-message {
+      background: rgba(220, 53, 69, 0.2);
+      border: 1px solid #dc3545;
+      color: #dc3545;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
     @media (max-width: 768px) {
       .content {
         padding: 20px;
@@ -624,6 +689,10 @@
       
       h1 {
         font-size: 2rem;
+      }
+      
+      .info-bar {
+        flex-direction: column;
       }
     }
   </style>
@@ -649,8 +718,26 @@
 
   <div class="content" onclick="closeSidebar()">
     <div class="mistery-container">
-      <h1>🎁 Caja Misteriosa 🎁</h1>
-      <p class="description">¡Abrí tu cofre y descubrí premios especiales! Podés ganar entradas gratis, bonificaciones o premios en efectivo.</p>
+      <h1 id="pageTitle">🎁 Caja Misteriosa 🎁</h1>
+      <p class="description" id="pageDescription">¡Abrí tu cofre y descubrí premios especiales! Podés ganar entradas gratis, bonificaciones o premios en efectivo.</p>
+
+      <div class="error-message" id="errorMessage"></div>
+
+      <!-- Información de la caja -->
+      <div class="info-bar" id="infoBar">
+        <div class="info-item">
+          <div class="info-label">💰 Costo</div>
+          <div class="info-value" id="boxCost">Cargando...</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">🎁 Total Premios</div>
+          <div class="info-value" id="totalPrizes">Cargando...</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">💵 Tu Saldo</div>
+          <div class="info-value" id="userBalance">Cargando...</div>
+        </div>
+      </div>
 
       <div class="treasure-chest-container">
         <div class="treasure-chest" id="treasureChest">
@@ -671,7 +758,7 @@
       </div>
 
       <button class="open-button" id="openButton" onclick="abrirCaja()">
-        <i class="fas fa-key"></i> Abrir Caja ($5000)
+        <i class="fas fa-key"></i> <span id="buttonText">Abrir Caja</span>
       </button>
     </div>
   </div>
@@ -688,36 +775,235 @@
   <div class="particles-container" id="particlesContainer"></div>
 
 <script>
-  const premios = [
-    {
-      icon: "🎉",
-      title: "¡Entrada Gratis!",
-      description: "Entrada gratis a la Trivia Básica"
-    },
-    {
-      icon: "🔥",
-      title: "¡Mini Pool Gratis!",
-      description: "Entrada gratis a la Mini Pool Básica"
-    },
-    {
-      icon: "💰",
-      title: "¡Premio en Efectivo!",
-      description: "Premio en efectivo: $2000"
-    },
-    {
-      icon: "🚀",
-      title: "¡Bonificación Especial!",
-      description: "Bonificación del 10% por 7 días"
-    },
-    {
-      icon: "😔",
-      title: "Caja Vacía",
-      description: "¡Mejor suerte la próxima vez!"
-    }
-  ];
+  const client = supabase.createClient(
+    'https://ovulezkcxwrjvyxlxsdv.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI'
+  );
 
+  // Variables globales
+  let currentConfig = null;
+  let userBalance = 0;
   let isOpening = false;
+  let currentUser = null;
 
+  // Función para mostrar errores
+  function showError(message) {
+    const errorDiv = document.getElementById('errorMessage');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+    setTimeout(() => {
+      errorDiv.style.display = 'none';
+    }, 5000);
+  }
+
+  // Función para cargar configuración de la mystery box
+  async function loadMysteryBoxConfig() {
+    try {
+      const { data, error } = await client
+        .from('mystery_box_config')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          showError('❌ No hay configuración de Mystery Box disponible. Contacta al administrador.');
+          return null;
+        }
+        throw error;
+      }
+
+      currentConfig = data;
+      updateUI();
+      return data;
+
+    } catch (error) {
+      console.error('Error cargando configuración:', error);
+      showError('❌ Error al cargar configuración de Mystery Box: ' + error.message);
+      return null;
+    }
+  }
+
+  // Función para obtener saldo del usuario
+  async function getUserBalance() {
+    try {
+      // Aquí deberías usar la tabla de saldos de tu sistema existente
+      // Por ahora simularemos con un valor fijo
+      return 10000; // $10,000 de ejemplo
+    } catch (error) {
+      console.error('Error obteniendo saldo:', error);
+      return 0;
+    }
+  }
+
+  // Función para actualizar la interfaz
+  function updateUI() {
+    if (!currentConfig) return;
+
+    const totalPrizes = currentConfig.cash_prizes + currentConfig.trivia_prizes + 
+                       currentConfig.minipool_prizes + currentConfig.empty_boxes;
+
+    document.getElementById('boxCost').textContent = `$${currentConfig.box_cost.toLocaleString()}`;
+    document.getElementById('totalPrizes').textContent = totalPrizes;
+    document.getElementById('userBalance').textContent = `$${userBalance.toLocaleString()}`;
+    document.getElementById('buttonText').textContent = `Abrir Caja ($${currentConfig.box_cost.toLocaleString()})`;
+
+    // Verificar si el usuario puede comprar
+    const openButton = document.getElementById('openButton');
+    if (userBalance < currentConfig.box_cost) {
+      openButton.disabled = true;
+      openButton.style.opacity = '0.5';
+      openButton.title = 'Saldo insuficiente';
+    } else {
+      openButton.disabled = false;
+      openButton.style.opacity = '1';
+      openButton.title = '';
+    }
+  }
+
+  // Función para generar premio aleatorio
+  function generateRandomPrize() {
+    if (!currentConfig) return null;
+
+    const prizes = [];
+
+    // Agregar premios en efectivo
+    for (let i = 0; i < currentConfig.cash_prizes; i++) {
+      prizes.push({
+        type: 'cash',
+        icon: '💰',
+        title: '¡Premio en Efectivo!',
+        description: `Has ganado $${currentConfig.cash_amount.toLocaleString()}`,
+        value: currentConfig.cash_amount
+      });
+    }
+
+    // Agregar entradas de trivia
+    for (let i = 0; i < currentConfig.trivia_prizes; i++) {
+      prizes.push({
+        type: 'trivia',
+        icon: '🎯',
+        title: '¡Entrada Gratis!',
+        description: 'Entrada gratis a la Trivia Básica',
+        value: 0
+      });
+    }
+
+    // Agregar entradas de minipool
+    for (let i = 0; i < currentConfig.minipool_prizes; i++) {
+      prizes.push({
+        type: 'minipool',
+        icon: '🔥',
+        title: '¡Mini Pool Gratis!',
+        description: 'Entrada gratis a la Mini Pool Básica',
+        value: 0
+      });
+    }
+
+    // Agregar cajas vacías
+    for (let i = 0; i < currentConfig.empty_boxes; i++) {
+      prizes.push({
+        type: 'empty',
+        icon: '😔',
+        title: 'Caja Vacía',
+        description: '¡Mejor suerte la próxima vez!',
+        value: 0
+      });
+    }
+
+    // Seleccionar premio aleatorio
+    if (prizes.length === 0) return null;
+    return prizes[Math.floor(Math.random() * prizes.length)];
+  }
+
+  // Función para verificar si el usuario ya tiene entrada de juego
+  async function checkUserGameEntry(gameType) {
+    try {
+      const { data, error } = await client
+        .from('user_game_entries')
+        .select('has_free_entry')
+        .eq('user_id', currentUser.id)
+        .eq('game_type', gameType)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
+      return data ? data.has_free_entry : false;
+    } catch (error) {
+      console.error('Error verificando entrada de juego:', error);
+      return false;
+    }
+  }
+
+  // Función para crear entrada de juego
+  async function createGameEntry(gameType) {
+    try {
+      const { error } = await client
+        .from('user_game_entries')
+        .upsert({
+          user_id: currentUser.id,
+          user_email: currentUser.email,
+          game_type: gameType,
+          has_free_entry: true
+        });
+
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error creando entrada de juego:', error);
+      return false;
+    }
+  }
+
+  // Función para registrar compra
+  async function registerPurchase() {
+    try {
+      const { data, error } = await client
+        .from('mystery_box_purchases')
+        .insert({
+          user_id: currentUser.id,
+          user_email: currentUser.email,
+          cost_paid: currentConfig.box_cost,
+          config_id: currentConfig.id
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error registrando compra:', error);
+      throw error;
+    }
+  }
+
+  // Función para registrar premio
+  async function registerPrize(purchaseId, prize) {
+    try {
+      const { error } = await client
+        .from('mystery_box_prizes')
+        .insert({
+          user_id: currentUser.id,
+          user_email: currentUser.email,
+          purchase_id: purchaseId,
+          prize_type: prize.type,
+          prize_value: prize.value,
+          prize_description: prize.description
+        });
+
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error registrando premio:', error);
+      return false;
+    }
+  }
+
+  // Función para crear explosión de luz
   function createLightExplosion() {
     const lightExplosion = document.getElementById('lightExplosion');
     lightExplosion.innerHTML = '';
@@ -733,6 +1019,7 @@
     lightExplosion.classList.add('active');
   }
 
+  // Función para crear explosión de partículas
   function createParticleExplosion() {
     const container = document.getElementById('particlesContainer');
     container.innerHTML = '';
@@ -759,8 +1046,8 @@
       const velocity = 150 + Math.random() * 400;
       const gravity = 600;
       const life = 2500 + Math.random() * 2000;
-      
-      particle.animate([
+
+particle.animate([
         {
           transform: 'translate(0, 0) scale(0)',
           opacity: 1
@@ -783,6 +1070,7 @@
     }
   }
 
+  // Función para crear monedas flotantes
   function createFloatingCoins() {
     const container = document.getElementById('floatingCoins');
     container.innerHTML = '';
@@ -802,53 +1090,103 @@
     }
   }
 
-  function abrirCaja() {
+  // Función principal para abrir la caja
+  async function abrirCaja() {
     if (isOpening) return;
     
-    isOpening = true;
-    const chest = document.getElementById('treasureChest');
-    const lid = document.getElementById('chestLid');
-    const lock = document.getElementById('chestLock');
-    const button = document.getElementById('openButton');
-    const prizeReveal = document.getElementById('prizeReveal');
-    
-    button.disabled = true;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Abriendo...';
-    
-    // Animación de temblor
-    chest.classList.add('opening');
-    
-    setTimeout(() => {
-      // Ocultar el candado con animación
-      lock.style.opacity = '0';
-      lock.style.transform = 'translateX(-50%) scale(0) rotate(180deg)';
+    try {
+      // Verificar configuración
+      if (!currentConfig) {
+        showError('❌ No hay configuración disponible');
+        return;
+      }
+
+      // Verificar saldo
+      if (userBalance < currentConfig.box_cost) {
+        showError('❌ Saldo insuficiente para abrir la caja');
+        return;
+      }
+
+      isOpening = true;
+      const chest = document.getElementById('treasureChest');
+      const lid = document.getElementById('chestLid');
+      const lock = document.getElementById('chestLock');
+      const button = document.getElementById('openButton');
+      const prizeReveal = document.getElementById('prizeReveal');
       
-      // Abrir la tapa del cofre
-      lid.classList.add('open');
+      // Actualizar botón
+      button.disabled = true;
+      button.innerHTML = '<div class="spinner"></div> Abriendo...';
       
-      // Crear efectos visuales
-      createLightExplosion();
-      createFloatingCoins();
+      // Registrar compra primero
+      const purchase = await registerPurchase();
+      
+      // Actualizar saldo del usuario (aquí deberías integrar con tu sistema de saldos)
+      userBalance -= currentConfig.box_cost;
+      updateUI();
+      
+      // Animación de temblor
+      chest.classList.add('opening');
       
       setTimeout(() => {
-        createParticleExplosion();
-      }, 800);
+        // Ocultar el candado con animación
+        lock.style.opacity = '0';
+        lock.style.transform = 'translateX(-50%) scale(0) rotate(180deg)';
+        
+        // Abrir la tapa del cofre
+        lid.classList.add('open');
+        
+        // Crear efectos visuales
+        createLightExplosion();
+        createFloatingCoins();
+        
+        setTimeout(() => {
+          createParticleExplosion();
+        }, 800);
+        
+      }, 1000);
       
-    }, 1000);
-    
-    // Seleccionar premio aleatorio
-    const premio = premios[Math.floor(Math.random() * premios.length)];
-    
-    setTimeout(() => {
-      // Mostrar premio
-      document.getElementById('prizeIcon').textContent = premio.icon;
-      document.getElementById('prizeTitle').textContent = premio.title;
-      document.getElementById('prizeDescription').textContent = premio.description;
+      // Generar premio
+      let prize = generateRandomPrize();
       
-      prizeReveal.classList.add('show');
-    }, 2800);
+      // Verificar límites para entradas de juego
+      if (prize && (prize.type === 'trivia' || prize.type === 'minipool')) {
+        const hasEntry = await checkUserGameEntry(prize.type);
+        if (hasEntry) {
+          // Si ya tiene entrada, convertir a caja vacía
+          prize = {
+            type: 'empty',
+            icon: '😔',
+            title: 'Ya tienes entrada',
+            description: `Ya tienes una entrada gratis de ${prize.type}. ¡Intenta otra vez!`,
+            value: 0
+          };
+        } else {
+          // Crear entrada de juego
+          await createGameEntry(prize.type);
+        }
+      }
+      
+      // Registrar premio
+      await registerPrize(purchase.id, prize);
+      
+      setTimeout(() => {
+        // Mostrar premio
+        document.getElementById('prizeIcon').textContent = prize.icon;
+        document.getElementById('prizeTitle').textContent = prize.title;
+        document.getElementById('prizeDescription').textContent = prize.description;
+        
+        prizeReveal.classList.add('show');
+      }, 2800);
+      
+    } catch (error) {
+      console.error('Error abriendo caja:', error);
+      showError('❌ Error al abrir la caja: ' + error.message);
+      resetChest();
+    }
   }
 
+  // Función para resetear el cofre
   function resetChest() {
     const chest = document.getElementById('treasureChest');
     const lid = document.getElementById('chestLid');
@@ -876,8 +1214,11 @@
     
     // Restaurar botón
     button.disabled = false;
-    button.innerHTML = '<i class="fas fa-key"></i> Abrir Caja ($5000)';
+    button.innerHTML = `<i class="fas fa-key"></i> <span id="buttonText">Abrir Caja ($${currentConfig ? currentConfig.box_cost.toLocaleString() : '5000'})</span>`;
     isOpening = false;
+    
+    // Actualizar UI
+    updateUI();
     
     // Recrear monedas flotantes
     setTimeout(() => {
@@ -885,6 +1226,7 @@
     }, 500);
   }
 
+  // Funciones del sidebar
   function toggleSidebar() {
     document.getElementById("sidebar").classList.toggle("active");
   }
@@ -893,26 +1235,48 @@
     document.getElementById("sidebar").classList.remove("active");
   }
 
-async function logout() {
-    const client = supabase.createClient(
-      'https://ovulezkcxwrjvyxlxsdv.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI'
-    );
+  // Función de logout
+  async function logout() {
     await client.auth.signOut();
     window.location.href = "index.html";
   }
 
-  // Crear monedas flotantes iniciales
-  createFloatingCoins();
-  
-  // Recrear monedas cada 8 segundos
-  setInterval(() => {
-    if (!isOpening) {
+  // Función para inicializar la página
+  async function initializePage() {
+    try {
+      // Obtener usuario actual
+      const { data: { user }, error: userError } = await client.auth.getUser();
+      
+      if (userError || !user) {
+        window.location.href = "index.html";
+        return;
+      }
+      
+      currentUser = user;
+      
+      // Cargar configuración y saldo
+      await loadMysteryBoxConfig();
+      userBalance = await getUserBalance();
+      updateUI();
+      
+      // Crear monedas flotantes iniciales
       createFloatingCoins();
+      
+      // Recrear monedas cada 8 segundos
+      setInterval(() => {
+        if (!isOpening) {
+          createFloatingCoins();
+        }
+      }, 8000);
+      
+    } catch (error) {
+      console.error('Error inicializando página:', error);
+      showError('❌ Error al cargar la página: ' + error.message);
     }
-  }, 8000);
+  }
 
-  // Agregar click al cofre para abrirlo
+  // Event listeners
+  document.addEventListener('DOMContentLoaded', initializePage);
   document.getElementById('treasureChest').addEventListener('click', abrirCaja);
 </script>
 </body>
