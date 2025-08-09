@@ -327,6 +327,7 @@
     <span class="cerrar" onclick="toggleNotificacion()">&times;</span>
   </div>
 </div>
+
 <script>
 const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
@@ -337,7 +338,7 @@ let currentEmail = null;
 let montoInvertido = 0;
 let porcentajeSemanal = 0;
 let gananciaAcumulada = 0;
-let saldoDisponible = 0;    // NUEVO: saldo disponible que solo cambia con admin
+let saldoDisponible = 0;    // Saldo disponible (balances + todas las recompensas liberadas)
 // Guardamos el último cálculo con persistencia:
 let ultimoCalculo = null;
 
@@ -390,15 +391,36 @@ async function guardarPerfil() {
 }
 
 async function obtenerSaldoDisponible() {
-  const { data, error } = await client.from("balances").select("saldo").eq("usuario_id", currentUserId).single();
-  if (!error && data && data.saldo !== undefined && data.saldo !== null) {
-    saldoDisponible = parseFloat(data.saldo);
-    document.getElementById("saldo-disponible").textContent = `$${saldoDisponible.toFixed(2)}`;
-  } else {
-    saldoDisponible = 0;
-    document.getElementById("saldo-disponible").textContent = "$0.00";
+  // Obtener saldo de la tabla balances (saldo base del admin)
+  const { data: balanceData, error: balanceError } = await client
+    .from("balances")
+    .select("saldo")
+    .eq("usuario_id", currentUserId)
+    .single();
+
+  let saldoBase = 0;
+  if (!balanceError && balanceData && balanceData.saldo !== undefined && balanceData.saldo !== null) {
+    saldoBase = parseFloat(balanceData.saldo);
   }
+
+  // Obtener saldo de todas las recompensas liberadas (referidos + trivia + minipool + mysterybox + sorteo)
+  const { data: recompensasLiberadas, error: recompensasError } = await client
+    .from("recompensas")
+    .select("monto")
+    .eq("usuario_id", currentUserId)
+    .eq("aprobado", true)
+    .in("tipo", ["referidos", "trivia", "minipool", "mysterybox", "sorteo"]);
+
+  let saldoRecompensas = 0;
+  if (!recompensasError && recompensasLiberadas) {
+    saldoRecompensas = recompensasLiberadas.reduce((total, pago) => total + parseFloat(pago.monto), 0);
+  }
+
+  // SALDO DISPONIBLE = saldo base + todas las recompensas liberadas
+  saldoDisponible = saldoBase + saldoRecompensas;
+  document.getElementById("saldo-disponible").textContent = `$${saldoDisponible.toFixed(2)}`;
 }
+
 async function cargarDatosFinancierosDinamicos() {
   const { data, error } = await client.from("profiles").select("monto_confirmado, porcentaje, ganancia_acumulada, ultimo_calculo").eq("id", currentUserId).single();
   if (error || !data) return;
@@ -420,7 +442,8 @@ async function cargarDatosFinancierosDinamicos() {
 async function actualizarGananciasDinamicas() {
   if (montoInvertido <= 0 || porcentajeSemanal <= 0) {
     document.getElementById("ganancias").textContent = "$0.00";
-    document.getElementById("proximo-pago").textContent = "$0.00";
+    // PRÓXIMO PAGO = saldo disponible (cuando no hay ganancias por inversión)
+    document.getElementById("proximo-pago").textContent = `$${saldoDisponible.toFixed(2)}`;
     return;
   }
 
@@ -431,9 +454,12 @@ async function actualizarGananciasDinamicas() {
   const porcentajePorMinuto = porcentajeSemanal / (7 * 24 * 60);
   gananciaAcumulada += montoInvertido * (porcentajePorMinuto / 100) * minutosTranscurridos;
 
-  // Mostrar el mismo valor exacto en Ganancias y Próximo Pago (sin sumar saldo disponible ni dividir)
+  // Mostrar ganancias normales
   document.getElementById("ganancias").textContent = `$${gananciaAcumulada.toFixed(2)}`;
-  document.getElementById("proximo-pago").textContent = `$${gananciaAcumulada.toFixed(2)}`;
+  
+  // PRÓXIMO PAGO = ganancias dinámicas + saldo disponible
+  const proximoPagoTotal = gananciaAcumulada + saldoDisponible;
+  document.getElementById("proximo-pago").textContent = `$${proximoPagoTotal.toFixed(2)}`;
 
   const { error } = await client.from("profiles").update({
     ganancia_acumulada: gananciaAcumulada,
