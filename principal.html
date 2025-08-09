@@ -338,7 +338,7 @@ let currentEmail = null;
 let montoInvertido = 0;
 let porcentajeSemanal = 0;
 let gananciaAcumulada = 0;
-let saldoDisponible = 0;    // Saldo disponible (balances + todas las recompensas liberadas)
+let saldoDisponible = 0;    // Saldo disponible (solo de tabla balances)
 // Guardamos el último cálculo con persistencia:
 let ultimoCalculo = null;
 
@@ -391,33 +391,19 @@ async function guardarPerfil() {
 }
 
 async function obtenerSaldoDisponible() {
-  // Obtener saldo de la tabla balances (saldo base del admin)
+  // SOLO obtener saldo de la tabla balances (ya incluye todas las recompensas liberadas)
   const { data: balanceData, error: balanceError } = await client
     .from("balances")
     .select("saldo")
     .eq("usuario_id", currentUserId)
     .single();
 
-  let saldoBase = 0;
   if (!balanceError && balanceData && balanceData.saldo !== undefined && balanceData.saldo !== null) {
-    saldoBase = parseFloat(balanceData.saldo);
+    saldoDisponible = parseFloat(balanceData.saldo);
+  } else {
+    saldoDisponible = 0;
   }
 
-  // Obtener saldo de todas las recompensas liberadas (referidos + trivia + minipool + mysterybox + sorteo)
-  const { data: recompensasLiberadas, error: recompensasError } = await client
-    .from("recompensas")
-    .select("monto")
-    .eq("usuario_id", currentUserId)
-    .eq("aprobado", true)
-    .in("tipo", ["referidos", "trivia", "minipool", "mysterybox", "sorteo"]);
-
-  let saldoRecompensas = 0;
-  if (!recompensasError && recompensasLiberadas) {
-    saldoRecompensas = recompensasLiberadas.reduce((total, pago) => total + parseFloat(pago.monto), 0);
-  }
-
-  // SALDO DISPONIBLE = saldo base + todas las recompensas liberadas
-  saldoDisponible = saldoBase + saldoRecompensas;
   document.getElementById("saldo-disponible").textContent = `$${saldoDisponible.toFixed(2)}`;
 }
 
