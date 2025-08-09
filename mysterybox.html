@@ -255,7 +255,7 @@
       border: 3px solid #654321;
     }
 
-.chest-lid {
+    .chest-lid {
       width: 100%;
       height: 100px;
       background: linear-gradient(145deg, #A0522D, #CD853F, #DEB887);
@@ -307,7 +307,7 @@
       box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
     }
 
-    .chest-lock::after {
+.chest-lock::after {
       content: '🔐';
       position: absolute;
       top: 50%;
@@ -772,7 +772,7 @@
     </div>
   </div>
 
-  <div class="particles-container" id="particlesContainer"></div>
+<div class="particles-container" id="particlesContainer"></div>
 
 <script>
   const client = supabase.createClient(
@@ -826,15 +826,47 @@
     }
   }
 
-  // Función para obtener saldo del usuario
+  // Función para obtener saldo del usuario desde tabla recompensas
   async function getUserBalance() {
     try {
-      // Aquí deberías usar la tabla de saldos de tu sistema existente
-      // Por ahora simularemos con un valor fijo
-      return 10000; // $10,000 de ejemplo
+      const { data, error } = await client
+        .from('recompensas')
+        .select('monto')
+        .eq('usuario_id', currentUser.id);
+
+      if (error) throw error;
+
+      // Sumar todas las recompensas (positivas y negativas)
+      const totalBalance = data.reduce((sum, recompensa) => sum + (recompensa.monto || 0), 0);
+      return totalBalance;
+
     } catch (error) {
       console.error('Error obteniendo saldo:', error);
       return 0;
+    }
+  }
+
+  // Función para descontar saldo de recompensas
+  async function deductUserBalance(amount) {
+    try {
+      // Insertar registro negativo para descontar
+      const { data, error } = await client
+        .from('recompensas')
+        .insert({
+          usuario_id: currentUser.id,
+          descripcion: 'Compra Mystery Box',
+          monto: -amount, // Monto negativo para descontar
+          fecha: new Date().toISOString()
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+
+    } catch (error) {
+      console.error('Error descontando saldo:', error);
+      throw error;
     }
   }
 
@@ -981,7 +1013,7 @@
     }
   }
 
-  // Función para registrar premio
+// Función para registrar premio
   async function registerPrize(purchaseId, prize) {
     try {
       const { error } = await client
@@ -999,6 +1031,28 @@
       return true;
     } catch (error) {
       console.error('Error registrando premio:', error);
+      return false;
+    }
+  }
+
+  // Función para agregar premio en efectivo a recompensas
+  async function addCashPrizeToBalance(amount) {
+    try {
+      const { data, error } = await client
+        .from('recompensas')
+        .insert({
+          usuario_id: currentUser.id,
+          descripcion: 'Premio Mystery Box - Efectivo',
+          monto: amount,
+          fecha: new Date().toISOString()
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error agregando premio en efectivo:', error);
       return false;
     }
   }
@@ -1046,8 +1100,8 @@
       const velocity = 150 + Math.random() * 400;
       const gravity = 600;
       const life = 2500 + Math.random() * 2000;
-
-particle.animate([
+      
+      particle.animate([
         {
           transform: 'translate(0, 0) scale(0)',
           opacity: 1
@@ -1121,8 +1175,9 @@ particle.animate([
       // Registrar compra primero
       const purchase = await registerPurchase();
       
-      // Actualizar saldo del usuario (aquí deberías integrar con tu sistema de saldos)
-      userBalance -= currentConfig.box_cost;
+      // Descontar del saldo real en tabla recompensas
+      await deductUserBalance(currentConfig.box_cost);
+      userBalance = await getUserBalance(); // Recargar saldo actualizado
       updateUI();
       
       // Animación de temblor
@@ -1165,6 +1220,12 @@ particle.animate([
           // Crear entrada de juego
           await createGameEntry(prize.type);
         }
+      }
+      
+      // Si es premio en efectivo, agregarlo a recompensas
+      if (prize && prize.type === 'cash') {
+        await addCashPrizeToBalance(prize.value);
+        userBalance = await getUserBalance(); // Actualizar saldo con el premio
       }
       
       // Registrar premio
@@ -1212,9 +1273,10 @@ particle.animate([
     floatingCoins.innerHTML = '';
     particlesContainer.innerHTML = '';
     
-    // Restaurar botón
+    // Restaurar botón correctamente
+    const costText = currentConfig ? currentConfig.box_cost.toLocaleString() : '5000';
     button.disabled = false;
-    button.innerHTML = `<i class="fas fa-key"></i> <span id="buttonText">Abrir Caja ($${currentConfig ? currentConfig.box_cost.toLocaleString() : '5000'})</span>`;
+    button.innerHTML = `<i class="fas fa-key"></i> <span id="buttonText">Abrir Caja ($${costText})</span>`;
     isOpening = false;
     
     // Actualizar UI
