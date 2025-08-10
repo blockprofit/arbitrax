@@ -772,7 +772,7 @@
     </div>
   </div>
 
-<div class="particles-container" id="particlesContainer"></div>
+  <div class="particles-container" id="particlesContainer"></div>
 
 <script>
   const client = supabase.createClient(
@@ -832,11 +832,12 @@
       const { data, error } = await client
         .from('recompensas')
         .select('monto')
-        .eq('usuario_id', currentUser.id);
+        .eq('usuario_id', currentUser.id)
+        .eq('aprobado', true); // Solo contar recompensas aprobadas
 
       if (error) throw error;
 
-      // Sumar todas las recompensas (positivas y negativas)
+      // Sumar todas las recompensas aprobadas
       const totalBalance = data.reduce((sum, recompensa) => sum + (recompensa.monto || 0), 0);
       return totalBalance;
 
@@ -854,8 +855,10 @@
         .from('recompensas')
         .insert({
           usuario_id: currentUser.id,
-          descripcion: 'Compra Mystery Box',
+          tipo: 'Mystery Box - Compra',
           monto: -amount, // Monto negativo para descontar
+          moneda: 'ARS', // O tu moneda
+          aprobado: true,
           fecha: new Date().toISOString()
         })
         .select()
@@ -950,7 +953,7 @@
     return prizes[Math.floor(Math.random() * prizes.length)];
   }
 
-  // Función para verificar si el usuario ya tiene entrada de juego
+// Función para verificar si el usuario ya tiene entrada de juego
   async function checkUserGameEntry(gameType) {
     try {
       const { data, error } = await client
@@ -1013,7 +1016,7 @@
     }
   }
 
-// Función para registrar premio
+  // Función para registrar premio
   async function registerPrize(purchaseId, prize) {
     try {
       const { error } = await client
@@ -1042,8 +1045,10 @@
         .from('recompensas')
         .insert({
           usuario_id: currentUser.id,
-          descripcion: 'Premio Mystery Box - Efectivo',
+          tipo: 'Mystery Box - Premio',
           monto: amount,
+          moneda: 'ARS', // O tu moneda
+          aprobado: true,
           fecha: new Date().toISOString()
         })
         .select()
@@ -1057,7 +1062,7 @@
     }
   }
 
-  // Función para crear explosión de luz
+// Función para crear explosión de luz
   function createLightExplosion() {
     const lightExplosion = document.getElementById('lightExplosion');
     lightExplosion.innerHTML = '';
@@ -1179,8 +1184,8 @@
       await deductUserBalance(currentConfig.box_cost);
       userBalance = await getUserBalance(); // Recargar saldo actualizado
       updateUI();
-      
-      // Animación de temblor
+
+// Animación de temblor
       chest.classList.add('opening');
       
       setTimeout(() => {
