@@ -243,7 +243,7 @@
       border-color: #00ffcc;
     }
 
-.nivel-card.selected {
+    .nivel-card.selected {
       background: linear-gradient(135deg, #00c3ff, #00ffcc);
       color: #000;
       transform: translateY(-5px) scale(1.02);
@@ -326,8 +326,8 @@
     .loading-message .loader {
       margin-bottom: 20px;
     }
-  
-    .btn-iniciar {  
+
+.btn-iniciar {  
       display: block;  
       margin: 30px auto;  
       padding: 16px 40px;  
@@ -517,6 +517,64 @@
       color: #666;
       padding: 40px;
       font-style: italic;
+    }
+
+    .error-message {
+      background: linear-gradient(135deg, 
+        rgba(220, 53, 69, 0.8), 
+        rgba(220, 53, 69, 0.6)
+      );
+      border: 2px solid #dc3545;
+      color: white;
+      padding: 20px;
+      border-radius: 15px;
+      margin: 30px 0;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      animation: shake 0.6s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    .success-message {
+      background: linear-gradient(135deg, 
+        rgba(40, 167, 69, 0.8), 
+        rgba(40, 167, 69, 0.6)
+      );
+      border: 2px solid #28a745;
+      color: white;
+      padding: 20px;
+      border-radius: 15px;
+      margin: 30px 0;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      animation: successPulse 0.8s ease-out;
+    }
+
+    @keyframes successPulse {
+      0% { transform: scale(0.9); opacity: 0; }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .main-title {
+        font-size: 2rem;
+      }
+
+      .niveles-container {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+      }
+
+      .nivel-card {
+        padding: 25px 20px;
+      }
     }
   </style>  
 </head>  
@@ -870,49 +928,7 @@
       color: #ccc;
     }
 
-    .error-message {
-      background: linear-gradient(135deg, 
-        rgba(220, 53, 69, 0.8), 
-        rgba(220, 53, 69, 0.6)
-      );
-      border: 2px solid #dc3545;
-      color: white;
-      padding: 20px;
-      border-radius: 15px;
-      margin: 30px 0;
-      text-align: center;
-      backdrop-filter: blur(10px);
-      animation: shake 0.6s ease-in-out;
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      75% { transform: translateX(5px); }
-    }
-
-    .success-message {
-      background: linear-gradient(135deg, 
-        rgba(40, 167, 69, 0.8), 
-        rgba(40, 167, 69, 0.6)
-      );
-      border: 2px solid #28a745;
-      color: white;
-      padding: 20px;
-      border-radius: 15px;
-      margin: 30px 0;
-      text-align: center;
-      backdrop-filter: blur(10px);
-      animation: successPulse 0.8s ease-out;
-    }
-
-    @keyframes successPulse {
-      0% { transform: scale(0.9); opacity: 0; }
-      50% { transform: scale(1.02); }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-.nivel-pausado {
+    .nivel-pausado {
       position: absolute;
       top: 15px;
       right: 15px;
@@ -941,57 +957,9 @@
       color: #ffc107;
       transform: none;
     }
-
-    /* Responsive Design */
-    @media (max-width: 768px) {
-      .main-title {
-        font-size: 2rem;
-      }
-
-      .niveles-container {
-        grid-template-columns: 1fr;
-        max-width: 400px;
-      }
-
-      .nivel-card {
-        padding: 25px 20px;
-      }
-
-      .temporizador {
-        font-size: 1.1rem;
-        flex-direction: column;
-        gap: 10px;
-        text-align: center;
-      }
-
-      .pregunta-texto {
-        font-size: 1.3rem;
-      }
-
-      .opciones button {
-        padding: 15px 20px;
-        font-size: 1rem;
-      }
-
-      .historial-tabs {
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .ganador-item {
-        flex-direction: column;
-        text-align: center;
-        gap: 10px;
-      }
-
-      .ganador-id {
-        margin: 0;
-        word-break: break-all;
-      }
-    }
   </style>
-  
-  <script>  
+
+<script>  
     // Configuración de Supabase
     const supabaseUrl = "https://ovulezkcxwrjvyxlxsdv.supabase.co";
     const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI";
@@ -1002,6 +970,7 @@
     let nivelSeleccionado = null, tiempoInicio = null, totalPreguntas = 0;
     let usuarioActual = null, saldoUsuario = 0;
     let triviaEnCurso = false;
+    let eventosActivos = {}; // NUEVO: Almacenar estado de eventos por nivel
 
     // Elementos DOM
     const loadingMessage = document.getElementById('loadingMessage');
@@ -1072,7 +1041,7 @@
       };
     }
 
-    // NUEVA FUNCIÓN: Cargar saldo del usuario
+    // Cargar saldo del usuario
     async function cargarSaldoUsuario() {
       try {
         const { data: balance, error } = await supabaseClient
@@ -1103,18 +1072,30 @@
       }
     }
 
-    // NUEVA FUNCIÓN: Verificar estado de eventos desde admin
+    // FUNCIÓN CORREGIDA: Verificar estado de eventos desde admin
     async function verificarEstadoEventos() {
       try {
+        console.log('🔍 Verificando eventos activos...');
+        
         const { data: eventos, error } = await supabaseClient
           .from('eventos_trivia')
           .select('*')
           .eq('estado', 'activo');
 
         if (error) {
-          console.error('Error verificando eventos:', error);
+          console.error('❌ Error verificando eventos:', error);
           mostrarEstadoSistema(false, 'Error al verificar estado del sistema');
-          return;
+          return false;
+        }
+
+        console.log('📊 Eventos encontrados:', eventos);
+
+        // Almacenar eventos activos por nivel
+        eventosActivos = {};
+        if (eventos && eventos.length > 0) {
+          eventos.forEach(evento => {
+            eventosActivos[evento.nivel] = evento;
+          });
         }
 
         const hayEventosActivos = eventos && eventos.length > 0;
@@ -1124,10 +1105,11 @@
             '⏸️ Sistema pausado por mantenimiento'
         );
 
+        console.log('🎯 Eventos activos por nivel:', eventosActivos);
         return hayEventosActivos;
         
       } catch (error) {
-        console.error('Error verificando eventos:', error);
+        console.error('💥 Error verificando eventos:', error);
         mostrarEstadoSistema(false, 'Error de conexión');
         return false;
       }
@@ -1145,20 +1127,11 @@
       }
     }
 
-    // NUEVA FUNCIÓN: Verificar si un nivel específico está activo
-    async function verificarNivelActivo(nivel) {
-      try {
-        const { data: evento, error } = await supabaseClient
-          .from('eventos_trivia')
-          .select('*')
-          .eq('nivel', nivel)
-          .eq('estado', 'activo')
-          .maybeSingle();
-
-        return !error && evento;
-      } catch (error) {
-        return false;
-      }
+    // FUNCIÓN CORREGIDA: Verificar si un nivel específico está activo
+    function verificarNivelActivo(nivel) {
+      const estaActivo = eventosActivos.hasOwnProperty(nivel);
+      console.log(`🎮 Verificando nivel ${nivel}: ${estaActivo ? '✅ ACTIVO' : '❌ PAUSADO'}`);
+      return estaActivo;
     }
 
     async function cargarNivelesYPrecios() {
@@ -1177,10 +1150,10 @@
         return;
       }
 
-      await mostrarNiveles(niveles);
+      mostrarNiveles(niveles);
     }
 
-    async function mostrarNiveles(niveles) {
+    function mostrarNiveles(niveles) {
       nivelesContainer.innerHTML = '';
       
       const limitesPreguntas = {
@@ -1189,12 +1162,14 @@
         'avanzado': { max: 15, tiempo: 15, icon: 'fas fa-crown', multiplicador: '×8-×10' }
       };
 
-      for (const nivel of niveles) {
+      niveles.forEach(nivel => {
         const limite = limitesPreguntas[nivel.nombre] || { max: 10, tiempo: 15, icon: 'fas fa-question', multiplicador: '×5' };
         
-        // Verificar si el nivel está activo
-        const nivelActivo = await verificarNivelActivo(nivel.nombre);
+        // CORRECCIÓN: Verificar si el nivel está activo usando la función corregida
+        const nivelActivo = verificarNivelActivo(nivel.nombre);
         const tieneSaldo = saldoUsuario >= nivel.precio;
+        
+        console.log(`🎯 Nivel ${nivel.nombre}: Activo=${nivelActivo}, Saldo=${tieneSaldo} (${saldoUsuario}>=${nivel.precio})`);
         
         const card = document.createElement('div');
         card.className = 'nivel-card';
@@ -1234,25 +1209,34 @@
           </div>
         `;
         
+        // CORRECCIÓN: Solo permitir click si está activo Y tiene saldo
         if (nivelActivo && tieneSaldo) {
           card.addEventListener('click', () => seleccionarNivel(card));
+        } else {
+          // Agregar evento para mostrar mensaje específico
+          card.addEventListener('click', () => {
+            if (!nivelActivo) {
+              mostrarError('❌ Este nivel está pausado por mantenimiento. Intenta más tarde.');
+            } else if (!tieneSaldo) {
+              mostrarError('💰 Saldo insuficiente. Necesitas recargar tu cuenta.');
+            }
+          });
         }
         
         nivelesContainer.appendChild(card);
-      }
+      });
     }
 
+    // FUNCIÓN CORREGIDA: Seleccionar nivel
     function seleccionarNivel(card) {
+      const nivel = card.getAttribute('data-nivel');
       const nivelActivo = card.getAttribute('data-activo') === 'true';
       const tieneSaldo = card.getAttribute('data-tiene-saldo') === 'true';
       
+      console.log(`🎯 Intentando seleccionar ${nivel}: Activo=${nivelActivo}, Saldo=${tieneSaldo}`);
+      
       if (!nivelActivo || !tieneSaldo) {
-        if (!nivelActivo) {
-          mostrarError('❌ Este nivel está pausado por mantenimiento. Intenta más tarde.');
-        } else {
-          mostrarError('💰 Saldo insuficiente. Necesitas recargar tu cuenta.');
-        }
-        return;
+        return; // No hacer nada, el mensaje ya se mostró en el evento click
       }
 
       // Resetear estilos
@@ -1269,12 +1253,15 @@
         tiempo: parseInt(card.getAttribute('data-tiempo'))
       };
       
+      // CORRECCIÓN: Habilitar botón y actualizar texto
       btnIniciar.disabled = false;
       btnIniciar.innerHTML = `
         <i class="fas fa-rocket"></i>
         Iniciar ${nivelSeleccionado.nombre.charAt(0).toUpperCase() + nivelSeleccionado.nombre.slice(1)}
         (Costo: $${nivelSeleccionado.precio.toLocaleString()})
       `;
+
+      console.log('✅ Nivel seleccionado correctamente:', nivelSeleccionado);
 
       // Scroll suave al botón
       btnIniciar.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1303,7 +1290,7 @@ async function cargarPreguntasDelNivel(nivel) {
       }));
     }
 
-    // NUEVA FUNCIÓN: Descontar saldo al iniciar trivia
+    // Descontar saldo al iniciar trivia
     async function descontarSaldo(precio) {
       try {
         const nuevoSaldo = saldoUsuario - precio;
@@ -1333,7 +1320,7 @@ async function cargarPreguntasDelNivel(nivel) {
       }
     }
 
-    // NUEVA FUNCIÓN: Salir de trivia (pierde entrada)
+    // Salir de trivia (pierde entrada)
     function salirDeTrivia() {
       if (!triviaEnCurso) return;
 
@@ -1354,24 +1341,40 @@ async function cargarPreguntasDelNivel(nivel) {
       }
     }
 
+    // FUNCIÓN CORREGIDA: Event listener del botón iniciar
     btnIniciar.addEventListener('click', async () => {
-      if (!nivelSeleccionado) return;
+      console.log('🚀 Botón iniciar clickeado');
+      console.log('🎯 Nivel seleccionado:', nivelSeleccionado);
+      
+      if (!nivelSeleccionado) {
+        console.log('❌ No hay nivel seleccionado');
+        mostrarError('Por favor selecciona un nivel primero');
+        return;
+      }
       
       btnIniciar.disabled = true;
       btnIniciar.innerHTML = '<div class="loader"></div> Verificando y procesando pago...';
       
       try {
-        // Verificar nuevamente el nivel y saldo
-        const nivelActivo = await verificarNivelActivo(nivelSeleccionado.nombre);
+        console.log('🔍 Verificando nivel activo nuevamente...');
+        
+        // CORRECCIÓN: Verificar nuevamente el estado desde la base de datos
+        await verificarEstadoEventos(); // Recargar eventos activos
+        const nivelActivo = verificarNivelActivo(nivelSeleccionado.nombre);
+        
         if (!nivelActivo) {
           throw new Error('❌ Este nivel ha sido pausado. No se puede iniciar la trivia.');
         }
+
+        console.log('✅ Nivel verificado como activo');
 
         // Verificar saldo actualizado
         await cargarSaldoUsuario();
         if (saldoUsuario < nivelSeleccionado.precio) {
           throw new Error('💰 Saldo insuficiente. Tu saldo ha cambiado.');
         }
+
+        console.log('💰 Saldo verificado, procesando descuento...');
 
         // Descontar saldo ANTES de cargar preguntas
         await descontarSaldo(nivelSeleccionado.precio);
@@ -1380,15 +1383,21 @@ async function cargarPreguntasDelNivel(nivel) {
         
         btnIniciar.innerHTML = '<div class="loader"></div> Cargando preguntas...';
         
+        console.log('📚 Cargando preguntas...');
+        
         // Cargar preguntas
         preguntas = await cargarPreguntasDelNivel(nivelSeleccionado.nombre);
         totalPreguntas = preguntas.length;
+        
+        console.log(`✅ ${totalPreguntas} preguntas cargadas`);
         
         // Resetear variables
         actual = 0;
         correctas = 0;
         tiempoInicio = Date.now();
         triviaEnCurso = true;
+        
+        console.log('🎮 Iniciando interfaz de juego...');
         
         // Mostrar interfaz de juego
         nivelesContainer.style.display = 'none';
@@ -1398,13 +1407,22 @@ async function cargarPreguntasDelNivel(nivel) {
         totalPreguntasSpan.textContent = totalPreguntas;
         
         mostrarPregunta();
+        
       } catch (error) {
+        console.error('💥 Error al iniciar trivia:', error);
         mostrarError(error.message);
+        
+        // CORRECCIÓN: Restaurar estado del botón correctamente
         btnIniciar.disabled = false;
-        btnIniciar.innerHTML = `
-          <i class="fas fa-rocket"></i>
-          Iniciar ${nivelSeleccionado ? nivelSeleccionado.nombre.charAt(0).toUpperCase() + nivelSeleccionado.nombre.slice(1) : 'Trivia'}
-        `;
+        if (nivelSeleccionado) {
+          btnIniciar.innerHTML = `
+            <i class="fas fa-rocket"></i>
+            Iniciar ${nivelSeleccionado.nombre.charAt(0).toUpperCase() + nivelSeleccionado.nombre.slice(1)}
+            (Costo: $${nivelSeleccionado.precio.toLocaleString()})
+          `;
+        } else {
+          btnIniciar.innerHTML = '<i class="fas fa-play"></i> Iniciar Trivia';
+        }
       }
     });
 
@@ -1479,8 +1497,8 @@ async function cargarPreguntasDelNivel(nivel) {
           btn.classList.add('incorrecta');
         }
       });
-
-// Verificar si es correcta
+      
+      // Verificar si es correcta
       if (indiceSeleccionado === p.respuestaCorrecta) {
         correctas++;
       }
@@ -1521,7 +1539,8 @@ async function cargarPreguntasDelNivel(nivel) {
           '¡Felicidades! Has ganado un premio' : 
           '¡Sigue practicando para obtener mejores resultados!';
         
-        resultadoFinal.innerHTML = `
+
+resultadoFinal.innerHTML = `
           <div style="font-size: 3rem; margin-bottom: 20px;">${iconoResultado}</div>
           <h2>¡Trivia Completada!</h2>
           <div style="margin: 30px 0; font-size: 1.2rem; line-height: 1.6;">
@@ -1629,7 +1648,7 @@ async function cargarPreguntasDelNivel(nivel) {
       }
     }
 
-    // NUEVA FUNCIÓN: Cargar historial de ganadores últimas 24h
+    // Cargar historial de ganadores últimas 24h
     async function cargarHistorialGanadores() {
       const hace24Horas = new Date();
       hace24Horas.setHours(hace24Horas.getHours() - 24);
@@ -1740,7 +1759,9 @@ async function cargarPreguntasDelNivel(nivel) {
       
       // Recargar datos
       cargarSaldoUsuario();
-      cargarNivelesYPrecios();
+      verificarEstadoEventos().then(() => {
+        cargarNivelesYPrecios();
+      });
       cargarHistorialGanadores();
     }
 
@@ -1806,10 +1827,16 @@ async function cargarPreguntasDelNivel(nivel) {
       }
     });
 
-    // Actualizar datos cada 30 segundos cuando no está en trivia
+    // CORRECCIÓN: Actualizar datos cada 30 segundos cuando no está en trivia
     setInterval(() => {
       if (!triviaEnCurso) {
-        verificarEstadoEventos();
+        console.log('🔄 Actualizando datos automáticamente...');
+        verificarEstadoEventos().then(() => {
+          // Solo actualizar niveles si no hay nivel seleccionado
+          if (!nivelSeleccionado) {
+            cargarNivelesYPrecios();
+          }
+        });
         cargarSaldoUsuario();
       }
     }, 30000);
