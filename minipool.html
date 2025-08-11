@@ -131,8 +131,13 @@
       background: #007acc;
     }
 
+    .formulario button:disabled {
+      background: #666;
+      cursor: not-allowed;
+    }
+
     .historial {
-      max-width: 700px;
+      max-width: 800px;
       margin: 40px auto;
       background: rgba(0, 0, 0, 0.5);
       border-radius: 12px;
@@ -182,6 +187,48 @@
       color: #ccc;
       margin-top: 20px;
     }
+
+    .status {
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .status-pending {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+
+    .status-paid {
+      background-color: #d1ecf1;
+      color: #0c5460;
+    }
+
+    .status-expired {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    .loading {
+      text-align: center;
+      color: #00ffc3;
+      margin: 20px 0;
+    }
+
+    .balance-info {
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .balance-amount {
+      font-size: 24px;
+      font-weight: bold;
+      color: #00ffc3;
+    }
   </style>
 </head>
 <body>
@@ -205,27 +252,37 @@
 </div>
 
 <div class="content" onclick="closeSidebar()">
-  <h2>🔥 Participá en la Mini Pool Semanal</h2>
-  <p class="mensaje-info">Ingresá y obtené un 80% de ganancia en sólo 7 días</p>
+  <h2>🏊‍♂️ Participá en la Mini Pool Semanal</h2>
+  <p class="mensaje-info">Duplicá tu inversión en solo 7 días con 100% de ganancia garantizada</p>
+
+  <div class="balance-info" id="balanceInfo" style="display: none;">
+    <div>Tu saldo actual:</div>
+    <div class="balance-amount" id="currentBalance">$0</div>
+  </div>
 
   <div class="formulario">
     <select id="entrada">
-      <option value="">-- Seleccioná un monto --</option>
-      <option value="2000">Básico - $2.000</option>
-      <option value="5000">Medio - $5.000</option>
-      <option value="10000">Avanzado - $10.000</option>
+      <option value="">-- Seleccioná un minipool --</option>
+      <option value="minipool_basico">🥉 Básico - $<span id="precio-basico">10,000</span></option>
+      <option value="minipool_medio">🥈 Medio - $<span id="precio-medio">25,000</span></option>
+      <option value="minipool_avanzado">🥇 Avanzado - $<span id="precio-avanzado">50,000</span></option>
     </select>
-    <button onclick="registrarEntrada()">Confirmar participación</button>
+    <button id="btnParticipar" onclick="registrarEntrada()" disabled>
+      <i class="fas fa-spinner fa-spin" id="loadingIcon" style="display: none;"></i>
+      Confirmar participación
+    </button>
   </div>
 
   <div class="historial" id="historialPool" style="display: none;">
-    <h3>🧾 Tus Participaciones</h3>
+    <h3>🧾 Tus Inversiones en Minipools</h3>
     <table>
       <thead>
         <tr>
-          <th>Monto</th>
-          <th>Nivel</th>
-          <th>Fecha</th>
+          <th>Tipo</th>
+          <th>Monto Invertido</th>
+          <th>Monto a Recibir</th>
+          <th>Fecha Inversión</th>
+          <th>Vencimiento</th>
           <th>Estado</th>
         </tr>
       </thead>
@@ -236,22 +293,108 @@
   <a href="principal.html" class="volver">← Volver al menú principal</a>
   <div class="credit">Imagen de fondo: fondodepantallaprincipal1.jpeg</div>
 </div>
+
 <script>
   const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
   const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  
   let currentUserId = null;
   let currentEmail = null;
+  let userBalance = 0;
+
+  // Configuración de precios (sincronizada con admin)
+  const poolConfig = {
+    'minipool_basico': { name: 'Básico', icon: '🥉', amount: 10000 },
+    'minipool_medio': { name: 'Medio', icon: '🥈', amount: 25000 },
+    'minipool_avanzado': { name: 'Avanzado', icon: '🥇', amount: 50000 }
+  };
+
+  function formatCurrency(amount) {
+    return new Intl.NumberFormat('es-AR', {
+      style: 'currency',
+      currency: 'ARS',
+      minimumFractionDigits: 0
+    }).format(amount);
+  }
+
+  function formatDate(dateString) {
+    return new Date(dateString).toLocaleString('es-AR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  function addDaysToDate(date, days) {
+    const result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+  }
 
   async function init() {
-    const { data: { session } } = await client.auth.getSession();
-    if (!session) {
-      alert("Sesión expirada. Iniciá sesión nuevamente.");
-      return window.location.href = "index.html";
+    try {
+      const { data: { session } } = await client.auth.getSession();
+      if (!session) {
+        alert("Sesión expirada. Iniciá sesión nuevamente.");
+        return window.location.href = "index.html";
+      }
+      
+      currentUserId = session.user.id;
+      currentEmail = session.user.email;
+      
+      await Promise.all([
+        loadUserBalance(),
+        cargarHistorial(),
+        updatePriceDisplay()
+      ]);
+      
+      document.getElementById('btnParticipar').disabled = false;
+      
+    } catch (error) {
+      console.error('Error inicializando:', error);
+      alert('Error cargando datos. Intentá recargar la página.');
     }
-    currentUserId = session.user.id;
-    currentEmail = session.user.email;
-    cargarHistorial();
+  }
+
+  async function loadUserBalance() {
+    try {
+      const { data, error } = await client
+        .from('balances')
+        .select('saldo')
+        .eq('usuario_id', currentUserId)
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
+      userBalance = data?.saldo || 0;
+      
+      const balanceInfo = document.getElementById('balanceInfo');
+      const balanceAmount = document.getElementById('currentBalance');
+      
+      if (balanceInfo && balanceAmount) {
+        balanceAmount.textContent = formatCurrency(userBalance);
+        balanceInfo.style.display = 'block';
+      }
+      
+    } catch (error) {
+      console.error('Error cargando balance:', error);
+      userBalance = 0;
+    }
+  }
+
+  function updatePriceDisplay() {
+    // Actualizar precios en las opciones (si quisieras hacerlo dinámico)
+    Object.keys(poolConfig).forEach(poolType => {
+      const element = document.getElementById(`precio-${poolType.split('_')[1]}`);
+      if (element) {
+        element.textContent = poolConfig[poolType].amount.toLocaleString();
+      }
+    });
   }
 
   function toggleSidebar() {
@@ -263,70 +406,154 @@
   }
 
   async function registrarEntrada() {
-    const monto = parseInt(document.getElementById("entrada").value);
-    if (!monto) return alert("Seleccioná un monto válido.");
-
-    const niveles = {
-      2000: "básico",
-      5000: "medio",
-      10000: "avanzado"
-    };
-
-    const registro = {
-      usuario_id: currentUserId,
-      email: currentEmail,
-      nivel: niveles[monto],
-      monto,
-      fecha_entrada: new Date().toISOString(),
-      estado_pago: "pendiente"
-    };
-
-    const { error } = await client.from("mini_pool").insert(registro);
-    if (error) {
-      console.error(error);
-      return alert("❌ Ocurrió un error.");
+    const poolType = document.getElementById("entrada").value;
+    if (!poolType) {
+      return alert("Seleccioná un minipool válido.");
     }
 
-    alert("✅ Registro exitoso.");
-    cargarHistorial();
-  }
+    const poolInfo = poolConfig[poolType];
+    if (!poolInfo) {
+      return alert("Tipo de minipool inválido.");
+    }
 
-  async function cargarHistorial() {
-    const { data, error } = await client
-      .from("mini_pool")
-      .select("*")
-      .eq("usuario_id", currentUserId)
-      .order("fecha_entrada", { ascending: false });
+    // Verificar saldo (opcional)
+    if (userBalance < poolInfo.amount) {
+      return alert(`Saldo insuficiente. Necesitás ${formatCurrency(poolInfo.amount)} pero tenés ${formatCurrency(userBalance)}.`);
+    }
 
-    const tabla = document.getElementById("tablaPool");
-    const historial = document.getElementById("historialPool");
-
-    if (!data || data.length === 0) {
-      historial.style.display = "none";
+    if (!confirm(`¿Confirmar inversión en ${poolInfo.icon} ${poolInfo.name}?\n\nMonto: ${formatCurrency(poolInfo.amount)}\nGanancia: 100% (${formatCurrency(poolInfo.amount * 2)})\nTiempo: 7 días`)) {
       return;
     }
 
-    historial.style.display = "block";
-    tabla.innerHTML = "";
+    const btnParticipar = document.getElementById('btnParticipar');
+    const loadingIcon = document.getElementById('loadingIcon');
+    
+    try {
+      btnParticipar.disabled = true;
+      loadingIcon.style.display = 'inline-block';
 
-    data.forEach(row => {
-      const fecha = new Date(row.fecha_entrada).toLocaleDateString('es-AR');
-      const estado = row.estado_pago === "pagado" ? "✅" : "⏳";
-      tabla.innerHTML += `
-        <tr>
-          <td>$${row.monto}</td>
-          <td>${row.nivel}</td>
-          <td>${fecha}</td>
-          <td>${estado}</td>
-        </tr>
-      `;
-    });
+      const registro = {
+        usuario_id: currentUserId,
+        meta: 100, // Porcentaje de retorno
+        fecha: new Date().toISOString(),
+        monto: poolInfo.amount,
+        moneda: 'ARS',
+        aprobado: false,
+        tipo: poolType
+      };
+
+      const { error } = await client.from("recompensas").insert(registro);
+      
+      if (error) {
+        console.error('Error insertando:', error);
+        throw new Error(`Error del servidor: ${error.message}`);
+      }
+
+      alert(`✅ ¡Inversión registrada exitosamente!\n\n${poolInfo.icon} ${poolInfo.name}: ${formatCurrency(poolInfo.amount)}\n\nRecibirás ${formatCurrency(poolInfo.amount * 2)} en 7 días.`);
+      
+      // Recargar datos
+      await Promise.all([
+        loadUserBalance(),
+        cargarHistorial()
+      ]);
+      
+      // Limpiar selección
+      document.getElementById("entrada").value = "";
+      
+    } catch (error) {
+      console.error('Error completo:', error);
+      alert(`❌ Error: ${error.message}`);
+    } finally {
+      btnParticipar.disabled = false;
+      loadingIcon.style.display = 'none';
+    }
+  }
+
+  async function cargarHistorial() {
+    try {
+      const { data, error } = await client
+        .from("recompensas")
+        .select("*")
+        .eq("usuario_id", currentUserId)
+        .in("tipo", ["minipool_basico", "minipool_medio", "minipool_avanzado"])
+        .order("fecha", { ascending: false });
+
+      const tabla = document.getElementById("tablaPool");
+      const historial = document.getElementById("historialPool");
+
+      if (error) {
+        console.error('Error cargando historial:', error);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        historial.style.display = "none";
+        return;
+      }
+
+      historial.style.display = "block";
+      tabla.innerHTML = "";
+
+      data.forEach(row => {
+        const poolInfo = poolConfig[row.tipo] || { name: row.tipo, icon: '🏊‍♂️' };
+        const fechaInversion = formatDate(row.fecha);
+        const fechaVencimiento = formatDate(addDaysToDate(new Date(row.fecha), 7));
+        const montoRecibir = row.monto * 2;
+        const isExpired = new Date() > addDaysToDate(new Date(row.fecha), 7) && !row.aprobado;
+        
+        let estadoClass = 'status-pending';
+        let estadoText = '⏳ Pendiente';
+        
+        if (row.aprobado) {
+          estadoClass = 'status-paid';
+          estadoText = '✅ Pagado';
+        } else if (isExpired) {
+          estadoClass = 'status-expired';
+          estadoText = '⚠️ Vencido';
+        }
+
+        tabla.innerHTML += `
+          <tr>
+            <td>${poolInfo.icon} ${poolInfo.name}</td>
+            <td>${formatCurrency(row.monto)}</td>
+            <td>${formatCurrency(montoRecibir)}</td>
+            <td>${fechaInversion}</td>
+            <td>${fechaVencimiento}</td>
+            <td><span class="status ${estadoClass}">${estadoText}</span></td>
+          </tr>
+        `;
+      });
+      
+    } catch (error) {
+      console.error('Error cargando historial:', error);
+    }
   }
 
   async function logout() {
     await client.auth.signOut();
     window.location.href = "index.html";
   }
+
+  // Suscripción a cambios en tiempo real
+  const realtimeSubscription = client
+    .channel('user_recompensas_changes')
+    .on('postgres_changes', 
+      { 
+        event: '*', 
+        schema: 'public', 
+        table: 'recompensas',
+        filter: `usuario_id=eq.${currentUserId}`
+      }, 
+      (payload) => {
+        console.log('Cambio detectado en recompensas:', payload);
+        // Recargar historial y balance después de cambios
+        setTimeout(() => {
+          cargarHistorial();
+          loadUserBalance();
+        }, 1000);
+      }
+    )
+    .subscribe();
 
   init();
 </script>
