@@ -294,6 +294,9 @@
   <div class="credit">Imagen de fondo: fondodepantallaprincipal1.jpeg</div>
 </div>
 
+</body>
+</html>
+
 <script>
   const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
@@ -432,9 +435,10 @@
       btnParticipar.disabled = true;
       loadingIcon.style.display = 'inline-block';
 
+      // 🔧 CORRECCIÓN CRÍTICA: meta: null en lugar de meta: 100
       const registro = {
         usuario_id: currentUserId,
-        meta: 100, // Porcentaje de retorno
+        meta: null, // ✅ CORREGIDO: null para evitar constraint error
         fecha: new Date().toISOString(),
         monto: poolInfo.amount,
         moneda: 'ARS',
