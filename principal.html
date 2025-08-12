@@ -117,13 +117,7 @@
       display: block;
     }
 
-    /* NUEVO ESTILO PARA PERFIL TIPO TRIVIA */
-    .perfil-container {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
+    /* PERFIL - ESTILO TRIVIA */
     .perfil-header {
       text-align: center;
       margin-bottom: 40px;
@@ -152,7 +146,7 @@
       margin-bottom: 20px;
     }
 
-    .formulario {
+.formulario {
       background: linear-gradient(135deg, 
         rgba(0, 0, 0, 0.8), 
         rgba(0, 195, 255, 0.1)
@@ -162,6 +156,8 @@
       border-radius: 20px;
       padding: 40px;
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      max-width: 600px;
+      margin: 0 auto;
     }
 
     .formulario input {
@@ -187,7 +183,10 @@
     .formulario input:focus {
       outline: none;
       border-color: #00ffcc;
-      background: linear-gradient(135deg, #00c3ff, rgba(0, 255, 204, 0.2));
+      background: linear-gradient(135deg, 
+        rgba(0, 195, 255, 0.2), 
+        rgba(0, 255, 204, 0.1)
+      );
       transform: translateY(-2px);
       box-shadow: 0 10px 25px rgba(0, 195, 255, 0.3);
     }
@@ -196,6 +195,7 @@
       background: rgba(100, 100, 100, 0.3);
       border-color: rgba(150, 150, 150, 0.3);
       cursor: not-allowed;
+      opacity: 0.7;
     }
 
     .formulario button {
@@ -208,7 +208,7 @@
       font-weight: 700;
       font-size: 1.1rem;
       cursor: pointer;
-      margin-top: 20px;
+      margin-top: 25px;
       transition: all 0.3s ease;
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -236,35 +236,6 @@
       background: linear-gradient(135deg, #0099cc, #00cc99);
       transform: translateY(-2px);
       box-shadow: 0 15px 40px rgba(0, 195, 255, 0.6);
-    }
-
-    .input-group {
-      position: relative;
-      margin-bottom: 20px;
-    }
-
-    .input-label {
-      position: absolute;
-      left: 20px;
-      top: -10px;
-      background: linear-gradient(135deg, #00c3ff, #00ffcc);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      font-size: 0.9rem;
-      font-weight: 600;
-      padding: 0 5px;
-      z-index: 1;
-    }
-
-    .input-icon {
-      position: absolute;
-      right: 15px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: rgba(0, 195, 255, 0.7);
-      font-size: 1.2rem;
-      z-index: 1;
     }
 
     /* DASHBOARD CARDS - mantener estilo original */
@@ -381,7 +352,7 @@
       transition: all 0.3s ease;
     }
 
-    #mensajeAyuda, #asuntoAyuda, #emailAyuda:focus {
+    #mensajeAyuda:focus, #asuntoAyuda:focus, #emailAyuda:focus {
       border-color: #00ffcc;
       box-shadow: 0 5px 15px rgba(0, 195, 255, 0.3);
       outline: none;
@@ -432,10 +403,6 @@
 
     /* Responsive Design */
     @media (max-width: 768px) {
-      .perfil-title {
-        font-size: 1.8rem;
-      }
-      
       .formulario {
         padding: 25px 20px;
       }
@@ -449,9 +416,7 @@
 </head>
 
 <body>
-<div class="menu-toggle" onclick="toggleSidebar()">
-  <i class="fas fa-bars"></i>
-</div>
+<div class="menu-toggle" onclick="toggleSidebar()">☰</div>
 
 <div class="sidebar" id="sidebar">
   <button onclick="showSection('welcome')" class="active"><i class="fas fa-home"></i> Inicio</button>
@@ -494,83 +459,27 @@
   </div>
 
   <div id="perfil" class="section">
-    <div class="perfil-container">
-      <div class="perfil-header">
-        <h2 class="perfil-title">
-          <i class="fas fa-user-circle"></i>
-          MI PERFIL
-        </h2>
-        <div class="perfil-subtitle">
-          🔐 Actualiza tu información personal de forma segura
-        </div>
+    <div class="perfil-header">
+      <h2 class="perfil-title">
+        <i class="fas fa-user-circle"></i>
+        MI PERFIL
+      </h2>
+      <div class="perfil-subtitle">
+        🔐 Actualiza tu información personal de forma segura
       </div>
-      
-      <div class="formulario">
-        <div class="input-group">
-          <div class="input-label">
-            <i class="fas fa-user"></i> Nombre
-          </div>
-          <input type="text" id="nombre" placeholder="Ingresa tu nombre" />
-          <div class="input-icon">
-            <i class="fas fa-user"></i>
-          </div>
-        </div>
-        
-        <div class="input-group">
-          <div class="input-label">
-            <i class="fas fa-user-tag"></i> Apellido
-          </div>
-          <input type="text" id="apellido" placeholder="Ingresa tu apellido" />
-          <div class="input-icon">
-            <i class="fas fa-user-tag"></i>
-          </div>
-        </div>
-        
-        <div class="input-group">
-          <div class="input-label">
-            <i class="fas fa-id-card"></i> DNI
-          </div>
-          <input type="text" id="dni" placeholder="Número de documento" />
-          <div class="input-icon">
-            <i class="fas fa-id-card"></i>
-          </div>
-        </div>
-        
-        <div class="input-group">
-          <div class="input-label">
-            <i class="fas fa-mobile-alt"></i> Celular
-          </div>
-          <input type="text" id="celular" placeholder="Número de celular" />
-          <div class="input-icon">
-            <i class="fas fa-mobile-alt"></i>
-          </div>
-        </div>
-        
-        <div class="input-group">
-          <div class="input-label">
-            <i class="fas fa-envelope"></i> Email
-          </div>
-          <input type="email" id="email" placeholder="Correo electrónico" disabled />
-          <div class="input-icon">
-            <i class="fas fa-lock"></i>
-          </div>
-        </div>
-        
-        <div class="input-group">
-          <div class="input-label">
-            <i class="fas fa-university"></i> CBU / USDT
-          </div>
-          <input type="text" id="cbu" placeholder="CBU o Dirección USDT (BEP20)" />
-          <div class="input-icon">
-            <i class="fas fa-university"></i>
-          </div>
-        </div>
-        
-        <button onclick="guardarPerfil()">
-          <i class="fas fa-save"></i>
-          Guardar Perfil
-        </button>
-      </div>
+    </div>
+    
+    <div class="formulario">
+      <input type="text" id="nombre" placeholder="Nombre" />
+      <input type="text" id="apellido" placeholder="Apellido" />
+      <input type="text" id="dni" placeholder="DNI" />
+      <input type="text" id="celular" placeholder="Número de celular" />
+      <input type="email" id="email" placeholder="Correo electrónico" disabled />
+      <input type="text" id="cbu" placeholder="CBU o Dirección USDT (BEP20)" />
+      <button onclick="guardarPerfil()">
+        <i class="fas fa-save"></i>
+        Guardar Perfil
+      </button>
     </div>
   </div>
 </div>
@@ -581,17 +490,12 @@
   <div class="contenido-ayuda">
     <h3><i class="fas fa-headset"></i> Soporte / Consulta</h3>
     <input type="email" id="emailAyuda" placeholder="Tu correo electrónico" />
-    <input type="text" id="asuntoAyuda" placeholder="Asunto de tu consulta" />
-    <textarea id="mensajeAyuda" placeholder="Describe tu consulta o problema..."></textarea>
-    <button onclick="enviarTicket()">
-      <i class="fas fa-paper-plane"></i>
-      Enviar Ticket
-    </button>
+    <input type="text" id="asuntoAyuda" placeholder="Asunto" />
+    <textarea id="mensajeAyuda" placeholder="Escribe tu mensaje aquí..."></textarea>
+    <button onclick="enviarTicket()">Enviar</button>
     <span class="cerrar" onclick="toggleAyuda()">&times;</span>
     <div id="historialTickets">
-      <h4 style="color:#00c3ff; margin-top: 25px;">
-        <i class="fas fa-history"></i> Últimos tickets
-      </h4>
+      <h4 style="color:#00a8ff;">Últimos tickets</h4>
       <ul id="listaTickets"></ul>
     </div>
   </div>
@@ -600,8 +504,8 @@
 <div id="botNotificacion" onclick="toggleNotificacion()"><i class="fas fa-bell"></i></div>
 <div id="modalNotificacion" class="modal">
   <div class="contenido-notificacion">
-    <h3><i class="fas fa-bell"></i> Notificaciones</h3>
-    <p><i class="fas fa-info-circle"></i> No tienes nuevas notificaciones.</p>
+    <h3>Notificaciones</h3>
+    <p>No tienes nuevas notificaciones.</p>
     <span class="cerrar" onclick="toggleNotificacion()">&times;</span>
   </div>
 </div>
@@ -616,7 +520,8 @@ let currentEmail = null;
 let montoInvertido = 0;
 let porcentajeSemanal = 0;
 let gananciaAcumulada = 0;
-let saldoDisponible = 0;
+let saldoDisponible = 0;    // Saldo disponible (solo de tabla balances)
+// Guardamos el último cálculo con persistencia:
 let ultimoCalculo = null;
 
 async function validateSession() {
@@ -627,10 +532,13 @@ async function validateSession() {
   document.getElementById("emailAyuda").value = currentEmail;
 
   await cargarPerfil();
+
   cargarHistorialTickets();
   await obtenerSaldoDisponible();
   await cargarDatosFinancierosDinamicos();
+
   actualizarGananciasDinamicas();
+
   setInterval(actualizarGananciasDinamicas, 60000);
 }
 
@@ -649,51 +557,23 @@ async function cargarPerfil() {
 }
 
 async function guardarPerfil() {
-  // Agregar efecto de loading al botón
-  const btnGuardar = document.querySelector('.formulario button');
-  const originalText = btnGuardar.innerHTML;
-  btnGuardar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
-  btnGuardar.disabled = true;
-
-  try {
-    const perfil = {
-      id: currentUserId,
-      email: currentEmail,
-      nombre: document.getElementById("nombre").value,
-      apellido: document.getElementById("apellido").value,
-      dni: document.getElementById("dni").value,
-      celular: document.getElementById("celular").value,
-      cbu: document.getElementById("cbu").value
-    };
-    
-    await client.from("profiles").upsert(perfil, { onConflict: 'id' });
-    
-    // Mostrar éxito
-    btnGuardar.innerHTML = '<i class="fas fa-check"></i> ¡Guardado!';
-    btnGuardar.style.background = 'linear-gradient(135deg, #28a745, #34ce57)';
-    
-    setTimeout(() => {
-      btnGuardar.innerHTML = originalText;
-      btnGuardar.style.background = 'linear-gradient(135deg, #00c3ff, #00ffcc)';
-      btnGuardar.disabled = false;
-    }, 2000);
-    
-    await cargarPerfil();
-    
-  } catch (error) {
-    // Mostrar error
-    btnGuardar.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error';
-    btnGuardar.style.background = 'linear-gradient(135deg, #dc3545, #e74c3c)';
-    
-    setTimeout(() => {
-      btnGuardar.innerHTML = originalText;
-      btnGuardar.style.background = 'linear-gradient(135deg, #00c3ff, #00ffcc)';
-      btnGuardar.disabled = false;
-    }, 2000);
-  }
+  const perfil = {
+    id: currentUserId,
+    email: currentEmail,
+    nombre: document.getElementById("nombre").value,
+    apellido: document.getElementById("apellido").value,
+    dni: document.getElementById("dni").value,
+    celular: document.getElementById("celular").value,
+    cbu: document.getElementById("cbu").value
+  };
+  await client.from("profiles").upsert(perfil, { onConflict: 'id' });
+  // Recargar datos perfil sin perder la vista:
+  await cargarPerfil();
+  showSection("welcome");
 }
 
 async function obtenerSaldoDisponible() {
+  // SOLO obtener saldo de la tabla balances (ya incluye todas las recompensas liberadas)
   const { data: balanceData, error: balanceError } = await client
     .from("balances")
     .select("saldo")
@@ -730,6 +610,7 @@ async function cargarDatosFinancierosDinamicos() {
 async function actualizarGananciasDinamicas() {
   if (montoInvertido <= 0 || porcentajeSemanal <= 0) {
     document.getElementById("ganancias").textContent = "$0.00";
+    // PRÓXIMO PAGO = saldo disponible (cuando no hay ganancias por inversión)
     document.getElementById("proximo-pago").textContent = `$${saldoDisponible.toFixed(2)}`;
     return;
   }
@@ -741,8 +622,10 @@ async function actualizarGananciasDinamicas() {
   const porcentajePorMinuto = porcentajeSemanal / (7 * 24 * 60);
   gananciaAcumulada += montoInvertido * (porcentajePorMinuto / 100) * minutosTranscurridos;
 
+  // Mostrar ganancias normales
   document.getElementById("ganancias").textContent = `$${gananciaAcumulada.toFixed(2)}`;
   
+  // PRÓXIMO PAGO = ganancias dinámicas + saldo disponible
   const proximoPagoTotal = gananciaAcumulada + saldoDisponible;
   document.getElementById("proximo-pago").textContent = `$${proximoPagoTotal.toFixed(2)}`;
 
@@ -755,10 +638,12 @@ async function actualizarGananciasDinamicas() {
     console.error("Error actualizando ganancia_acumulada o ultimo_calculo:", error);
   }
 }
+  
+// Funciones auxiliares originales
 
-function toggleSidebar() {
-  document.getElementById("sidebar").classList.toggle("active");
-}
+function toggleSidebar() {  
+  document.getElementById("sidebar").classList.toggle("active");  
+}  
 
 function closeSidebar() {
   document.getElementById("sidebar").classList.remove("active");
@@ -790,36 +675,14 @@ async function enviarTicket() {
   const mensaje = document.getElementById("mensajeAyuda").value.trim();
   if (!email || !asunto || !mensaje) return;
 
-  // Efecto de loading
-  const btnEnviar = document.querySelector('#modalAyuda button');
-  const originalText = btnEnviar.innerHTML;
-  btnEnviar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
-  btnEnviar.disabled = true;
+  await client.from("tickets").insert({
+    usuario_id: currentUserId,
+    email, asunto, mensaje, fecha: new Date().toISOString()
+  });
 
-  try {
-    await client.from("tickets").insert({
-      usuario_id: currentUserId,
-      email, asunto, mensaje, fecha: new Date().toISOString()
-    });
-
-    btnEnviar.innerHTML = '<i class="fas fa-check"></i> ¡Enviado!';
-    
-    document.getElementById("asuntoAyuda").value = "";
-    document.getElementById("mensajeAyuda").value = "";
-    cargarHistorialTickets();
-    
-    setTimeout(() => {
-      btnEnviar.innerHTML = originalText;
-      btnEnviar.disabled = false;
-    }, 2000);
-    
-  } catch (error) {
-    btnEnviar.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error';
-    setTimeout(() => {
-      btnEnviar.innerHTML = originalText;
-      btnEnviar.disabled = false;
-    }, 2000);
-  }
+  document.getElementById("asuntoAyuda").value = "";
+  document.getElementById("mensajeAyuda").value = "";
+  cargarHistorialTickets();
 }
 
 async function cargarHistorialTickets() {
@@ -830,12 +693,11 @@ async function cargarHistorialTickets() {
   if (data && data.length > 0) {
     data.forEach(ticket => {
       const li = document.createElement("li");
-      li.innerHTML = `<i class="fas fa-ticket-alt"></i> <strong>${ticket.asunto}:</strong> ${ticket.mensaje}`;
-      li.style.marginBottom = "8px";
+      li.textContent = `${ticket.asunto}: ${ticket.mensaje}`;
       lista.appendChild(li);
     });
   } else {
-    lista.innerHTML = "<li><i class="fas fa-info-circle"></i> No hay tickets recientes.</li>";
+    lista.innerHTML = "<li>No hay tickets recientes.</li>";
   }
 }
 
@@ -850,6 +712,7 @@ async function logout() {
 }
 
 // Gráfica original
+
 new Chart(document.getElementById('graficaGanancias').getContext('2d'), {
   type: 'line',
   data: {
