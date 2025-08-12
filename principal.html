@@ -20,6 +20,11 @@
       min-height: 100vh;
       color: white;
       display: flex;
+      overflow-x: hidden;
+    }
+
+    * {
+      box-sizing: border-box;
     }
 
     .menu-toggle {
@@ -29,14 +34,22 @@
       font-size: 24px;
       cursor: pointer;
       z-index: 1001;
-      background-color: rgba(0, 0, 0, 0.6);
-      padding: 10px 15px;
-      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 12px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      border: 2px solid rgba(0, 195, 255, 0.3);
+    }
+
+    .menu-toggle:hover {
+      background: rgba(0, 195, 255, 0.2);
+      transform: scale(1.05);
     }
 
     .sidebar {
-      width: 230px;
-      background-color: rgba(0, 0, 0, 0.85);
+      width: 250px;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(0, 195, 255, 0.1));
+      backdrop-filter: blur(15px);
       height: 100vh;
       padding-top: 60px;
       display: flex;
@@ -45,8 +58,9 @@
       top: 0;
       left: 0;
       transform: translateX(-100%);
-      transition: transform 0.3s ease;
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       z-index: 1000;
+      border-right: 2px solid rgba(0, 195, 255, 0.3);
     }
 
     .sidebar.active {
@@ -58,24 +72,32 @@
       border: none;
       color: white;
       font-size: 15px;
-      padding: 12px 20px;
+      padding: 15px 25px;
       text-align: left;
       cursor: pointer;
       width: 100%;
       display: flex;
       align-items: center;
-      transition: background 0.2s;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
     }
 
-    .sidebar button:hover,
+    .sidebar button:hover {
+      background: linear-gradient(90deg, rgba(0, 195, 255, 0.2), transparent);
+      transform: translateX(5px);
+    }
+
     .sidebar button.active {
-      background-color: rgba(255, 255, 255, 0.1);
+      background: linear-gradient(90deg, rgba(0, 195, 255, 0.3), rgba(0, 255, 204, 0.1));
+      border-left: 4px solid #00c3ff;
     }
 
     .sidebar button i {
-      margin-right: 12px;
+      margin-right: 15px;
       width: 20px;
       text-align: center;
+      font-size: 16px;
     }
 
     .content {
@@ -95,31 +117,128 @@
       display: block;
     }
 
+    /* PERFIL - ESTILO TRIVIA */
+    .perfil-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .perfil-title {
+      font-size: 2.2rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #00c3ff, #00ffcc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 15px;
+      text-shadow: 0 0 30px rgba(0, 195, 255, 0.5);
+      animation: glow 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from { filter: brightness(1) drop-shadow(0 0 20px rgba(0, 195, 255, 0.7)); }
+      to { filter: brightness(1.2) drop-shadow(0 0 35px rgba(0, 255, 204, 0.9)); }
+    }
+
+    .perfil-subtitle {
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 20px;
+    }
+
+.formulario {
+      background: linear-gradient(135deg, 
+        rgba(0, 0, 0, 0.8), 
+        rgba(0, 195, 255, 0.1)
+      );
+      backdrop-filter: blur(20px);
+      border: 2px solid rgba(0, 195, 255, 0.3);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
     .formulario input {
       width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border-radius: 8px;
-      border: none;
-      background: #fff;
-      color: #000;
+      padding: 16px 20px;
+      margin: 12px 0;
+      border-radius: 12px;
+      border: 2px solid rgba(0, 195, 255, 0.4);
+      background: linear-gradient(135deg, 
+        rgba(34, 34, 34, 0.9), 
+        rgba(0, 195, 255, 0.1)
+      );
+      color: white;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .formulario input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .formulario input:focus {
+      outline: none;
+      border-color: #00ffcc;
+      background: linear-gradient(135deg, 
+        rgba(0, 195, 255, 0.2), 
+        rgba(0, 255, 204, 0.1)
+      );
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 195, 255, 0.3);
+    }
+
+    .formulario input:disabled {
+      background: rgba(100, 100, 100, 0.3);
+      border-color: rgba(150, 150, 150, 0.3);
+      cursor: not-allowed;
+      opacity: 0.7;
     }
 
     .formulario button {
-      padding: 10px;
+      width: 100%;
+      padding: 16px 20px;
       border: none;
-      border-radius: 8px;
-      background: #00a8ff;
-      color: white;
-      font-weight: bold;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #00c3ff, #00ffcc);
+      color: black;
+      font-weight: 700;
+      font-size: 1.1rem;
       cursor: pointer;
-      margin-top: 10px;
+      margin-top: 25px;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 10px 30px rgba(0, 195, 255, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .formulario button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .formulario button:hover::before {
+      left: 100%;
     }
 
     .formulario button:hover {
-      background: #007acc;
+      background: linear-gradient(135deg, #0099cc, #00cc99);
+      transform: translateY(-2px);
+      box-shadow: 0 15px 40px rgba(0, 195, 255, 0.6);
     }
 
+    /* DASHBOARD CARDS - mantener estilo original */
     .dashboard-cards {
       display: flex;
       gap: 20px;
@@ -154,18 +273,24 @@
     #botAyuda, #botNotificacion {
       position: fixed;
       bottom: 25px;
-      background: #00a8ff;
-      color: white;
-      width: 50px;
-      height: 50px;
+      background: linear-gradient(135deg, #00c3ff, #00ffcc);
+      color: black;
+      width: 55px;
+      height: 55px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 22px;
       cursor: pointer;
-      box-shadow: 0 0 10px #000;
+      box-shadow: 0 10px 30px rgba(0, 195, 255, 0.4);
       z-index: 1000;
+      transition: all 0.3s ease;
+    }
+
+    #botAyuda:hover, #botNotificacion:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 15px 40px rgba(0, 195, 255, 0.6);
     }
 
     #botAyuda {
@@ -180,71 +305,116 @@
     #modalAyuda, #modalNotificacion {
       display: none;
       position: fixed;
-      background: rgba(0, 0, 0, 0.95);
-      padding: 20px;
-      border-radius: 12px;
+      background: linear-gradient(135deg, 
+        rgba(0, 0, 0, 0.95), 
+        rgba(0, 195, 255, 0.1)
+      );
+      backdrop-filter: blur(20px);
+      border: 2px solid rgba(0, 195, 255, 0.3);
+      padding: 25px;
+      border-radius: 15px;
       z-index: 1001;
-      width: 320px;
+      width: 350px;
       max-height: 80vh;
       overflow-y: auto;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
     }
 
     #modalAyuda {
-      bottom: 80px;
+      bottom: 90px;
       right: 30px;
     }
 
     #modalNotificacion {
-      top: 80px;
+      top: 90px;
       right: 30px;
     }
 
     .contenido-ayuda h3,
     .contenido-notificacion h3 {
       margin-top: 0;
-      font-size: 18px;
-      color: #fff;
+      font-size: 1.3rem;
+      background: linear-gradient(135deg, #00c3ff, #00ffcc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: bold;
     }
 
     #mensajeAyuda, #asuntoAyuda, #emailAyuda {
       width: 100%;
-      border: none;
-      border-radius: 8px;
-      padding: 10px;
-      margin-bottom: 10px;
+      border: 2px solid rgba(0, 195, 255, 0.4);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 15px;
+      background: rgba(34, 34, 34, 0.8);
+      color: white;
+      transition: all 0.3s ease;
+    }
+
+    #mensajeAyuda:focus, #asuntoAyuda:focus, #emailAyuda:focus {
+      border-color: #00ffcc;
+      box-shadow: 0 5px 15px rgba(0, 195, 255, 0.3);
+      outline: none;
     }
 
     #mensajeAyuda {
-      height: 80px;
+      height: 100px;
       resize: none;
     }
 
     .modal button {
-      background: #00a8ff;
+      background: linear-gradient(135deg, #00c3ff, #00ffcc);
       border: none;
-      padding: 8px 16px;
-      color: white;
-      border-radius: 6px;
+      padding: 12px 20px;
+      color: black;
+      border-radius: 8px;
       cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .modal button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 195, 255, 0.4);
     }
 
     .cerrar {
       position: absolute;
-      top: 5px;
-      right: 10px;
-      font-size: 20px;
+      top: 10px;
+      right: 15px;
+      font-size: 24px;
       cursor: pointer;
-      color: #fff;
+      color: #00c3ff;
+      transition: all 0.3s ease;
+    }
+
+    .cerrar:hover {
+      color: #00ffcc;
+      transform: scale(1.2);
     }
 
     #listaTickets {
       font-size: 13px;
       color: #ccc;
-      margin-top: 10px;
+      margin-top: 15px;
       padding-left: 20px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .formulario {
+        padding: 25px 20px;
+      }
+      
+      #modalAyuda, #modalNotificacion {
+        width: 90%;
+        right: 5%;
+      }
     }
   </style>
 </head>
+
 <body>
 <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
 
@@ -289,7 +459,16 @@
   </div>
 
   <div id="perfil" class="section">
-    <h2>Perfil</h2>
+    <div class="perfil-header">
+      <h2 class="perfil-title">
+        <i class="fas fa-user-circle"></i>
+        MI PERFIL
+      </h2>
+      <div class="perfil-subtitle">
+        🔐 Actualiza tu información personal de forma segura
+      </div>
+    </div>
+    
     <div class="formulario">
       <input type="text" id="nombre" placeholder="Nombre" />
       <input type="text" id="apellido" placeholder="Apellido" />
@@ -297,7 +476,10 @@
       <input type="text" id="celular" placeholder="Número de celular" />
       <input type="email" id="email" placeholder="Correo electrónico" disabled />
       <input type="text" id="cbu" placeholder="CBU o Dirección USDT (BEP20)" />
-      <button onclick="guardarPerfil()">Guardar</button>
+      <button onclick="guardarPerfil()">
+        <i class="fas fa-save"></i>
+        Guardar Perfil
+      </button>
     </div>
   </div>
 </div>
@@ -306,7 +488,7 @@
 <div id="botAyuda" onclick="toggleAyuda()"><i class="fas fa-comment-dots"></i></div>
 <div id="modalAyuda" class="modal">
   <div class="contenido-ayuda">
-    <h3>Soporte / Consulta</h3>
+    <h3><i class="fas fa-headset"></i> Soporte / Consulta</h3>
     <input type="email" id="emailAyuda" placeholder="Tu correo electrónico" />
     <input type="text" id="asuntoAyuda" placeholder="Asunto" />
     <textarea id="mensajeAyuda" placeholder="Escribe tu mensaje aquí..."></textarea>
@@ -459,9 +641,9 @@ async function actualizarGananciasDinamicas() {
   
 // Funciones auxiliares originales
 
-function toggleSidebar() {
-  document.getElementById("sidebar").classList.toggle("active");
-}
+function toggleSidebar() {  
+  document.getElementById("sidebar").classList.toggle("active");  
+}  
 
 function closeSidebar() {
   document.getElementById("sidebar").classList.remove("active");
