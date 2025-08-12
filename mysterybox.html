@@ -307,7 +307,7 @@
       box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
     }
 
-.chest-lock::after {
+    .chest-lock::after {
       content: '🔐';
       position: absolute;
       top: 50%;
@@ -544,7 +544,7 @@
       z-index: 10;
     }
 
-    @keyframes bounce {
+@keyframes bounce {
       0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
       40% { transform: translateY(-25px); }
       60% { transform: translateY(-15px); }
@@ -727,11 +727,11 @@
       <div class="info-bar" id="infoBar">
         <div class="info-item">
           <div class="info-label">💰 Costo</div>
-          <div class="info-value" id="boxCost">Cargando...</div>
+          <div class="info-value" id="boxCost">$5,000</div>
         </div>
         <div class="info-item">
-          <div class="info-label">🎁 Total Premios</div>
-          <div class="info-value" id="totalPrizes">Cargando...</div>
+          <div class="info-label">🎁 Probabilidades</div>
+          <div class="info-value" id="totalPrizes">¡Suerte!</div>
         </div>
         <div class="info-item">
           <div class="info-label">💵 Tu Saldo</div>
@@ -758,7 +758,7 @@
       </div>
 
       <button class="open-button" id="openButton" onclick="abrirCaja()">
-        <i class="fas fa-key"></i> <span id="buttonText">Abrir Caja</span>
+        <i class="fas fa-key"></i> <span id="buttonText">Abrir Caja ($5,000)</span>
       </button>
     </div>
   </div>
@@ -774,6 +774,9 @@
 
   <div class="particles-container" id="particlesContainer"></div>
 
+</body>
+</html>
+
 <script>
   const client = supabase.createClient(
     'https://ovulezkcxwrjvyxlxsdv.supabase.co',
@@ -781,10 +784,96 @@
   );
 
   // Variables globales
-  let currentConfig = null;
   let userBalance = 0;
   let isOpening = false;
   let currentUser = null;
+
+  // 🎁 CONFIGURACIÓN SIMPLIFICADA DE MYSTERY BOX (sin tablas complejas)
+  const mysteryBoxConfig = {
+    cost: 5000, // Costo en ARS para abrir una caja
+    prizes: [
+      // Premios en efectivo (30% probabilidad)
+      { 
+        type: 'cash', 
+        icon: '💰', 
+        title: '¡Premio en Efectivo!', 
+        description: 'Has ganado $2,500 ARS', 
+        value: 2500, 
+        weight: 15 
+      },
+      { 
+        type: 'cash', 
+        icon: '💎', 
+        title: '¡Gran Premio!', 
+        description: 'Has ganado $10,000 ARS', 
+        value: 10000, 
+        weight: 5 
+      },
+      { 
+        type: 'cash', 
+        icon: '🏆', 
+        title: '¡JACKPOT!', 
+        description: 'Has ganado $25,000 ARS', 
+        value: 25000, 
+        weight: 2 
+      },
+      
+      // Entradas gratis (20% probabilidad)
+      { 
+        type: 'trivia_entry', 
+        icon: '🎯', 
+        title: '¡Entrada Gratis!', 
+        description: 'Entrada gratis a Trivia Básica', 
+        value: 0, 
+        weight: 10 
+      },
+      { 
+        type: 'minipool_entry', 
+        icon: '🏊‍♂️', 
+        title: '¡Minipool Gratis!', 
+        description: 'Entrada gratis a Minipool Básico', 
+        value: 0, 
+        weight: 10 
+      },
+      
+      // Bonificaciones (25% probabilidad)
+      { 
+        type: 'bonus', 
+        icon: '🎁', 
+        title: '¡Bonificación!', 
+        description: 'Has ganado $1,000 ARS de bonificación', 
+        value: 1000, 
+        weight: 15 
+      },
+      { 
+        type: 'bonus', 
+        icon: '✨', 
+        title: '¡Bonus Especial!', 
+        description: 'Has ganado $3,000 ARS de bonus', 
+        value: 3000, 
+        weight: 10 
+      },
+      
+      // Cajas vacías (25% probabilidad)
+      { 
+        type: 'empty', 
+        icon: '😔', 
+        title: 'Caja Vacía', 
+        description: '¡Mejor suerte la próxima vez!', 
+        value: 0, 
+        weight: 25 
+      }
+    ]
+  };
+
+  // Función para formatear moneda
+  function formatCurrency(amount) {
+    return new Intl.NumberFormat('es-AR', {
+      style: 'currency',
+      currency: 'ARS',
+      minimumFractionDigits: 0
+    }).format(amount);
+  }
 
   // Función para mostrar errores
   function showError(message) {
@@ -796,50 +885,20 @@
     }, 5000);
   }
 
-  // Función para cargar configuración de la mystery box
-  async function loadMysteryBoxConfig() {
-    try {
-      const { data, error } = await client
-        .from('mystery_box_config')
-        .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      if (error) {
-        if (error.code === 'PGRST116') {
-          showError('❌ No hay configuración de Mystery Box disponible. Contacta al administrador.');
-          return null;
-        }
-        throw error;
-      }
-
-      currentConfig = data;
-      updateUI();
-      return data;
-
-    } catch (error) {
-      console.error('Error cargando configuración:', error);
-      showError('❌ Error al cargar configuración de Mystery Box: ' + error.message);
-      return null;
-    }
-  }
-
-  // Función para obtener saldo del usuario desde tabla recompensas
+  // Función para obtener saldo del usuario desde tabla balances
   async function getUserBalance() {
     try {
       const { data, error } = await client
-        .from('recompensas')
-        .select('monto')
+        .from('balances')
+        .select('saldo')
         .eq('usuario_id', currentUser.id)
-        .eq('aprobado', true); // Solo contar recompensas aprobadas
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
 
-      // Sumar todas las recompensas aprobadas
-      const totalBalance = data.reduce((sum, recompensa) => sum + (recompensa.monto || 0), 0);
-      return totalBalance;
+      return data?.saldo || 0;
 
     } catch (error) {
       console.error('Error obteniendo saldo:', error);
@@ -847,19 +906,15 @@
     }
   }
 
-  // Función para descontar saldo de recompensas
-  async function deductUserBalance(amount) {
+  // Función para actualizar saldo del usuario
+  async function updateUserBalance(newBalance) {
     try {
-      // Insertar registro negativo para descontar
       const { data, error } = await client
-        .from('recompensas')
-        .insert({
-          usuario_id: currentUser.id,
-          tipo: 'Mystery Box - Compra',
-          monto: -amount, // Monto negativo para descontar
-          moneda: 'ARS', // O tu moneda
-          aprobado: true,
-          fecha: new Date().toISOString()
+        .from('balances')
+        .upsert({ 
+          usuario_id: currentUser.id, 
+          saldo: newBalance,
+          updated_at: new Date().toISOString()
         })
         .select()
         .single();
@@ -868,26 +923,114 @@
       return data;
 
     } catch (error) {
-      console.error('Error descontando saldo:', error);
+      console.error('Error actualizando saldo:', error);
       throw error;
     }
   }
 
-  // Función para actualizar la interfaz
+  // Función para registrar compra de caja misteriosa
+  async function registerMysteryBoxPurchase() {
+    try {
+      const { data, error } = await client
+        .from('recompensas')
+        .insert({
+          usuario_id: currentUser.id,
+          meta: null, // ✅ CORREGIDO: null para evitar constraint error
+          fecha: new Date().toISOString(),
+          monto: -mysteryBoxConfig.cost, // Negativo porque es una compra
+          moneda: 'ARS',
+          aprobado: true, // Auto-aprobado
+          tipo: 'mysterybox_compra'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+
+    } catch (error) {
+      console.error('Error registrando compra:', error);
+      throw error;
+    }
+  }
+
+  // Función para registrar premio ganado
+  async function registerPrizeWon(prize) {
+    try {
+      // Solo registrar si es premio con valor monetario
+      if (prize.value > 0 && (prize.type === 'cash' || prize.type === 'bonus')) {
+        const { data, error } = await client
+          .from('recompensas')
+          .insert({
+            usuario_id: currentUser.id,
+            meta: null, // ✅ CORREGIDO: null para evitar constraint error
+            fecha: new Date().toISOString(),
+            monto: prize.value,
+            moneda: 'ARS',
+            aprobado: true, // Auto-aprobado
+            tipo: `mysterybox_${prize.type}`
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        return data;
+      }
+
+      // Para entradas gratis, solo registrar en historial sin valor monetario
+      if (prize.type === 'trivia_entry' || prize.type === 'minipool_entry') {
+        const { data, error } = await client
+          .from('recompensas')
+          .insert({
+            usuario_id: currentUser.id,
+            meta: null, // ✅ CORREGIDO: null para evitar constraint error
+            fecha: new Date().toISOString(),
+            monto: 0,
+            moneda: 'ARS',
+            aprobado: true,
+            tipo: `mysterybox_${prize.type}`
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        return data;
+      }
+
+      return null;
+
+    } catch (error) {
+      console.error('Error registrando premio:', error);
+      throw error;
+    }
+  }
+
+  // Función para generar premio aleatorio basado en pesos
+  function generateRandomPrize() {
+    const prizes = mysteryBoxConfig.prizes;
+    const totalWeight = prizes.reduce((sum, prize) => sum + prize.weight, 0);
+    let random = Math.random() * totalWeight;
+    
+    for (const prize of prizes) {
+      random -= prize.weight;
+      if (random <= 0) {
+        return { ...prize }; // Retornar copia del premio
+      }
+    }
+    
+    // Fallback a caja vacía si algo sale mal
+    return prizes.find(p => p.type === 'empty') || prizes[0];
+  }
+
+  // Función para actualizar la interfaz de usuario
   function updateUI() {
-    if (!currentConfig) return;
-
-    const totalPrizes = currentConfig.cash_prizes + currentConfig.trivia_prizes + 
-                       currentConfig.minipool_prizes + currentConfig.empty_boxes;
-
-    document.getElementById('boxCost').textContent = `$${currentConfig.box_cost.toLocaleString()}`;
-    document.getElementById('totalPrizes').textContent = totalPrizes;
-    document.getElementById('userBalance').textContent = `$${userBalance.toLocaleString()}`;
-    document.getElementById('buttonText').textContent = `Abrir Caja ($${currentConfig.box_cost.toLocaleString()})`;
+    document.getElementById('boxCost').textContent = formatCurrency(mysteryBoxConfig.cost);
+    document.getElementById('userBalance').textContent = formatCurrency(userBalance);
+    document.getElementById('buttonText').textContent = `Abrir Caja (${formatCurrency(mysteryBoxConfig.cost)})`;
 
     // Verificar si el usuario puede comprar
     const openButton = document.getElementById('openButton');
-    if (userBalance < currentConfig.box_cost) {
+    if (userBalance < mysteryBoxConfig.cost) {
       openButton.disabled = true;
       openButton.style.opacity = '0.5';
       openButton.title = 'Saldo insuficiente';
@@ -895,170 +1038,6 @@
       openButton.disabled = false;
       openButton.style.opacity = '1';
       openButton.title = '';
-    }
-  }
-
-  // Función para generar premio aleatorio
-  function generateRandomPrize() {
-    if (!currentConfig) return null;
-
-    const prizes = [];
-
-    // Agregar premios en efectivo
-    for (let i = 0; i < currentConfig.cash_prizes; i++) {
-      prizes.push({
-        type: 'cash',
-        icon: '💰',
-        title: '¡Premio en Efectivo!',
-        description: `Has ganado $${currentConfig.cash_amount.toLocaleString()}`,
-        value: currentConfig.cash_amount
-      });
-    }
-
-    // Agregar entradas de trivia
-    for (let i = 0; i < currentConfig.trivia_prizes; i++) {
-      prizes.push({
-        type: 'trivia',
-        icon: '🎯',
-        title: '¡Entrada Gratis!',
-        description: 'Entrada gratis a la Trivia Básica',
-        value: 0
-      });
-    }
-
-    // Agregar entradas de minipool
-    for (let i = 0; i < currentConfig.minipool_prizes; i++) {
-      prizes.push({
-        type: 'minipool',
-        icon: '🔥',
-        title: '¡Mini Pool Gratis!',
-        description: 'Entrada gratis a la Mini Pool Básica',
-        value: 0
-      });
-    }
-
-    // Agregar cajas vacías
-    for (let i = 0; i < currentConfig.empty_boxes; i++) {
-      prizes.push({
-        type: 'empty',
-        icon: '😔',
-        title: 'Caja Vacía',
-        description: '¡Mejor suerte la próxima vez!',
-        value: 0
-      });
-    }
-
-    // Seleccionar premio aleatorio
-    if (prizes.length === 0) return null;
-    return prizes[Math.floor(Math.random() * prizes.length)];
-  }
-
-// Función para verificar si el usuario ya tiene entrada de juego
-  async function checkUserGameEntry(gameType) {
-    try {
-      const { data, error } = await client
-        .from('user_game_entries')
-        .select('has_free_entry')
-        .eq('user_id', currentUser.id)
-        .eq('game_type', gameType)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        throw error;
-      }
-
-      return data ? data.has_free_entry : false;
-    } catch (error) {
-      console.error('Error verificando entrada de juego:', error);
-      return false;
-    }
-  }
-
-  // Función para crear entrada de juego
-  async function createGameEntry(gameType) {
-    try {
-      const { error } = await client
-        .from('user_game_entries')
-        .upsert({
-          user_id: currentUser.id,
-          user_email: currentUser.email,
-          game_type: gameType,
-          has_free_entry: true
-        });
-
-      if (error) throw error;
-      return true;
-    } catch (error) {
-      console.error('Error creando entrada de juego:', error);
-      return false;
-    }
-  }
-
-  // Función para registrar compra
-  async function registerPurchase() {
-    try {
-      const { data, error } = await client
-        .from('mystery_box_purchases')
-        .insert({
-          user_id: currentUser.id,
-          user_email: currentUser.email,
-          cost_paid: currentConfig.box_cost,
-          config_id: currentConfig.id
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      console.error('Error registrando compra:', error);
-      throw error;
-    }
-  }
-
-  // Función para registrar premio
-  async function registerPrize(purchaseId, prize) {
-    try {
-      const { error } = await client
-        .from('mystery_box_prizes')
-        .insert({
-          user_id: currentUser.id,
-          user_email: currentUser.email,
-          purchase_id: purchaseId,
-          prize_type: prize.type,
-          prize_value: prize.value,
-          prize_description: prize.description
-        });
-
-      if (error) throw error;
-      return true;
-    } catch (error) {
-      console.error('Error registrando premio:', error);
-      return false;
-    }
-  }
-
-  // Función para agregar premio en efectivo a recompensas
-  async function addCashPrizeToBalance(amount) {
-    try {
-      const { data, error } = await client
-        .from('recompensas')
-        .insert({
-          usuario_id: currentUser.id,
-          tipo: 'Mystery Box - Premio',
-          monto: amount,
-          moneda: 'ARS', // O tu moneda
-          aprobado: true,
-          fecha: new Date().toISOString()
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      console.error('Error agregando premio en efectivo:', error);
-      return false;
     }
   }
 
@@ -1154,14 +1133,8 @@
     if (isOpening) return;
     
     try {
-      // Verificar configuración
-      if (!currentConfig) {
-        showError('❌ No hay configuración disponible');
-        return;
-      }
-
       // Verificar saldo
-      if (userBalance < currentConfig.box_cost) {
+      if (userBalance < mysteryBoxConfig.cost) {
         showError('❌ Saldo insuficiente para abrir la caja');
         return;
       }
@@ -1177,15 +1150,12 @@
       button.disabled = true;
       button.innerHTML = '<div class="spinner"></div> Abriendo...';
       
-      // Registrar compra primero
-      const purchase = await registerPurchase();
+      // Registrar compra y descontar saldo
+      await registerMysteryBoxPurchase();
+      userBalance -= mysteryBoxConfig.cost;
+      await updateUserBalance(userBalance);
       
-      // Descontar del saldo real en tabla recompensas
-      await deductUserBalance(currentConfig.box_cost);
-      userBalance = await getUserBalance(); // Recargar saldo actualizado
-      updateUI();
-
-// Animación de temblor
+      // Animación de temblor
       chest.classList.add('opening');
       
       setTimeout(() => {
@@ -1207,34 +1177,17 @@
       }, 1000);
       
       // Generar premio
-      let prize = generateRandomPrize();
-      
-      // Verificar límites para entradas de juego
-      if (prize && (prize.type === 'trivia' || prize.type === 'minipool')) {
-        const hasEntry = await checkUserGameEntry(prize.type);
-        if (hasEntry) {
-          // Si ya tiene entrada, convertir a caja vacía
-          prize = {
-            type: 'empty',
-            icon: '😔',
-            title: 'Ya tienes entrada',
-            description: `Ya tienes una entrada gratis de ${prize.type}. ¡Intenta otra vez!`,
-            value: 0
-          };
-        } else {
-          // Crear entrada de juego
-          await createGameEntry(prize.type);
-        }
-      }
-      
-      // Si es premio en efectivo, agregarlo a recompensas
-      if (prize && prize.type === 'cash') {
-        await addCashPrizeToBalance(prize.value);
-        userBalance = await getUserBalance(); // Actualizar saldo con el premio
-      }
+      const prize = generateRandomPrize();
+      console.log('Premio generado:', prize);
       
       // Registrar premio
-      await registerPrize(purchase.id, prize);
+      await registerPrizeWon(prize);
+      
+      // Si es premio monetario, añadir al saldo
+      if (prize.value > 0 && (prize.type === 'cash' || prize.type === 'bonus')) {
+        userBalance += prize.value;
+        await updateUserBalance(userBalance);
+      }
       
       setTimeout(() => {
         // Mostrar premio
@@ -1279,9 +1232,9 @@
     particlesContainer.innerHTML = '';
     
     // Restaurar botón correctamente
-    const costText = currentConfig ? currentConfig.box_cost.toLocaleString() : '5000';
+    const costText = formatCurrency(mysteryBoxConfig.cost);
     button.disabled = false;
-    button.innerHTML = `<i class="fas fa-key"></i> <span id="buttonText">Abrir Caja ($${costText})</span>`;
+    button.innerHTML = `<i class="fas fa-key"></i> <span id="buttonText">Abrir Caja (${costText})</span>`;
     isOpening = false;
     
     // Actualizar UI
@@ -1311,19 +1264,28 @@
   // Función para inicializar la página
   async function initializePage() {
     try {
+      console.log('🎁 Iniciando Mystery Box...');
+      
       // Obtener usuario actual
       const { data: { user }, error: userError } = await client.auth.getUser();
       
       if (userError || !user) {
-        window.location.href = "index.html";
+        console.error('Error de autenticación:', userError);
+        showError('❌ Sesión expirada. Redirigiendo...');
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 2000);
         return;
       }
       
       currentUser = user;
+      console.log('✅ Usuario autenticado:', currentUser.email);
       
-      // Cargar configuración y saldo
-      await loadMysteryBoxConfig();
+      // Cargar saldo
       userBalance = await getUserBalance();
+      console.log('💰 Saldo cargado:', userBalance);
+      
+      // Actualizar interfaz
       updateUI();
       
       // Crear monedas flotantes iniciales
@@ -1336,6 +1298,8 @@
         }
       }, 8000);
       
+      console.log('🎁 Mystery Box inicializado correctamente');
+      
     } catch (error) {
       console.error('Error inicializando página:', error);
       showError('❌ Error al cargar la página: ' + error.message);
@@ -1344,7 +1308,35 @@
 
   // Event listeners
   document.addEventListener('DOMContentLoaded', initializePage);
+  
+  // Agregar click listener al cofre también
   document.getElementById('treasureChest').addEventListener('click', abrirCaja);
+
+  // Suscripción a cambios en tiempo real en balances
+  const realtimeSubscription = client
+    .channel('user_balance_changes')
+    .on('postgres_changes', 
+      { 
+        event: '*', 
+        schema: 'public', 
+        table: 'balances',
+        filter: `usuario_id=eq.${currentUser?.id || 'none'}`
+      }, 
+      (payload) => {
+        console.log('💰 Cambio detectado en saldo:', payload);
+        // Recargar saldo después de cambios
+        setTimeout(async () => {
+          userBalance = await getUserBalance();
+          updateUI();
+        }, 1000);
+      }
+    )
+    .subscribe();
+
+  console.log('🎁 Mystery Box - Sistema cargado correctamente');
+  console.log('💰 Costo por caja:', mysteryBoxConfig.cost);
+  console.log('🎲 Total de premios disponibles:', mysteryBoxConfig.prizes.length);
+
 </script>
 </body>
 </html>
