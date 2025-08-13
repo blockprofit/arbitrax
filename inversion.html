@@ -18,121 +18,331 @@
       background-repeat: no-repeat;
       color: white;
       min-height: 100vh;
+      overflow-x: hidden;
     }
+
+    * {
+      box-sizing: border-box;
+    }
+
     .top-bar {
-      background: rgba(0, 0, 0, 0.6);
-      padding: 15px 20px;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(0, 195, 255, 0.1));
+      backdrop-filter: blur(15px);
+      padding: 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      border-bottom: 2px solid rgba(0, 195, 255, 0.3);
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
     }
+
     .menu-btn {
       font-size: 24px;
       cursor: pointer;
-      background: none;
-      border: none;
+      background: rgba(0, 0, 0, 0.8);
+      border: 2px solid rgba(0, 195, 255, 0.3);
       color: white;
+      padding: 12px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
     }
+
+    .menu-btn:hover {
+      background: rgba(0, 195, 255, 0.2);
+      transform: scale(1.05);
+    }
+
+    .top-bar strong {
+      font-size: 1.4rem;
+      background: linear-gradient(135deg, #00c3ff, #00ffcc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 20px rgba(0, 195, 255, 0.5);
+    }
+
     .menu {
       display: none;
       flex-direction: column;
       position: absolute;
-      top: 60px;
+      top: 70px;
       left: 20px;
-      background: rgba(0, 0, 0, 0.9);
-      padding: 10px;
-      border-radius: 10px;
-      width: 240px;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(0, 195, 255, 0.1));
+      backdrop-filter: blur(15px);
+      padding: 15px;
+      border-radius: 15px;
+      width: 280px;
       z-index: 99;
+      border: 2px solid rgba(0, 195, 255, 0.3);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
     }
+
     .menu button {
       background: none;
       border: none;
       color: white;
-      padding: 10px;
+      padding: 15px 20px;
       text-align: left;
       width: 100%;
-      font-size: 16px;
+      font-size: 15px;
       cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
     }
+
     .menu button i {
-      margin-right: 8px;
+      margin-right: 15px;
+      width: 20px;
+      text-align: center;
+      font-size: 16px;
     }
+
     .menu button:hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: linear-gradient(90deg, rgba(0, 195, 255, 0.2), transparent);
+      transform: translateX(5px);
     }
+
     .container {
-      max-width: 1000px;
-      margin: 40px auto;
-      padding: 20px;
-      background: rgba(0, 0, 0, 0.6);
-      border-radius: 12px;
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 30px;
+      background: linear-gradient(135deg, 
+        rgba(0, 0, 0, 0.8), 
+        rgba(0, 195, 255, 0.1)
+      );
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      border: 2px solid rgba(0, 195, 255, 0.3);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
     }
+
     h2 {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
+      font-size: 2.2rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #00c3ff, #00ffcc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 30px rgba(0, 195, 255, 0.5);
+      animation: glow 3s ease-in-out infinite alternate;
     }
+
+    @keyframes glow {
+      from { filter: brightness(1) drop-shadow(0 0 20px rgba(0, 195, 255, 0.7)); }
+      to { filter: brightness(1.2) drop-shadow(0 0 35px rgba(0, 255, 204, 0.9)); }
+    }
+
     .mensaje-inversion {
       text-align: center;
-      background: rgba(0, 168, 255, 0.85);
-      padding: 12px 20px;
-      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(0, 195, 255, 0.9), rgba(0, 255, 204, 0.7));
+      color: black;
+      padding: 20px 30px;
+      border-radius: 15px;
       font-weight: bold;
-      font-size: 18px;
-      max-width: 600px;
-      margin: 0 auto 30px auto;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      font-size: 1.3rem;
+      max-width: 700px;
+      margin: 0 auto 40px auto;
+      box-shadow: 0 15px 40px rgba(0, 195, 255, 0.4);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      animation: pulse 2s infinite;
     }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+
     .cards {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
       justify-content: center;
-      margin-top: 30px;
+      margin-top: 40px;
     }
+
     .card {
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 12px;
-      padding: 20px;
-      width: 220px;
+      background: linear-gradient(135deg, 
+        rgba(0, 195, 255, 0.1), 
+        rgba(0, 255, 204, 0.05)
+      );
+      border: 2px solid rgba(0, 195, 255, 0.4);
+      border-radius: 20px;
+      padding: 30px;
       text-align: center;
-      backdrop-filter: blur(4px);
+      backdrop-filter: blur(15px);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
     }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 195, 255, 0.2), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .card:hover::before {
+      left: 100%;
+    }
+
+    .card:hover {
+      background: linear-gradient(135deg, 
+        rgba(0, 195, 255, 0.8), 
+        rgba(0, 255, 204, 0.6)
+      );
+      color: #000;
+      transform: translateY(-10px) scale(1.03);
+      box-shadow: 0 20px 50px rgba(0, 195, 255, 0.4);
+      border-color: #00ffcc;
+    }
+
     .card h3 {
-      font-size: 20px;
-      margin-bottom: 10px;
-      padding: 8px;
-      border-radius: 8px;
+      font-size: 1.6rem;
+      margin-bottom: 20px;
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
     }
-    .card:nth-child(1) h3 { background: #1E88E5; color: #fff; }
-    .card:nth-child(2) h3 { background: #FFB300; color: #000; }
-    .card:nth-child(3) h3 { background: #43A047; color: #fff; }
-    .card:nth-child(4) h3 { background: #8E24AA; color: #fff; }
+
+    .card:nth-child(1) h3 { 
+      background: linear-gradient(135deg, #1E88E5, #42A5F5); 
+      color: #fff; 
+    }
+    .card:nth-child(2) h3 { 
+      background: linear-gradient(135deg, #FFB300, #FFC107); 
+      color: #000; 
+    }
+    .card:nth-child(3) h3 { 
+      background: linear-gradient(135deg, #43A047, #66BB6A); 
+      color: #fff; 
+    }
+    .card:nth-child(4) h3 { 
+      background: linear-gradient(135deg, #8E24AA, #AB47BC); 
+      color: #fff; 
+    }
+
     .card label {
       display: block;
-      margin: 8px 0;
-    }
-    .card button {
-      margin-top: 10px;
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      background: #00a8ff;
-      color: white;
-      font-weight: bold;
+      margin: 15px 0;
+      padding: 12px 15px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+      border: 1px solid rgba(0, 195, 255, 0.3);
       cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1.1rem;
+      font-weight: 500;
     }
+
+    .card label:hover {
+      background: rgba(0, 195, 255, 0.2);
+      border-color: #00ffcc;
+    }
+
+    .card input[type="radio"] {
+      margin-right: 10px;
+      transform: scale(1.2);
+      accent-color: #00c3ff;
+    }
+
+    .card button {
+      margin-top: 20px;
+      padding: 16px 30px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #00c3ff, #00ffcc);
+      color: black;
+      font-weight: 700;
+      font-size: 1.1rem;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 10px 30px rgba(0, 195, 255, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .card button:hover::before {
+      left: 100%;
+    }
+
     .card button:hover {
-      background: #007acc;
+      background: linear-gradient(135deg, #0099cc, #00cc99);
+      transform: translateY(-2px);
+      box-shadow: 0 15px 40px rgba(0, 195, 255, 0.6);
+    }
+
+    .card p {
+      margin: 20px 0;
+      line-height: 1.6;
+      font-size: 1rem;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 15px;
+      border-radius: 10px;
+      border-left: 4px solid #00c3ff;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .cards {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+
+      .container {
+        margin: 10px;
+        padding: 20px;
+      }
+
+      h2 {
+        font-size: 1.8rem;
+      }
+
+      .mensaje-inversion {
+        font-size: 1.1rem;
+        padding: 15px 20px;
+      }
     }
   </style>
 </head>
+
 <body>
 
   <div class="top-bar">
-    <button class="menu-btn" onclick="toggleMenu()">☰</button>
-    <strong>Nivel de inversión</strong>
+    <button class="menu-btn" onclick="toggleMenu()">
+      <i class="fas fa-bars"></i>
+    </button>
+    <strong>
+      <i class="fas fa-chart-trending-up"></i>
+      Nivel de inversión
+    </strong>
   </div>
 
   <div class="menu" id="mainMenu">
@@ -152,44 +362,86 @@
   </div>
 
   <div class="container">
-    <h2>Selecciona tu nivel de inversión</h2>
-    <div class="mensaje-inversion">OBTÉN ENTRE UN 60% HASTA 180% DE TU INVERSIÓN</div>
+    <h2>
+      <i class="fas fa-rocket"></i>
+      Selecciona tu nivel de inversión
+    </h2>
+    <div class="mensaje-inversion">
+      <i class="fas fa-chart-line"></i>
+      OBTÉN ENTRE UN 60% HASTA 180% DE TU INVERSIÓN
+    </div>
 
     <div class="cards">
       <div class="card">
-        <h3>Básico</h3>
-        <label><input type="radio" name="plan-Básico" value="ARS" checked> 20.000 ARS</label>
-        <label><input type="radio" name="plan-Básico" value="USDT"> 17 USDT</label>
-        <p>Interés semanal: 5% - 15%<br>RETIROS CADA 7 DÍAS</p>
-        <button onclick="seleccionar('Básico')">Seleccionar</button>
+        <h3>
+          <i class="fas fa-star"></i>
+          Básico
+        </h3>
+        <label><input type="radio" name="plan-Básico" value="ARS" checked> 💰 20.000 ARS</label>
+        <label><input type="radio" name="plan-Básico" value="USDT"> 🪙 17 USDT</label>
+        <p>
+          <i class="fas fa-percentage"></i> Interés semanal: 5% - 15%<br>
+          <i class="fas fa-calendar-week"></i> RETIROS CADA 7 DÍAS
+        </p>
+        <button onclick="seleccionar('Básico')">
+          <i class="fas fa-check-circle"></i>
+          Seleccionar
+        </button>
       </div>
       <div class="card">
-        <h3>Medio</h3>
-        <label><input type="radio" name="plan-Medio" value="ARS" checked> 50.000 ARS</label>
-        <label><input type="radio" name="plan-Medio" value="USDT"> 42 USDT</label>
-        <p>Interés semanal: 10% - 15%<br>RETIROS CADA 7 DÍAS</p>
-        <button onclick="seleccionar('Medio')">Seleccionar</button>
-      </div>
-<div class="card">
-        <h3>Avanzado</h3>
-        <label><input type="radio" name="plan-Avanzado" value="ARS" checked> 100.000 ARS</label>
-        <label><input type="radio" name="plan-Avanzado" value="USDT"> 84 USDT</label>
-        <p>Interés semanal: 15%<br>RETIROS CADA 7 DÍAS</p>
-        <button onclick="seleccionar('Avanzado')">Seleccionar</button>
+        <h3>
+          <i class="fas fa-fire"></i>
+          Medio
+        </h3>
+        <label><input type="radio" name="plan-Medio" value="ARS" checked> 💰 50.000 ARS</label>
+        <label><input type="radio" name="plan-Medio" value="USDT"> 🪙 42 USDT</label>
+        <p>
+          <i class="fas fa-percentage"></i> Interés semanal: 10% - 15%<br>
+          <i class="fas fa-calendar-week"></i> RETIROS CADA 7 DÍAS
+        </p>
+        <button onclick="seleccionar('Medio')">
+          <i class="fas fa-check-circle"></i>
+          Seleccionar
+        </button>
       </div>
       <div class="card">
-        <h3>Avanzado Pro</h3>
-        <label><input type="radio" name="plan-Avanzado Pro" value="ARS" checked> 500.000 ARS</label>
-        <label><input type="radio" name="plan-Avanzado Pro" value="USDT"> 417 USDT</label>
-        <p>15% + premios<br>RETIROS CADA 7 DÍAS</p>
-        <button onclick="seleccionar('Avanzado Pro')">Seleccionar</button>
+        <h3>
+          <i class="fas fa-crown"></i>
+          Avanzado
+        </h3>
+        <label><input type="radio" name="plan-Avanzado" value="ARS" checked> 💰 100.000 ARS</label>
+        <label><input type="radio" name="plan-Avanzado" value="USDT"> 🪙 84 USDT</label>
+        <p>
+          <i class="fas fa-percentage"></i> Interés semanal: 15%<br>
+          <i class="fas fa-calendar-week"></i> RETIROS CADA 7 DÍAS
+        </p>
+        <button onclick="seleccionar('Avanzado')">
+          <i class="fas fa-check-circle"></i>
+          Seleccionar
+        </button>
+      </div>
+      <div class="card">
+        <h3>
+          <i class="fas fa-gem"></i>
+          Avanzado Pro
+        </h3>
+        <label><input type="radio" name="plan-Avanzado Pro" value="ARS" checked> 💰 500.000 ARS</label>
+        <label><input type="radio" name="plan-Avanzado Pro" value="USDT"> 🪙 417 USDT</label>
+        <p>
+          <i class="fas fa-percentage"></i> 15% + premios<br>
+          <i class="fas fa-calendar-week"></i> RETIROS CADA 7 DÍAS
+        </p>
+        <button onclick="seleccionar('Avanzado Pro')">
+          <i class="fas fa-check-circle"></i>
+          Seleccionar
+        </button>
       </div>
     </div>
   </div>
 
   <script>
     const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...ToI'; // clave truncada por privacidad
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let currentUserId = null;
 
