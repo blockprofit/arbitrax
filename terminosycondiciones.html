@@ -18,6 +18,11 @@
       min-height: 100vh;
       color: white;
       display: flex;
+      overflow-x: hidden;
+    }
+
+    * {
+      box-sizing: border-box;
     }
 
     .menu-toggle {
@@ -27,14 +32,22 @@
       font-size: 24px;
       cursor: pointer;
       z-index: 1001;
-      background-color: rgba(0, 0, 0, 0.6);
-      padding: 10px 15px;
-      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 12px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      border: 2px solid rgba(0, 195, 255, 0.3);
+    }
+
+    .menu-toggle:hover {
+      background: rgba(0, 195, 255, 0.2);
+      transform: scale(1.05);
     }
 
     .sidebar {
-      width: 230px;
-      background-color: rgba(0, 0, 0, 0.85);
+      width: 250px;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(0, 195, 255, 0.1));
+      backdrop-filter: blur(15px);
       height: 100vh;
       padding-top: 60px;
       display: flex;
@@ -43,8 +56,9 @@
       top: 0;
       left: 0;
       transform: translateX(-100%);
-      transition: transform 0.3s ease;
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       z-index: 1000;
+      border-right: 2px solid rgba(0, 195, 255, 0.3);
     }
 
     .sidebar.active {
@@ -56,22 +70,32 @@
       border: none;
       color: white;
       font-size: 15px;
-      padding: 12px 20px;
+      padding: 15px 25px;
       text-align: left;
       cursor: pointer;
       width: 100%;
       display: flex;
       align-items: center;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
     }
 
     .sidebar button:hover {
-      background-color: rgba(255, 255, 255, 0.1);
+      background: linear-gradient(90deg, rgba(0, 195, 255, 0.2), transparent);
+      transform: translateX(5px);
+    }
+
+    .sidebar button.active {
+      background: linear-gradient(90deg, rgba(0, 195, 255, 0.3), rgba(0, 255, 204, 0.1));
+      border-left: 4px solid #00c3ff;
     }
 
     .sidebar button i {
-      margin-right: 12px;
+      margin-right: 15px;
       width: 20px;
       text-align: center;
+      font-size: 16px;
     }
 
     .content {
@@ -82,168 +106,394 @@
     }
 
     .contenido {
-      max-width: 900px;
-      margin: 80px auto 40px;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      max-width: 1000px;
+      margin: 60px auto 40px;
+      background: linear-gradient(135deg, 
+        rgba(0, 0, 0, 0.8), 
+        rgba(0, 195, 255, 0.1)
+      );
+      backdrop-filter: blur(20px);
+      border: 2px solid rgba(0, 195, 255, 0.3);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .contenido::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 195, 255, 0.1), transparent);
+      transition: left 0.6s ease;
+      animation: sweep 4s ease-in-out infinite;
+    }
+
+    @keyframes sweep {
+      0%, 100% { left: -100%; }
+      50% { left: 100%; }
+    }
+
+    .legal-icon {
+      font-size: 3rem;
+      text-align: center;
+      margin-bottom: 20px;
+      color: #00c3ff;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-10px); }
+      60% { transform: translateY(-5px); }
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 30px;
-      color: #00a8ff;
+      margin-bottom: 40px;
+      font-size: 2.2rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #00c3ff, #00ffcc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 30px rgba(0, 195, 255, 0.5);
+      animation: glow 3s ease-in-out infinite alternate;
+      position: relative;
+      z-index: 1;
     }
 
-    p, li {
-      font-size: 16px;
-      line-height: 1.7;
-      margin-bottom: 16px;
+    @keyframes glow {
+      from { filter: brightness(1) drop-shadow(0 0 20px rgba(0, 195, 255, 0.7)); }
+      to { filter: brightness(1.2) drop-shadow(0 0 35px rgba(0, 255, 204, 0.9)); }
+    }
+
+    p {
+      font-size: 1.1rem;
+      line-height: 1.8;
+      margin-bottom: 25px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      border-left: 4px solid #00c3ff;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    p:hover {
+      background: rgba(0, 195, 255, 0.1);
+      transform: translateX(5px);
+      box-shadow: 0 5px 15px rgba(0, 195, 255, 0.2);
+    }
+
+    p strong {
+      color: #00ffcc;
+      font-size: 1.2rem;
+      font-weight: bold;
+      display: block;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     ul {
-      padding-left: 20px;
+      padding-left: 0;
+      list-style: none;
+      margin: 20px 0;
+    }
+
+    li {
+      font-size: 1rem;
+      line-height: 1.7;
+      margin-bottom: 15px;
+      padding: 15px 20px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+      border-left: 3px solid #00ffcc;
+      backdrop-filter: blur(5px);
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    li::before {
+      content: "⚡";
+      color: #00c3ff;
+      font-weight: bold;
+      margin-right: 10px;
+      font-size: 1.1rem;
+    }
+
+    li:hover {
+      background: rgba(0, 195, 255, 0.15);
+      transform: translateX(10px);
+      border-left-color: #00c3ff;
     }
 
     .footer {
-      margin-top: 30px;
+      margin-top: 40px;
       text-align: center;
-      font-size: 14px;
-      color: #ccc;
+      font-size: 1rem;
+      padding: 25px;
+      background: linear-gradient(135deg, 
+        rgba(0, 195, 255, 0.2), 
+        rgba(0, 255, 204, 0.1)
+      );
+      border-radius: 15px;
+      border: 2px solid rgba(0, 195, 255, 0.3);
+      backdrop-filter: blur(15px);
+      position: relative;
+      z-index: 1;
     }
 
     a {
-      color: #00a8ff;
+      color: #00c3ff;
       text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      border: 1px solid rgba(0, 195, 255, 0.3);
+      transition: all 0.3s ease;
+      display: inline-block;
+      margin-top: 10px;
     }
 
     a:hover {
-      text-decoration: underline;
+      background: rgba(0, 195, 255, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 195, 255, 0.3);
+      text-decoration: none;
+      color: #00ffcc;
+    }
+
+    .section-divider {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #00c3ff, transparent);
+      margin: 30px 0;
+      border-radius: 1px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .warning-box {
+      background: linear-gradient(135deg, 
+        rgba(255, 193, 7, 0.2), 
+        rgba(255, 193, 7, 0.1)
+      );
+      border: 2px solid #ffc107;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 30px 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .warning-box::before {
+      content: "⚠️";
+      font-size: 1.5rem;
+      margin-right: 10px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .contenido {
+        margin: 40px 10px;
+        padding: 25px 20px;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+      }
+
+      .content {
+        padding: 20px 15px;
+      }
+
+      p {
+        font-size: 1rem;
+        padding: 15px;
+      }
+
+      li {
+        font-size: 0.95rem;
+        padding: 12px 15px;
+      }
+
+      .legal-icon {
+        font-size: 2.5rem;
+      }
     }
   </style>
 </head>
+
 <body>
 
-  <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
+<div class="menu-toggle" onclick="toggleSidebar()">
+  <i class="fas fa-bars"></i>
+</div>
 
-  <div class="sidebar" id="sidebar">
-    <button onclick="window.location.href='principal.html#welcome'"><i class="fas fa-home"></i> Inicio</button>
-    <button onclick="window.location.href='principal.html#perfil'"><i class="fas fa-user"></i> Perfil</button>
-    <button onclick="window.location.href='inversion.html'"><i class="fas fa-chart-line"></i> Nivel de inversión</button>
-    <button onclick="window.location.href='deposito.html'"><i class="fas fa-wallet"></i> Depósito</button>
-    <button onclick="window.location.href='retiro.html'"><i class="fas fa-arrow-circle-up"></i> Retiro</button>
-    <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Programa de referidos</button>
-    <button onclick="window.location.href='trivia.html'"><i class="fas fa-question"></i> Trivia</button>
-    <button onclick="window.location.href='minipool.html'"><i class="fas fa-coins"></i> Mini Pool</button>
-    <button onclick="window.location.href='mysterybox.html'"><i class="fas fa-box-open"></i> Mystery Box</button>
-    <button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>
-    <button onclick="window.location.href='preguntasfrecuentes.html'"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>
-    <button onclick="window.location.href='operaciones.html'"><i class="fas fa-robot"></i> Operaciones automáticas</button>
-    <button class="active"><i class="fas fa-file-alt"></i> Términos y condiciones</button>
-    <button onclick="logout()"><i class="fas fa-power-off"></i> Cerrar sesión</button>
-  </div>
+<div class="sidebar" id="sidebar">
+  <button onclick="window.location.href='principal.html#welcome'"><i class="fas fa-home"></i> Inicio</button>
+  <button onclick="window.location.href='principal.html#perfil'"><i class="fas fa-user"></i> Perfil</button>
+  <button onclick="window.location.href='inversion.html'"><i class="fas fa-chart-line"></i> Nivel de inversión</button>
+  <button onclick="window.location.href='deposito.html'"><i class="fas fa-wallet"></i> Depósito</button>
+  <button onclick="window.location.href='retiro.html'"><i class="fas fa-arrow-circle-up"></i> Retiro</button>
+  <button onclick="window.location.href='referidos.html'"><i class="fas fa-users"></i> Programa de referidos</button>
+  <button onclick="window.location.href='trivia.html'"><i class="fas fa-question"></i> Trivia</button>
+  <button onclick="window.location.href='minipool.html'"><i class="fas fa-coins"></i> Mini Pool</button>
+  <button onclick="window.location.href='mysterybox.html'"><i class="fas fa-box-open"></i> Mystery Box</button>
+  <button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>
+  <button onclick="window.location.href='preguntasfrecuentes.html'"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>
+  <button onclick="window.location.href='operaciones.html'"><i class="fas fa-robot"></i> Operaciones automáticas</button>
+  <button class="active"><i class="fas fa-file-alt"></i> Términos y condiciones</button>
+  <button onclick="logout()"><i class="fas fa-power-off"></i> Cerrar sesión</button>
+</div>
 
-  <div class="content" onclick="closeSidebar()">
-    <div class="contenido">
-      <h1>Términos y Condiciones</h1>
-<p>Al acceder, registrarte y utilizar esta plataforma, aceptás sin restricciones los presentes términos y condiciones, los cuales regulan la participación del usuario en los servicios ofrecidos: inversión en criptomonedas, minería digital, arbitraje automatizado, programas de referidos, sorteos y funcionalidades como Trivia, Mini Pool y Mystery Box. Estos términos constituyen un acuerdo legal entre el usuario y la plataforma.</p>
+<div class="content" onclick="closeSidebar()">
+  <div class="contenido">
+    <div class="legal-icon">
+      <i class="fas fa-gavel"></i>
+    </div>
+    
+    <h1>
+      <i class="fas fa-file-contract"></i>
+      Términos y Condiciones
+    </h1>
 
-      <p><strong>Uso de la plataforma</strong></p>
-      <ul>
-        <li>La plataforma actúa como intermediario digital que canaliza inversiones hacia actividades automatizadas vinculadas a criptoactivos.</li>
-        <li>La participación está sujeta a validación de perfil y requisitos mínimos para cada función.</li>
-        <li>Los usuarios deben mantener sus credenciales seguras. La empresa no se responsabiliza por accesos no autorizados por negligencia.</li>
-      </ul>
+    <div class="warning-box">
+      Al acceder, registrarte y utilizar esta plataforma, aceptás sin restricciones los presentes términos y condiciones, los cuales regulan la participación del usuario en los servicios ofrecidos: inversión en criptomonedas, minería digital, arbitraje automatizado, programas de referidos, sorteos y funcionalidades como Trivia, Mini Pool y Mystery Box. Estos términos constituyen un acuerdo legal entre el usuario y la plataforma.
+    </div>
 
-      <p><strong>Riesgos y rendimientos</strong></p>
-      <ul>
-        <li>Las inversiones están sujetas a riesgo de mercado y no se garantiza retorno alguno.</li>
-        <li>Los porcentajes anunciados son estimaciones históricas, no contratos de rendimiento.</li>
-        <li>El usuario acepta la posibilidad de pérdidas totales o parciales del capital invertido.</li>
-      </ul>
+    <div class="section-divider"></div>
 
-      <p><strong>Limitación de responsabilidad</strong></p>
-      <ul>
-        <li>No nos responsabilizamos por interrupciones, ataques informáticos o cambios regulatorios.</li>
-        <li>No brindamos asesoramiento financiero. Las decisiones del usuario son autónomas.</li>
-        <li>La empresa no responde por resultados individuales ni expectativas personales.</li>
-      </ul>
+    <p><strong>🔧 Uso de la plataforma</strong></p>
+    <ul>
+      <li>La plataforma actúa como intermediario digital que canaliza inversiones hacia actividades automatizadas vinculadas a criptoactivos.</li>
+      <li>La participación está sujeta a validación de perfil y requisitos mínimos para cada función.</li>
+      <li>Los usuarios deben mantener sus credenciales seguras. La empresa no se responsabiliza por accesos no autorizados por negligencia.</li>
+    </ul>
 
-      <p><strong>Modificaciones del servicio</strong></p>
-      <ul>
-        <li>La empresa puede modificar, suspender o eliminar funcionalidades sin previo aviso.</li>
-        <li>Estos términos pueden ser actualizados en cualquier momento.</li>
-        <li>El uso de múltiples cuentas, abuso de referidos o manipulación de la plataforma está prohibido.</li>
-      </ul>
+    <div class="section-divider"></div>
 
-      <p><strong>Participación en sorteos</strong></p>
-      <ul>
-        <li>Solo usuarios que cumplan con condiciones específicas pueden participar.</li>
-        <li>Los ganadores y premios se determinan exclusivamente por el administrador.</li>
-        <li>Los premios están sujetos a disponibilidad y rendimiento de la plataforma.</li>
-      </ul>
+    <p><strong>📈 Riesgos y rendimientos</strong></p>
+    <ul>
+      <li>Las inversiones están sujetas a riesgo de mercado y no se garantiza retorno alguno.</li>
+      <li>Los porcentajes anunciados son estimaciones históricas, no contratos de rendimiento.</li>
+      <li>El usuario acepta la posibilidad de pérdidas totales o parciales del capital invertido.</li>
+    </ul>
 
-      <p><strong>Trivia</strong></p>
-      <ul>
-        <li>La sección de Trivia es de carácter lúdico y educativo, no representa una promesa de beneficio económico.</li>
-        <li>El sistema puede aplicar reglas de clasificación automática según respuestas y tiempo.</li>
-        <li>La plataforma no se hace responsable por fallas técnicas que afecten el desarrollo de la Trivia.</li>
-      </ul>
+    <div class="section-divider"></div>
 
-      <p><strong>Mini Pool</strong></p>
-      <ul>
-        <li>El Mini Pool es una funcionalidad promocional con rendimiento variable.</li>
-        <li>Está sujeta a cupos semanales y condiciones internas de liquidez.</li>
-        <li>No garantiza pagos si la inversión no se encuentra validada o el usuario no cumple con requisitos.</li>
-      </ul>
+    <p><strong>⚖️ Limitación de responsabilidad</strong></p>
+    <ul>
+      <li>No nos responsabilizamos por interrupciones, ataques informáticos o cambios regulatorios.</li>
+      <li>No brindamos asesoramiento financiero. Las decisiones del usuario son autónomas.</li>
+      <li>La empresa no responde por resultados individuales ni expectativas personales.</li>
+    </ul>
 
-      <p><strong>Mystery Box</strong></p>
-      <ul>
-        <li>Los premios son aleatorios y virtuales. La plataforma no garantiza premios monetarios.</li>
-        <li>Los premios pueden incluir beneficios, puntos o accesos limitados dentro de la app.</li>
-        <li>Una vez abierta la caja, no hay posibilidad de cambio, devolución o reclamo.</li>
-      </ul>
+    <div class="section-divider"></div>
 
-      <p><strong>Jurisdicción</strong></p>
-      <ul>
-        <li>Este sistema no constituye una entidad financiera ni está regulado por entes oficiales.</li>
-        <li>Los usuarios deben cumplir las normativas de su país respecto a ingresos digitales o criptoactivos.</li>
-      </ul>
+    <p><strong>🔄 Modificaciones del servicio</strong></p>
+    <ul>
+      <li>La empresa puede modificar, suspender o eliminar funcionalidades sin previo aviso.</li>
+      <li>Estos términos pueden ser actualizados en cualquier momento.</li>
+      <li>El uso de múltiples cuentas, abuso de referidos o manipulación de la plataforma está prohibido.</li>
+    </ul>
 
-      <p><strong>Contacto y soporte</strong></p>
-      <ul>
-        <li>La atención se realiza únicamente mediante los canales oficiales mencionados dentro de la plataforma.</li>
-        <li>La empresa no responderá consultas enviadas por medios no autorizados.</li>
-      </ul>
+    <div class="section-divider"></div>
 
-      <p>Al continuar usando esta plataforma, el usuario declara comprender y aceptar todos los puntos anteriores, liberando expresamente de responsabilidad a los desarrolladores, administradores, proveedores y aliados de cualquier daño directo o indirecto derivado del uso del sistema, incluyendo pérdidas económicas, errores humanos, interpretaciones equivocadas o problemas técnicos.</p>
+    <p><strong>🎁 Participación en sorteos</strong></p>
+    <ul>
+      <li>Solo usuarios que cumplan con condiciones específicas pueden participar.</li>
+      <li>Los ganadores y premios se determinan exclusivamente por el administrador.</li>
+      <li>Los premios están sujetos a disponibilidad y rendimiento de la plataforma.</li>
+    </ul>
 
-      <div class="footer">
-        Última actualización: junio 2025<br>
-        <a href="principal.html#welcome">← Volver al inicio</a>
-      </div>
+    <div class="section-divider"></div>
+
+    <p><strong>🧠 Trivia</strong></p>
+    <ul>
+      <li>La sección de Trivia es de carácter lúdico y educativo, no representa una promesa de beneficio económico.</li>
+      <li>El sistema puede aplicar reglas de clasificación automática según respuestas y tiempo.</li>
+      <li>La plataforma no se hace responsable por fallas técnicas que afecten el desarrollo de la Trivia.</li>
+    </ul>
+
+    <div class="section-divider"></div>
+
+    <p><strong>🏊‍♂️ Mini Pool</strong></p>
+    <ul>
+      <li>El Mini Pool es una funcionalidad promocional con rendimiento variable.</li>
+      <li>Está sujeta a cupos semanales y condiciones internas de liquidez.</li>
+      <li>No garantiza pagos si la inversión no se encuentra validada o el usuario no cumple con requisitos.</li>
+    </ul>
+
+    <div class="section-divider"></div>
+
+    <p><strong>📦 Mystery Box</strong></p>
+    <ul>
+      <li>Los premios son aleatorios y virtuales. La plataforma no garantiza premios monetarios.</li>
+      <li>Los premios pueden incluir beneficios, puntos o accesos limitados dentro de la app.</li>
+      <li>Una vez abierta la caja, no hay posibilidad de cambio, devolución o reclamo.</li>
+    </ul>
+
+    <div class="section-divider"></div>
+
+    <p><strong>🏛️ Jurisdicción</strong></p>
+    <ul>
+      <li>Este sistema no constituye una entidad financiera ni está regulado por entes oficiales.</li>
+      <li>Los usuarios deben cumplir las normativas de su país respecto a ingresos digitales o criptoactivos.</li>
+    </ul>
+
+    <div class="section-divider"></div>
+
+    <p><strong>📞 Contacto y soporte</strong></p>
+    <ul>
+      <li>La atención se realiza únicamente mediante los canales oficiales mencionados dentro de la plataforma.</li>
+      <li>La empresa no responderá consultas enviadas por medios no autorizados.</li>
+    </ul>
+
+    <div class="section-divider"></div>
+
+    <div class="warning-box">
+      Al continuar usando esta plataforma, el usuario declara comprender y aceptar todos los puntos anteriores, liberando expresamente de responsabilidad a los desarrolladores, administradores, proveedores y aliados de cualquier daño directo o indirecto derivado del uso del sistema, incluyendo pérdidas económicas, errores humanos, interpretaciones equivocadas o problemas técnicos.
+    </div>
+
+    <div class="footer">
+      <i class="fas fa-calendar-alt"></i>
+      Última actualización: junio 2025<br>
+      <a href="principal.html#welcome">
+        <i class="fas fa-arrow-left"></i>
+        Volver al inicio
+      </a>
     </div>
   </div>
+</div>
 
-  <script>
-    const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
-    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+<script>
+  const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    function toggleSidebar() {
-      document.getElementById("sidebar").classList.toggle("active");
-    }
+  function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("active");
+  }
 
-    function closeSidebar() {
-      document.getElementById("sidebar").classList.remove("active");
-    }
+  function closeSidebar() {
+    document.getElementById("sidebar").classList.remove("active");
+  }
 
-    async function logout() {
-      await client.auth.signOut();
-      window.location.href = "index.html";
-    }
-  </script>
+  async function logout() {
+    await client.auth.signOut();
+    window.location.href = "index.html";
+  }
+</script>
 
 </body>
 </html>
