@@ -317,7 +317,7 @@
       text-shadow: 0 0 10px rgba(0,0,0,0.5);
     }
 
-    .chest-bands {
+.chest-bands {
       position: absolute;
       width: 100%;
       height: 100%;
@@ -778,17 +778,17 @@
 </html>
 
 <script>
-  const client = supabase.createClient(
-    'https://ovulezkcxwrjvyxlxsdv.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI'
-  );
+  // ✅ CONFIGURACIÓN IGUAL A TRIVIA - CORREGIDA
+  const supabaseUrl = "https://ovulezkcxwrjvyxlxsdv.supabase.co";
+  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI";
+  const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
   // Variables globales
   let userBalance = 0;
   let isOpening = false;
-  let currentUser = null;
+  let usuarioActual = null; // ✅ IGUAL A TRIVIA
 
-  // 🎁 CONFIGURACIÓN SIMPLIFICADA DE MYSTERY BOX (sin tablas complejas)
+  // 🎁 CONFIGURACIÓN SIMPLIFICADA DE MYSTERY BOX
   const mysteryBoxConfig = {
     cost: 5000, // Costo en ARS para abrir una caja
     prizes: [
@@ -866,6 +866,111 @@
     ]
   };
 
+  // ✅ FUNCIÓN VERIFICAR USUARIO - IGUAL A TRIVIA
+  async function verificarUsuario() {
+    const { data: { user }, error } = await supabaseClient.auth.getUser();
+    
+    if (error || !user) {
+      showError('No estás autenticado. Por favor, inicia sesión.');
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 3000);
+      return;
+    }
+
+    // Obtener datos del usuario desde profiles
+    const { data: profile, error: profileError } = await supabaseClient
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError || !profile) {
+      showError('Error al obtener datos del usuario.');
+      return;
+    }
+
+    usuarioActual = {
+      id: user.id,
+      email: user.email,
+      nombre: profile.username || profile.email || 'Usuario'
+    };
+  }
+
+  // ✅ FUNCIÓN CARGAR SALDO - IGUAL A TRIVIA (CORREGIDA)
+  async function cargarSaldoUsuario() {
+    try {
+      const { data: balance, error } = await supabaseClient
+        .from('balances') // ✅ MISMA TABLA QUE TRIVIA
+        .select('saldo')
+        .eq('usuario_id', usuarioActual.id)
+        .maybeSingle(); // ✅ IGUAL A TRIVIA
+
+      if (error) {
+        console.error('Error al cargar saldo:', error);
+        userBalance = 0;
+      } else {
+        userBalance = balance?.saldo || 0;
+      }
+
+      // Actualizar UI
+      document.getElementById('userBalance').textContent = `$${userBalance.toLocaleString()}`;
+      
+    } catch (error) {
+      console.error('Error cargando saldo:', error);
+      userBalance = 0;
+      document.getElementById('userBalance').textContent = '$0';
+    }
+  }
+
+  // ✅ FUNCIÓN DESCONTAR SALDO - IGUAL A TRIVIA (CORREGIDA)
+  async function descontarSaldo(precio) {
+    try {
+      const nuevoSaldo = userBalance - precio;
+      
+      const { error } = await supabaseClient
+        .from('balances') // ✅ MISMA TABLA QUE TRIVIA
+        .update({ saldo: nuevoSaldo }) // ✅ SIN updated_at - CORREGIDO
+        .eq('usuario_id', usuarioActual.id);
+
+      if (error) {
+        throw new Error('Error al descontar saldo: ' + error.message);
+      }
+
+      userBalance = nuevoSaldo;
+      document.getElementById('userBalance').textContent = `$${userBalance.toLocaleString()}`;
+      
+      return true;
+    } catch (error) {
+      console.error('Error descontando saldo:', error);
+      throw error;
+    }
+  }
+
+  // ✅ FUNCIÓN AGREGAR PREMIO AL SALDO - IGUAL A TRIVIA (CORREGIDA)
+  async function agregarPremioAlSaldo(premio) {
+    try {
+      const nuevoSaldo = userBalance + premio;
+      
+      const { error } = await supabaseClient
+        .from('balances') // ✅ MISMA TABLA QUE TRIVIA
+        .update({ saldo: nuevoSaldo }) // ✅ SIN updated_at - CORREGIDO
+        .eq('usuario_id', usuarioActual.id);
+
+      if (error) {
+        throw new Error('Error al agregar premio: ' + error.message);
+      }
+
+      userBalance = nuevoSaldo;
+      document.getElementById('userBalance').textContent = `$${userBalance.toLocaleString()}`;
+      
+      return true;
+    } catch (error) {
+      console.error('Error agregando premio:', error);
+      throw error;
+    }
+  }
+
   // Función para formatear moneda
   function formatCurrency(amount) {
     return new Intl.NumberFormat('es-AR', {
@@ -885,56 +990,13 @@
     }, 5000);
   }
 
-  // Función para obtener saldo del usuario desde tabla balances
-  async function getUserBalance() {
-    try {
-      const { data, error } = await client
-        .from('balances')
-        .select('saldo')
-        .eq('usuario_id', currentUser.id)
-        .maybeSingle();
-
-      if (error && error.code !== 'PGRST116') {
-        throw error;
-      }
-
-      return data?.saldo || 0;
-
-    } catch (error) {
-      console.error('Error obteniendo saldo:', error);
-      return 0;
-    }
-  }
-
-  // Función para actualizar saldo del usuario
-  async function updateUserBalance(newBalance) {
-    try {
-      const { data, error } = await client
-        .from('balances')
-        .upsert({ 
-          usuario_id: currentUser.id, 
-          saldo: newBalance,
-          updated_at: new Date().toISOString()
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-
-    } catch (error) {
-      console.error('Error actualizando saldo:', error);
-      throw error;
-    }
-  }
-
-  // Función para registrar compra de caja misteriosa
+  // ✅ FUNCIÓN REGISTRAR COMPRA - CORREGIDA
   async function registerMysteryBoxPurchase() {
     try {
-      const { data, error } = await client
+      const { data, error } = await supabaseClient
         .from('recompensas')
         .insert({
-          usuario_id: currentUser.id,
+          usuario_id: usuarioActual.id,
           meta: null, // ✅ CORREGIDO: null para evitar constraint error
           fecha: new Date().toISOString(),
           monto: -mysteryBoxConfig.cost, // Negativo porque es una compra
@@ -954,15 +1016,15 @@
     }
   }
 
-  // Función para registrar premio ganado
+  // ✅ FUNCIÓN REGISTRAR PREMIO - CORREGIDA
   async function registerPrizeWon(prize) {
     try {
       // Solo registrar si es premio con valor monetario
       if (prize.value > 0 && (prize.type === 'cash' || prize.type === 'bonus')) {
-        const { data, error } = await client
+        const { data, error } = await supabaseClient
           .from('recompensas')
           .insert({
-            usuario_id: currentUser.id,
+            usuario_id: usuarioActual.id,
             meta: null, // ✅ CORREGIDO: null para evitar constraint error
             fecha: new Date().toISOString(),
             monto: prize.value,
@@ -979,10 +1041,10 @@
 
       // Para entradas gratis, solo registrar en historial sin valor monetario
       if (prize.type === 'trivia_entry' || prize.type === 'minipool_entry') {
-        const { data, error } = await client
+        const { data, error } = await supabaseClient
           .from('recompensas')
           .insert({
-            usuario_id: currentUser.id,
+            usuario_id: usuarioActual.id,
             meta: null, // ✅ CORREGIDO: null para evitar constraint error
             fecha: new Date().toISOString(),
             monto: 0,
@@ -1041,7 +1103,7 @@
     }
   }
 
-// Función para crear explosión de luz
+ // Función para crear explosión de luz
   function createLightExplosion() {
     const lightExplosion = document.getElementById('lightExplosion');
     lightExplosion.innerHTML = '';
@@ -1084,7 +1146,7 @@
       const velocity = 150 + Math.random() * 400;
       const gravity = 600;
       const life = 2500 + Math.random() * 2000;
-      
+
       particle.animate([
         {
           transform: 'translate(0, 0) scale(0)',
@@ -1128,7 +1190,7 @@
     }
   }
 
-  // Función principal para abrir la caja
+  // ✅ FUNCIÓN PRINCIPAL ABRIR CAJA - CORREGIDA
   async function abrirCaja() {
     if (isOpening) return;
     
@@ -1150,10 +1212,9 @@
       button.disabled = true;
       button.innerHTML = '<div class="spinner"></div> Abriendo...';
       
-      // Registrar compra y descontar saldo
+      // ✅ REGISTRAR COMPRA Y DESCONTAR SALDO - CORREGIDO
       await registerMysteryBoxPurchase();
-      userBalance -= mysteryBoxConfig.cost;
-      await updateUserBalance(userBalance);
+      await descontarSaldo(mysteryBoxConfig.cost); // ✅ USA LA FUNCIÓN CORREGIDA
       
       // Animación de temblor
       chest.classList.add('opening');
@@ -1183,10 +1244,9 @@
       // Registrar premio
       await registerPrizeWon(prize);
       
-      // Si es premio monetario, añadir al saldo
+      // ✅ SI ES PREMIO MONETARIO, AÑADIR AL SALDO - CORREGIDO
       if (prize.value > 0 && (prize.type === 'cash' || prize.type === 'bonus')) {
-        userBalance += prize.value;
-        await updateUserBalance(userBalance);
+        await agregarPremioAlSaldo(prize.value); // ✅ USA LA FUNCIÓN CORREGIDA
       }
       
       setTimeout(() => {
@@ -1257,32 +1317,22 @@
 
   // Función de logout
   async function logout() {
-    await client.auth.signOut();
+    await supabaseClient.auth.signOut();
     window.location.href = "index.html";
   }
 
-  // Función para inicializar la página
+  // ✅ FUNCIÓN INICIALIZAR - CORREGIDA IGUAL A TRIVIA
   async function initializePage() {
     try {
       console.log('🎁 Iniciando Mystery Box...');
       
-      // Obtener usuario actual
-      const { data: { user }, error: userError } = await client.auth.getUser();
+      // ✅ VERIFICAR USUARIO IGUAL A TRIVIA
+      await verificarUsuario();
       
-      if (userError || !user) {
-        console.error('Error de autenticación:', userError);
-        showError('❌ Sesión expirada. Redirigiendo...');
-        setTimeout(() => {
-          window.location.href = "index.html";
-        }, 2000);
-        return;
-      }
+      console.log('✅ Usuario autenticado:', usuarioActual.email);
       
-      currentUser = user;
-      console.log('✅ Usuario autenticado:', currentUser.email);
-      
-      // Cargar saldo
-      userBalance = await getUserBalance();
+      // ✅ CARGAR SALDO IGUAL A TRIVIA
+      await cargarSaldoUsuario();
       console.log('💰 Saldo cargado:', userBalance);
       
       // Actualizar interfaz
@@ -1311,27 +1361,6 @@
   
   // Agregar click listener al cofre también
   document.getElementById('treasureChest').addEventListener('click', abrirCaja);
-
-  // Suscripción a cambios en tiempo real en balances
-  const realtimeSubscription = client
-    .channel('user_balance_changes')
-    .on('postgres_changes', 
-      { 
-        event: '*', 
-        schema: 'public', 
-        table: 'balances',
-        filter: `usuario_id=eq.${currentUser?.id || 'none'}`
-      }, 
-      (payload) => {
-        console.log('💰 Cambio detectado en saldo:', payload);
-        // Recargar saldo después de cambios
-        setTimeout(async () => {
-          userBalance = await getUserBalance();
-          updateUI();
-        }, 1000);
-      }
-    )
-    .subscribe();
 
   console.log('🎁 Mystery Box - Sistema cargado correctamente');
   console.log('💰 Costo por caja:', mysteryBoxConfig.cost);
