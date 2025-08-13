@@ -544,7 +544,7 @@
       z-index: 10;
     }
 
-@keyframes bounce {
+    @keyframes bounce {
       0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
       40% { transform: translateY(-25px); }
       60% { transform: translateY(-15px); }
@@ -727,7 +727,7 @@
       <div class="info-bar" id="infoBar">
         <div class="info-item">
           <div class="info-label">💰 Costo</div>
-          <div class="info-value" id="boxCost">$5,000</div>
+          <div class="info-value" id="boxCost">Cargando...</div>
         </div>
         <div class="info-item">
           <div class="info-label">🎁 Probabilidades</div>
@@ -758,7 +758,7 @@
       </div>
 
       <button class="open-button" id="openButton" onclick="abrirCaja()">
-        <i class="fas fa-key"></i> <span id="buttonText">Abrir Caja ($5,000)</span>
+        <i class="fas fa-key"></i> <span id="buttonText">Cargando...</span>
       </button>
     </div>
   </div>
@@ -786,11 +786,11 @@
   // Variables globales
   let userBalance = 0;
   let isOpening = false;
-  let usuarioActual = null; // ✅ IGUAL A TRIVIA
+  let usuarioActual = null;
 
-  // 🎁 CONFIGURACIÓN SIMPLIFICADA DE MYSTERY BOX
-  const mysteryBoxConfig = {
-    cost: 5000, // Costo en ARS para abrir una caja
+  // ✅ CONFIGURACIÓN DINÁMICA - CORREGIDA PARA LEER DE LA BASE DE DATOS
+  let mysteryBoxConfig = {
+    cost: 5000, // Valor por defecto, se actualiza desde la DB
     prizes: [
       // Premios en efectivo (30% probabilidad)
       { 
@@ -865,6 +865,49 @@
       }
     ]
   };
+
+  // ✅ NUEVA FUNCIÓN: Cargar configuración desde base de datos
+  async function cargarConfiguracionMysteryBox() {
+    try {
+      console.log('🔄 Cargando configuración de Mystery Box...');
+      
+      const { data, error } = await supabaseClient
+        .from('mystery_box_config')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error cargando configuración:', error);
+        // Usar valores por defecto si hay error
+        return;
+      }
+
+      if (data) {
+        // ✅ ACTUALIZAR COSTO DINÁMICAMENTE
+        mysteryBoxConfig.cost = data.box_cost || 5000;
+        
+        console.log('✅ Configuración cargada:', {
+          costo: mysteryBoxConfig.cost,
+          premios_efectivo: data.cash_prizes,
+          total_configurado: data.total_configured
+        });
+        
+        // Actualizar interfaz con el nuevo precio
+        updateUI();
+      } else {
+        console.warn('⚠️ No se encontró configuración activa, usando valores por defecto');
+        updateUI();
+      }
+      
+    } catch (error) {
+      console.error('💥 Error cargando configuración:', error);
+      // Usar valores por defecto en caso de error
+      updateUI();
+    }
+  }
 
   // ✅ FUNCIÓN VERIFICAR USUARIO - IGUAL A TRIVIA
   async function verificarUsuario() {
@@ -999,7 +1042,7 @@
           usuario_id: usuarioActual.id,
           meta: null, // ✅ CORREGIDO: null para evitar constraint error
           fecha: new Date().toISOString(),
-          monto: -mysteryBoxConfig.cost, // Negativo porque es una compra
+          monto: -mysteryBoxConfig.cost, // ✅ USA EL COSTO DINÁMICO
           moneda: 'ARS',
           aprobado: true, // Auto-aprobado
           tipo: 'mysterybox_compra'
@@ -1016,7 +1059,7 @@
     }
   }
 
-  // ✅ FUNCIÓN REGISTRAR PREMIO - CORREGIDA
+ // ✅ FUNCIÓN REGISTRAR PREMIO - CORREGIDA
   async function registerPrizeWon(prize) {
     try {
       // Solo registrar si es premio con valor monetario
@@ -1084,7 +1127,7 @@
     return prizes.find(p => p.type === 'empty') || prizes[0];
   }
 
-  // Función para actualizar la interfaz de usuario
+  // ✅ FUNCIÓN ACTUALIZAR UI - CORREGIDA PARA USAR COSTO DINÁMICO
   function updateUI() {
     document.getElementById('boxCost').textContent = formatCurrency(mysteryBoxConfig.cost);
     document.getElementById('userBalance').textContent = formatCurrency(userBalance);
@@ -1103,7 +1146,7 @@
     }
   }
 
- // Función para crear explosión de luz
+  // Función para crear explosión de luz
   function createLightExplosion() {
     const lightExplosion = document.getElementById('lightExplosion');
     lightExplosion.innerHTML = '';
@@ -1331,6 +1374,9 @@
       
       console.log('✅ Usuario autenticado:', usuarioActual.email);
       
+      // ✅ CARGAR CONFIGURACIÓN DESDE BASE DE DATOS
+      await cargarConfiguracionMysteryBox();
+      
       // ✅ CARGAR SALDO IGUAL A TRIVIA
       await cargarSaldoUsuario();
       console.log('💰 Saldo cargado:', userBalance);
@@ -1348,6 +1394,14 @@
         }
       }, 8000);
       
+      // ✅ RECARGAR CONFIGURACIÓN CADA 30 SEGUNDOS PARA DETECTAR CAMBIOS DEL ADMIN
+      setInterval(async () => {
+        if (!isOpening) {
+          console.log('🔄 Verificando cambios en configuración...');
+          await cargarConfiguracionMysteryBox();
+        }
+      }, 30000);
+      
       console.log('🎁 Mystery Box inicializado correctamente');
       
     } catch (error) {
@@ -1363,8 +1417,7 @@
   document.getElementById('treasureChest').addEventListener('click', abrirCaja);
 
   console.log('🎁 Mystery Box - Sistema cargado correctamente');
-  console.log('💰 Costo por caja:', mysteryBoxConfig.cost);
-  console.log('🎲 Total de premios disponibles:', mysteryBoxConfig.prizes.length);
+  console.log('💰 Configuración dinámica habilitada');
 
 </script>
 </body>
