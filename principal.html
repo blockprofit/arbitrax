@@ -146,7 +146,7 @@
       margin-bottom: 20px;
     }
 
-.formulario {
+    .formulario {
       background: linear-gradient(135deg, 
         rgba(0, 0, 0, 0.8), 
         rgba(0, 195, 255, 0.1)
@@ -302,7 +302,7 @@
       right: 25px;
     }
 
-    #modalAyuda, #modalNotificacion {
+ #modalAyuda, #modalNotificacion {
       display: none;
       position: fixed;
       background: linear-gradient(135deg, 
@@ -314,7 +314,7 @@
       padding: 25px;
       border-radius: 15px;
       z-index: 1001;
-      width: 350px;
+      width: 400px;
       max-height: 80vh;
       overflow-y: auto;
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
@@ -372,6 +372,8 @@
       cursor: pointer;
       font-weight: bold;
       transition: all 0.3s ease;
+      width: 100%;
+      margin-bottom: 10px;
     }
 
     .modal button:hover {
@@ -394,11 +396,121 @@
       transform: scale(1.2);
     }
 
-    #listaTickets {
-      font-size: 13px;
-      color: #ccc;
-      margin-top: 15px;
-      padding-left: 20px;
+    /* ESTILOS MEJORADOS PARA TICKETS */
+    #historialTickets {
+      margin-top: 20px;
+      border-top: 1px solid rgba(0, 195, 255, 0.3);
+      padding-top: 15px;
+    }
+
+    #historialTickets h4 {
+      color: #00a8ff;
+      margin-bottom: 15px;
+      font-size: 1.1rem;
+    }
+
+    .ticket-item-user {
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(0, 195, 255, 0.3);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+      transition: all 0.3s ease;
+    }
+
+    .ticket-item-user:hover {
+      border-color: #00c3ff;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 195, 255, 0.2);
+    }
+
+    .ticket-header-user {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .ticket-subject {
+      font-weight: bold;
+      color: #00c3ff;
+      font-size: 0.95rem;
+    }
+
+    .ticket-status-user {
+      padding: 4px 10px;
+      border-radius: 15px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .status-pendiente {
+      background: rgba(255, 193, 7, 0.2);
+      color: #ffc107;
+      border: 1px solid #ffc107;
+    }
+
+    .status-en_proceso {
+      background: rgba(0, 123, 255, 0.2);
+      color: #007bff;
+      border: 1px solid #007bff;
+    }
+
+    .status-resuelto {
+      background: rgba(40, 167, 69, 0.2);
+      color: #28a745;
+      border: 1px solid #28a745;
+    }
+
+    .ticket-date {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 8px;
+    }
+
+    .ticket-message {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+
+    .ticket-response {
+      background: rgba(0, 195, 255, 0.1);
+      border-left: 3px solid #00c3ff;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+
+    .ticket-response-header {
+      color: #00c3ff;
+      font-weight: bold;
+      font-size: 0.85rem;
+      margin-bottom: 5px;
+    }
+
+    .ticket-response-content {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .ticket-response-date {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.75rem;
+      margin-top: 5px;
+      text-align: right;
+    }
+
+    .no-tickets {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.5);
+      font-style: italic;
+      padding: 20px;
     }
 
     /* Responsive Design */
@@ -410,6 +522,12 @@
       #modalAyuda, #modalNotificacion {
         width: 90%;
         right: 5%;
+        left: 5%;
+      }
+      
+      .ticket-header-user {
+        flex-direction: column;
+        align-items: flex-start;
       }
     }
   </style>
@@ -492,11 +610,16 @@
     <input type="email" id="emailAyuda" placeholder="Tu correo electrónico" />
     <input type="text" id="asuntoAyuda" placeholder="Asunto" />
     <textarea id="mensajeAyuda" placeholder="Escribe tu mensaje aquí..."></textarea>
-    <button onclick="enviarTicket()">Enviar</button>
+    <button onclick="enviarTicket()">
+      <i class="fas fa-paper-plane"></i> Enviar Consulta
+    </button>
     <span class="cerrar" onclick="toggleAyuda()">&times;</span>
+    
     <div id="historialTickets">
-      <h4 style="color:#00a8ff;">Últimos tickets</h4>
-      <ul id="listaTickets"></ul>
+      <h4><i class="fas fa-history"></i> Historial de Tickets</h4>
+      <div id="listaTickets">
+        <!-- Los tickets se cargarán aquí dinámicamente -->
+      </div>
     </div>
   </div>
 </div>
@@ -520,8 +643,7 @@ let currentEmail = null;
 let montoInvertido = 0;
 let porcentajeSemanal = 0;
 let gananciaAcumulada = 0;
-let saldoDisponible = 0;    // Saldo disponible (solo de tabla balances)
-// Guardamos el último cálculo con persistencia:
+let saldoDisponible = 0;
 let ultimoCalculo = null;
 
 async function validateSession() {
@@ -532,14 +654,14 @@ async function validateSession() {
   document.getElementById("emailAyuda").value = currentEmail;
 
   await cargarPerfil();
-
   cargarHistorialTickets();
   await obtenerSaldoDisponible();
   await cargarDatosFinancierosDinamicos();
-
   actualizarGananciasDinamicas();
 
   setInterval(actualizarGananciasDinamicas, 60000);
+  // Auto-actualizar tickets cada 30 segundos
+  setInterval(cargarHistorialTickets, 30000);
 }
 
 async function cargarPerfil() {
@@ -567,13 +689,11 @@ async function guardarPerfil() {
     cbu: document.getElementById("cbu").value
   };
   await client.from("profiles").upsert(perfil, { onConflict: 'id' });
-  // Recargar datos perfil sin perder la vista:
   await cargarPerfil();
   showSection("welcome");
 }
 
 async function obtenerSaldoDisponible() {
-  // SOLO obtener saldo de la tabla balances (ya incluye todas las recompensas liberadas)
   const { data: balanceData, error: balanceError } = await client
     .from("balances")
     .select("saldo")
@@ -610,7 +730,6 @@ async function cargarDatosFinancierosDinamicos() {
 async function actualizarGananciasDinamicas() {
   if (montoInvertido <= 0 || porcentajeSemanal <= 0) {
     document.getElementById("ganancias").textContent = "$0.00";
-    // PRÓXIMO PAGO = saldo disponible (cuando no hay ganancias por inversión)
     document.getElementById("proximo-pago").textContent = `$${saldoDisponible.toFixed(2)}`;
     return;
   }
@@ -622,10 +741,8 @@ async function actualizarGananciasDinamicas() {
   const porcentajePorMinuto = porcentajeSemanal / (7 * 24 * 60);
   gananciaAcumulada += montoInvertido * (porcentajePorMinuto / 100) * minutosTranscurridos;
 
-  // Mostrar ganancias normales
   document.getElementById("ganancias").textContent = `$${gananciaAcumulada.toFixed(2)}`;
   
-  // PRÓXIMO PAGO = ganancias dinámicas + saldo disponible
   const proximoPagoTotal = gananciaAcumulada + saldoDisponible;
   document.getElementById("proximo-pago").textContent = `$${proximoPagoTotal.toFixed(2)}`;
 
@@ -638,9 +755,8 @@ async function actualizarGananciasDinamicas() {
     console.error("Error actualizando ganancia_acumulada o ultimo_calculo:", error);
   }
 }
-  
-// Funciones auxiliares originales
 
+// Funciones auxiliares
 function toggleSidebar() {  
   document.getElementById("sidebar").classList.toggle("active");  
 }  
@@ -661,7 +777,13 @@ function showSection(id) {
 
 function toggleAyuda() {
   const modal = document.getElementById("modalAyuda");
-  modal.style.display = modal.style.display === "block" ? "none" : "block";
+  const isVisible = modal.style.display === "block";
+  modal.style.display = isVisible ? "none" : "block";
+  
+  // Cargar tickets cuando se abre el modal
+  if (!isVisible) {
+    cargarHistorialTickets();
+  }
 }
 
 function toggleNotificacion() {
@@ -669,37 +791,186 @@ function toggleNotificacion() {
   modal.style.display = modal.style.display === "block" ? "none" : "block";
 }
 
+// FUNCIÓN MEJORADA PARA ENVIAR TICKETS
 async function enviarTicket() {
   const email = document.getElementById("emailAyuda").value.trim();
   const asunto = document.getElementById("asuntoAyuda").value.trim();
   const mensaje = document.getElementById("mensajeAyuda").value.trim();
-  if (!email || !asunto || !mensaje) return;
+  
+  if (!email || !asunto || !mensaje) {
+    mostrarNotificacion("Por favor completa todos los campos", "error");
+    return;
+  }
 
-  await client.from("tickets").insert({
-    usuario_id: currentUserId,
-    email, asunto, mensaje, fecha: new Date().toISOString()
-  });
-
-  document.getElementById("asuntoAyuda").value = "";
-  document.getElementById("mensajeAyuda").value = "";
-  cargarHistorialTickets();
-}
-
-async function cargarHistorialTickets() {
-  const { data } = await client.from("tickets").select("*").eq("usuario_id", currentUserId).order("fecha", { ascending: false }).limit(3);
-  const lista = document.getElementById("listaTickets");
-  lista.innerHTML = "";
-
-  if (data && data.length > 0) {
-    data.forEach(ticket => {
-      const li = document.createElement("li");
-      li.textContent = `${ticket.asunto}: ${ticket.mensaje}`;
-      lista.appendChild(li);
+  try {
+    const { error } = await client.from("tickets").insert({
+      usuario_id: currentUserId,
+      email: email,
+      asunto: asunto,
+      mensaje: mensaje,
+      fecha: new Date().toISOString(),
+      estado: 'pendiente'
     });
-  } else {
-    lista.innerHTML = "<li>No hay tickets recientes.</li>";
+
+    if (error) {
+      console.error('Error enviando ticket:', error);
+      mostrarNotificacion("Error al enviar el ticket", "error");
+      return;
+    }
+
+    // Limpiar formulario
+    document.getElementById("asuntoAyuda").value = "";
+    document.getElementById("mensajeAyuda").value = "";
+    
+    mostrarNotificacion("Ticket enviado correctamente", "success");
+    
+    // Recargar historial
+    await cargarHistorialTickets();
+    
+  } catch (error) {
+    console.error('Error en enviarTicket:', error);
+    mostrarNotificacion("Error al enviar el ticket", "error");
   }
 }
+
+// FUNCIÓN MEJORADA PARA CARGAR HISTORIAL DE TICKETS
+async function cargarHistorialTickets() {
+  try {
+    const { data, error } = await client
+      .from("tickets")
+      .select("*")
+      .eq("usuario_id", currentUserId)
+      .order("fecha", { ascending: false })
+      .limit(10);
+
+    if (error) {
+      console.error('Error cargando tickets:', error);
+      return;
+    }
+
+    const container = document.getElementById("listaTickets");
+    
+    if (!data || data.length === 0) {
+      container.innerHTML = '<div class="no-tickets">No tienes tickets de soporte aún.</div>';
+      return;
+    }
+
+    let html = '';
+    
+    data.forEach(ticket => {
+      const fechaCreacion = formatearFecha(ticket.fecha);
+      const fechaRespuesta = ticket.fecha_respuesta ? formatearFecha(ticket.fecha_respuesta) : null;
+      
+      html += `
+        <div class="ticket-item-user">
+          <div class="ticket-header-user">
+            <div class="ticket-subject">${ticket.asunto}</div>
+            <div class="ticket-status-user status-${ticket.estado}">
+              ${ticket.estado.replace('_', ' ')}
+            </div>
+          </div>
+          
+          <div class="ticket-date">
+            <i class="fas fa-calendar"></i> Enviado: ${fechaCreacion}
+          </div>
+          
+          <div class="ticket-message">
+            <strong>Tu consulta:</strong><br>
+            ${ticket.mensaje}
+          </div>
+          
+          ${ticket.respuesta_admin ? `
+            <div class="ticket-response">
+              <div class="ticket-response-header">
+                <i class="fas fa-reply"></i> Respuesta del administrador:
+              </div>
+              <div class="ticket-response-content">
+                ${ticket.respuesta_admin}
+              </div>
+              <div class="ticket-response-date">
+                Respondido: ${fechaRespuesta}
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    });
+    
+    container.innerHTML = html;
+    
+  } catch (error) {
+    console.error('Error en cargarHistorialTickets:', error);
+    document.getElementById("listaTickets").innerHTML = '<div class="no-tickets">Error al cargar tickets.</div>';
+  }
+}
+
+// Función para formatear fechas
+function formatearFecha(fecha) {
+  const date = new Date(fecha);
+  return date.toLocaleDateString('es-AR', {
+    day: '2-digit',
+    month: '2-digit', 
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+
+// Función para mostrar notificaciones
+function mostrarNotificacion(mensaje, tipo = 'success') {
+  // Remover notificación anterior si existe
+  const notifAnterior = document.querySelector('.notification-toast');
+  if (notifAnterior) {
+    notifAnterior.remove();
+  }
+
+  const div = document.createElement('div');
+  div.className = 'notification-toast';
+  div.innerHTML = `
+    <i class="fas fa-${tipo === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
+    <span>${mensaje}</span>
+  `;
+  
+  div.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: ${tipo === 'success' ? 'linear-gradient(135deg, #28a745, #20c997)' : 'linear-gradient(135deg, #dc3545, #fd7e14)'};
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    z-index: 10000;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    backdrop-filter: blur(10px);
+    animation: slideInNotif 0.3s ease;
+  `;
+
+  document.body.appendChild(div);
+
+  // Remover después de 4 segundos
+  setTimeout(() => {
+    div.style.animation = 'slideOutNotif 0.3s ease';
+    setTimeout(() => div.remove(), 300);
+  }, 4000);
+}
+
+// Agregar estilos para las animaciones de notificaciones
+const notifStyles = document.createElement('style');
+notifStyles.textContent = `
+  @keyframes slideInNotif {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes slideOutNotif {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+  }
+`;
+document.head.appendChild(notifStyles);
 
 async function logout() {
   if (currentUserId) {
@@ -712,7 +983,6 @@ async function logout() {
 }
 
 // Gráfica original
-
 new Chart(document.getElementById('graficaGanancias').getContext('2d'), {
   type: 'line',
   data: {
@@ -745,7 +1015,297 @@ new Chart(document.getElementById('graficaGanancias').getContext('2d'), {
   }
 });
 
+// Event Listeners mejorados
+document.addEventListener('DOMContentLoaded', function() {
+  // Inicializar validación de sesión
+  validateSession();
+  
+  // Event listener para detectar nuevas respuestas de admin
+  setInterval(async () => {
+    await verificarNuevasRespuestas();
+  }, 60000); // Verificar cada minuto
+  
+  // Cerrar modales al hacer clic fuera
+  window.addEventListener('click', function(event) {
+    const modalAyuda = document.getElementById('modalAyuda');
+    const modalNotificacion = document.getElementById('modalNotificacion');
+    
+    if (event.target === modalAyuda) {
+      modalAyuda.style.display = 'none';
+    }
+    if (event.target === modalNotificacion) {
+      modalNotificacion.style.display = 'none';
+    }
+  });
+  
+  // Prevenir que los clics dentro del modal lo cierren
+  document.querySelector('.contenido-ayuda').addEventListener('click', function(event) {
+    event.stopPropagation();
+  });
+  
+  document.querySelector('.contenido-notificacion').addEventListener('click', function(event) {
+    event.stopPropagation();
+  });
+});
+
+// Función para verificar nuevas respuestas de administrador
+async function verificarNuevasRespuestas() {
+  try {
+    const { data, error } = await client
+      .from("tickets")
+      .select("id, asunto, respuesta_admin, fecha_respuesta, estado")
+      .eq("usuario_id", currentUserId)
+      .not("respuesta_admin", "is", null)
+      .gte("fecha_respuesta", new Date(Date.now() - 5 * 60 * 1000).toISOString()); // Últimos 5 minutos
+
+    if (error) {
+      console.error('Error verificando respuestas:', error);
+      return;
+    }
+
+    if (data && data.length > 0) {
+      // Mostrar notificación de nueva respuesta
+      const respuestasNuevas = data.length;
+      mostrarNotificacion(
+        `Tienes ${respuestasNuevas} nueva${respuestasNuevas > 1 ? 's' : ''} respuesta${respuestasNuevas > 1 ? 's' : ''} en tus tickets`,
+        'success'
+      );
+      
+      // Actualizar el ícono de notificaciones
+      actualizarIconoNotificaciones(true);
+    }
+    
+  } catch (error) {
+    console.error('Error en verificarNuevasRespuestas:', error);
+  }
+}
+
+// Función para actualizar el ícono de notificaciones
+function actualizarIconoNotificaciones(hayNuevas = false) {
+  const iconoNotif = document.getElementById('botNotificacion');
+  
+  if (hayNuevas) {
+    // Agregar indicador de notificación nueva
+    if (!iconoNotif.querySelector('.notification-badge')) {
+      const badge = document.createElement('div');
+      badge.className = 'notification-badge';
+      badge.style.cssText = `
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: #ff4757;
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        animation: pulseNotif 2s infinite;
+      `;
+      badge.textContent = '!';
+      iconoNotif.style.position = 'relative';
+      iconoNotif.appendChild(badge);
+      
+      // Agregar animación de pulso
+      if (!document.querySelector('#pulseAnimation')) {
+        const pulseStyle = document.createElement('style');
+        pulseStyle.id = 'pulseAnimation';
+        pulseStyle.textContent = `
+          @keyframes pulseNotif {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+          }
+        `;
+        document.head.appendChild(pulseStyle);
+      }
+    }
+  }
+}
+
+// Función mejorada para el toggle de notificaciones
+function toggleNotificacion() {
+  const modal = document.getElementById("modalNotificacion");
+  const isVisible = modal.style.display === "block";
+  
+  if (!isVisible) {
+    // Mostrar modal y cargar notificaciones
+    modal.style.display = "block";
+    cargarNotificaciones();
+    
+    // Remover badge de notificación
+    const badge = document.querySelector('.notification-badge');
+    if (badge) {
+      badge.remove();
+    }
+  } else {
+    modal.style.display = "none";
+  }
+}
+
+// Función para cargar notificaciones
+async function cargarNotificaciones() {
+  try {
+    const { data, error } = await client
+      .from("tickets")
+      .select("asunto, respuesta_admin, fecha_respuesta, estado")
+      .eq("usuario_id", currentUserId)
+      .not("respuesta_admin", "is", null)
+      .order("fecha_respuesta", { ascending: false })
+      .limit(5);
+
+    const contenidoNotif = document.querySelector('.contenido-notificacion');
+    
+    if (error || !data || data.length === 0) {
+      contenidoNotif.innerHTML = `
+        <h3><i class="fas fa-bell"></i> Notificaciones</h3>
+        <p style="text-align: center; opacity: 0.7; padding: 20px;">
+          <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+          No tienes nuevas notificaciones.
+        </p>
+        <span class="cerrar" onclick="toggleNotificacion()">&times;</span>
+      `;
+      return;
+    }
+
+    let notificacionesHtml = `
+      <h3><i class="fas fa-bell"></i> Notificaciones</h3>
+      <div style="max-height: 300px; overflow-y: auto;">
+    `;
+
+    data.forEach(notif => {
+      const fechaRespuesta = formatearFecha(notif.fecha_respuesta);
+      notificacionesHtml += `
+        <div style="
+          background: rgba(0, 195, 255, 0.1);
+          border-left: 3px solid #00c3ff;
+          padding: 12px;
+          margin: 10px 0;
+          border-radius: 5px;
+          font-size: 0.9rem;
+        ">
+          <div style="color: #00c3ff; font-weight: bold; margin-bottom: 5px;">
+            <i class="fas fa-reply"></i> Respuesta a: ${notif.asunto}
+          </div>
+          <div style="color: rgba(255,255,255,0.8); font-size: 0.8rem; margin-bottom: 5px;">
+            ${fechaRespuesta}
+          </div>
+          <div style="color: rgba(255,255,255,0.9);">
+            ${notif.respuesta_admin.substring(0, 100)}${notif.respuesta_admin.length > 100 ? '...' : ''}
+          </div>
+          <div style="margin-top: 5px;">
+            <span class="ticket-status-user status-${notif.estado}">
+              ${notif.estado.replace('_', ' ')}
+            </span>
+          </div>
+        </div>
+      `;
+    });
+
+    notificacionesHtml += `
+      </div>
+      <div style="text-align: center; margin-top: 15px;">
+        <button onclick="toggleAyuda(); toggleNotificacion();" style="
+          background: linear-gradient(135deg, #00c3ff, #00ffcc);
+          border: none;
+          padding: 8px 16px;
+          color: black;
+          border-radius: 6px;
+          cursor: pointer;
+          font-weight: bold;
+          font-size: 0.9rem;
+        ">
+          <i class="fas fa-eye"></i> Ver todos los tickets
+        </button>
+      </div>
+      <span class="cerrar" onclick="toggleNotificacion()">&times;</span>
+    `;
+
+    contenidoNotif.innerHTML = notificacionesHtml;
+
+  } catch (error) {
+    console.error('Error cargando notificaciones:', error);
+  }
+}
+
+// Función para mostrar un mensaje de éxito cuando se envía un ticket
+function mostrarMensajeExito() {
+  const mensaje = document.createElement('div');
+  mensaje.style.cssText = `
+    background: rgba(40, 167, 69, 0.2);
+    border: 2px solid #28a745;
+    color: #28a745;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    text-align: center;
+    font-weight: bold;
+    animation: fadeInOut 3s ease;
+  `;
+  mensaje.innerHTML = '<i class="fas fa-check-circle"></i> Ticket enviado correctamente';
+  
+  const contenidoAyuda = document.querySelector('.contenido-ayuda');
+  contenidoAyuda.insertBefore(mensaje, document.getElementById('historialTickets'));
+  
+  setTimeout(() => {
+    mensaje.remove();
+  }, 3000);
+}
+
+// Agregar estilos adicionales para animaciones
+const additionalStyles = document.createElement('style');
+additionalStyles.textContent = `
+  @keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(-10px); }
+    20% { opacity: 1; transform: translateY(0); }
+    80% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-10px); }
+  }
+  
+  .ticket-item-user {
+    animation: slideInTicket 0.3s ease;
+  }
+  
+  @keyframes slideInTicket {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  
+  .notification-badge {
+    box-shadow: 0 2px 10px rgba(255, 71, 87, 0.5);
+  }
+  
+  /* Mejorar scroll en modales */
+  #modalAyuda::-webkit-scrollbar,
+  #modalNotificacion::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  #modalAyuda::-webkit-scrollbar-track,
+  #modalNotificacion::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+  }
+  
+  #modalAyuda::-webkit-scrollbar-thumb,
+  #modalNotificacion::-webkit-scrollbar-thumb {
+    background: rgba(0, 195, 255, 0.5);
+    border-radius: 3px;
+  }
+  
+  #modalAyuda::-webkit-scrollbar-thumb:hover,
+  #modalNotificacion::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 195, 255, 0.7);
+  }
+`;
+document.head.appendChild(additionalStyles);
+
+// Inicializar la aplicación
 validateSession();
+
 </script>
 </body>
 </html>
