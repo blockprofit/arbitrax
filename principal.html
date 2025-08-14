@@ -109,7 +109,7 @@
 
     .section {
       display: none;
-      max-width: 1000px;
+      max-width: 1200px;
       margin: auto;
     }
 
@@ -117,7 +117,226 @@
       display: block;
     }
 
-    /* PERFIL - ESTILO TRIVIA */
+    /* ===== ESTILOS MEJORADOS PARA LA PANTALLA PRINCIPAL ===== */
+    .welcome-header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 30px;
+      background: linear-gradient(135deg, 
+        rgba(0, 0, 0, 0.8), 
+        rgba(0, 195, 255, 0.1)
+      );
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      border: 2px solid rgba(0, 195, 255, 0.3);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .welcome-title {
+      font-size: 2.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #00c3ff, #00ffcc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 15px;
+      text-shadow: 0 0 30px rgba(0, 195, 255, 0.5);
+      animation: glow 3s ease-in-out infinite alternate;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    @keyframes glow {
+      from { filter: brightness(1) drop-shadow(0 0 20px rgba(0, 195, 255, 0.7)); }
+      to { filter: brightness(1.2) drop-shadow(0 0 35px rgba(0, 255, 204, 0.9)); }
+    }
+
+    .welcome-subtitle {
+      font-size: 1.2rem;
+      color: rgba(255, 255, 255, 0.8);
+      background: linear-gradient(135deg, rgba(0, 195, 255, 0.2), rgba(0, 255, 204, 0.1));
+      padding: 12px 25px;
+      border-radius: 25px;
+      border: 1px solid rgba(0, 195, 255, 0.3);
+      display: inline-block;
+      backdrop-filter: blur(10px);
+    }
+
+    /* CARDS MEJORADAS CON ESTILO DE LAS IMÁGENES */
+    .dashboard-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      justify-content: center;
+      margin-bottom: 40px;
+    }
+
+    .card {
+      background: linear-gradient(135deg, 
+        rgba(0, 195, 255, 0.1), 
+        rgba(0, 255, 204, 0.05)
+      );
+      border: 2px solid rgba(0, 195, 255, 0.4);
+      border-radius: 20px;
+      padding: 30px 25px;
+      text-align: center;
+      backdrop-filter: blur(15px);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 195, 255, 0.2), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .card:hover::before {
+      left: 100%;
+    }
+
+    .card:hover {
+      background: linear-gradient(135deg, 
+        rgba(0, 195, 255, 0.2), 
+        rgba(0, 255, 204, 0.1)
+      );
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 25px 60px rgba(0, 195, 255, 0.4);
+      border-color: #00ffcc;
+    }
+
+    .card h3 {
+      margin-bottom: 20px;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .card p {
+      font-size: 2.2rem;
+      font-weight: 900;
+      margin: 0;
+      text-shadow: 0 0 20px currentColor;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+
+    /* Colores específicos para cada card */
+    .card:nth-child(1) {
+      border-color: #00d4ff;
+    }
+    .card:nth-child(1) p {
+      color: #00d4ff;
+    }
+    .card:nth-child(1) h3 i {
+      color: #00d4ff;
+    }
+
+    .card:nth-child(2) {
+      border-color: #c56cf0;
+    }
+    .card:nth-child(2) p {
+      color: #c56cf0;
+    }
+    .card:nth-child(2) h3 i {
+      color: #c56cf0;
+    }
+
+    .card:nth-child(3) {
+      border-color: #ff6b81;
+    }
+    .card:nth-child(3) p {
+      color: #ff6b81;
+    }
+    .card:nth-child(3) h3 i {
+      color: #ff6b81;
+    }
+
+    .card:nth-child(4) {
+      border-color: #2ed573;
+    }
+    .card:nth-child(4) p {
+      color: #2ed573;
+    }
+    .card:nth-child(4) h3 i {
+      color: #2ed573;
+    }
+
+/* GRÁFICA MEJORADA CON ESTILO DE LAS IMÁGENES */
+    .chart-container {
+      background: linear-gradient(135deg, 
+        rgba(0, 0, 0, 0.8), 
+        rgba(0, 195, 255, 0.1)
+      );
+      backdrop-filter: blur(20px);
+      border: 2px solid rgba(0, 195, 255, 0.3);
+      border-radius: 20px;
+      padding: 30px;
+      margin-top: 30px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chart-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, 
+        transparent 0%, 
+        rgba(0, 195, 255, 0.05) 50%, 
+        transparent 100%
+      );
+      pointer-events: none;
+    }
+
+    .chart-title {
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 1.6rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #00c3ff, #00ffcc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    #graficaGanancias {
+      width: 100%;
+      max-width: 100%;
+      height: 350px;
+      position: relative;
+      z-index: 1;
+      border-radius: 15px;
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    /* PERFIL - ESTILO TRIVIA (NO TOCAR - YA ESTÁ ACTUALIZADA) */
     .perfil-header {
       text-align: center;
       margin-bottom: 40px;
@@ -133,11 +352,6 @@
       margin-bottom: 15px;
       text-shadow: 0 0 30px rgba(0, 195, 255, 0.5);
       animation: glow 3s ease-in-out infinite alternate;
-    }
-
-    @keyframes glow {
-      from { filter: brightness(1) drop-shadow(0 0 20px rgba(0, 195, 255, 0.7)); }
-      to { filter: brightness(1.2) drop-shadow(0 0 35px rgba(0, 255, 204, 0.9)); }
     }
 
     .perfil-subtitle {
@@ -238,38 +452,7 @@
       box-shadow: 0 15px 40px rgba(0, 195, 255, 0.6);
     }
 
-    /* DASHBOARD CARDS - mantener estilo original */
-    .dashboard-cards {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-bottom: 30px;
-    }
-
-    .card {
-      flex: 1;
-      min-width: 250px;
-      background: rgba(0,0,0,0.5);
-      border-radius: 12px;
-      padding: 20px;
-      text-align: center;
-      border: 2px solid;
-    }
-
-    .card h3 {
-      margin-bottom: 10px;
-    }
-
-    #graficaGanancias {
-      width: 100%;
-      max-width: 800px;
-      height: 300px;
-      background: rgba(0,0,0,0.4);
-      padding: 20px;
-      border-radius: 12px;
-    }
-
+    /* BOTONES DE AYUDA Y NOTIFICACIONES (NO TOCAR) */
     #botAyuda, #botNotificacion {
       position: fixed;
       bottom: 25px;
@@ -302,7 +485,7 @@
       right: 25px;
     }
 
- #modalAyuda, #modalNotificacion {
+    #modalAyuda, #modalNotificacion {
       display: none;
       position: fixed;
       background: linear-gradient(135deg, 
@@ -396,7 +579,7 @@
       transform: scale(1.2);
     }
 
-    /* ESTILOS MEJORADOS PARA TICKETS */
+/* ESTILOS MEJORADOS PARA TICKETS (NO TOCAR - YA FUNCIONALES) */
     #historialTickets {
       margin-top: 20px;
       border-top: 1px solid rgba(0, 195, 255, 0.3);
@@ -515,6 +698,30 @@
 
     /* Responsive Design */
     @media (max-width: 768px) {
+      .welcome-title {
+        font-size: 2rem;
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .dashboard-cards {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+        margin: 0 auto 40px auto;
+      }
+      
+      .welcome-header {
+        padding: 20px;
+      }
+      
+      .chart-container {
+        padding: 20px;
+      }
+      
+      #graficaGanancias {
+        height: 300px;
+      }
+      
       .formulario {
         padding: 25px 20px;
       }
@@ -554,26 +761,43 @@
 
 <div class="content" onclick="closeSidebar()">
   <div id="welcome" class="section active">
-    <h2>¡Bienvenido de nuevo!</h2>
-    <div class="dashboard-cards">
-      <div class="card" style="border-color: #00d4ff;">
-        <h3>Total Invertido</h3>
-        <p id="total-invertido" style="font-size: 28px; color: #00d4ff; font-weight: bold;">$0</p>
-      </div>
-      <div class="card" style="border-color: #c56cf0;">
-        <h3>Ganancias</h3>
-        <p id="ganancias" style="font-size: 28px; color: #c56cf0; font-weight: bold;">$0</p>
-      </div>
-      <div class="card" style="border-color: #ff6b81;">
-        <h3>Próximo Pago</h3>
-        <p id="proximo-pago" style="font-size: 28px; color: #ff6b81; font-weight: bold;">$0</p>
-      </div>
-      <div class="card" style="border-color: #2ed573;">
-        <h3>Saldo Disponible</h3>
-        <p id="saldo-disponible" style="font-size: 28px; color: #2ed573; font-weight: bold;">$0</p>
+    <div class="welcome-header">
+      <h2 class="welcome-title" id="welcomeTitle">
+        <i class="fas fa-user-circle"></i>
+        ¡Bienvenido de nuevo!
+      </h2>
+      <div class="welcome-subtitle">
+        <i class="fas fa-chart-trending-up"></i>
+        Panel de Control Financiero
       </div>
     </div>
-    <canvas id="graficaGanancias"></canvas>
+
+    <div class="dashboard-cards">
+      <div class="card">
+        <h3><i class="fas fa-coins"></i> Total Invertido</h3>
+        <p id="total-invertido">$0</p>
+      </div>
+      <div class="card">
+        <h3><i class="fas fa-chart-line"></i> Ganancias</h3>
+        <p id="ganancias">$0</p>
+      </div>
+      <div class="card">
+        <h3><i class="fas fa-calendar-alt"></i> Próximo Pago</h3>
+        <p id="proximo-pago">$0</p>
+      </div>
+      <div class="card">
+        <h3><i class="fas fa-wallet"></i> Saldo Disponible</h3>
+        <p id="saldo-disponible">$0</p>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <div class="chart-title">
+        <i class="fas fa-chart-area"></i>
+        Evolución de Ganancias
+      </div>
+      <canvas id="graficaGanancias"></canvas>
+    </div>
   </div>
 
   <div id="perfil" class="section">
@@ -602,7 +826,7 @@
   </div>
 </div>
 
-<!-- Modales -->
+<!-- Modales (NO TOCAR) -->
 <div id="botAyuda" onclick="toggleAyuda()"><i class="fas fa-comment-dots"></i></div>
 <div id="modalAyuda" class="modal">
   <div class="contenido-ayuda">
@@ -660,7 +884,6 @@ async function validateSession() {
   actualizarGananciasDinamicas();
 
   setInterval(actualizarGananciasDinamicas, 60000);
-  // Auto-actualizar tickets cada 30 segundos
   setInterval(cargarHistorialTickets, 30000);
 }
 
@@ -673,6 +896,14 @@ async function cargarPerfil() {
     document.getElementById("celular").value = data.celular || "";
     document.getElementById("cbu").value = data.cbu || "";
     document.getElementById("email").value = data.email || currentEmail;
+    
+    // Actualizar saludo personalizado
+    if (data.nombre) {
+      document.getElementById("welcomeTitle").innerHTML = `
+        <i class="fas fa-user-circle"></i>
+        Bienvenido ${data.nombre}
+      `;
+    }
   } else {
     document.getElementById("email").value = currentEmail;
   }
@@ -756,7 +987,6 @@ async function actualizarGananciasDinamicas() {
   }
 }
 
-// Funciones auxiliares
 function toggleSidebar() {  
   document.getElementById("sidebar").classList.toggle("active");  
 }  
@@ -780,7 +1010,6 @@ function toggleAyuda() {
   const isVisible = modal.style.display === "block";
   modal.style.display = isVisible ? "none" : "block";
   
-  // Cargar tickets cuando se abre el modal
   if (!isVisible) {
     cargarHistorialTickets();
   }
@@ -788,10 +1017,21 @@ function toggleAyuda() {
 
 function toggleNotificacion() {
   const modal = document.getElementById("modalNotificacion");
-  modal.style.display = modal.style.display === "block" ? "none" : "block";
+  const isVisible = modal.style.display === "block";
+  
+  if (!isVisible) {
+    modal.style.display = "block";
+    cargarNotificaciones();
+    
+    const badge = document.querySelector('.notification-badge');
+    if (badge) {
+      badge.remove();
+    }
+  } else {
+    modal.style.display = "none";
+  }
 }
 
-// FUNCIÓN MEJORADA PARA ENVIAR TICKETS
 async function enviarTicket() {
   const email = document.getElementById("emailAyuda").value.trim();
   const asunto = document.getElementById("asuntoAyuda").value.trim();
@@ -818,13 +1058,11 @@ async function enviarTicket() {
       return;
     }
 
-    // Limpiar formulario
     document.getElementById("asuntoAyuda").value = "";
     document.getElementById("mensajeAyuda").value = "";
     
     mostrarNotificacion("Ticket enviado correctamente", "success");
     
-    // Recargar historial
     await cargarHistorialTickets();
     
   } catch (error) {
@@ -833,7 +1071,6 @@ async function enviarTicket() {
   }
 }
 
-// FUNCIÓN MEJORADA PARA CARGAR HISTORIAL DE TICKETS
 async function cargarHistorialTickets() {
   try {
     const { data, error } = await client
@@ -904,7 +1141,6 @@ async function cargarHistorialTickets() {
   }
 }
 
-// Función para formatear fechas
 function formatearFecha(fecha) {
   const date = new Date(fecha);
   return date.toLocaleDateString('es-AR', {
@@ -916,9 +1152,7 @@ function formatearFecha(fecha) {
   });
 }
 
-// Función para mostrar notificaciones
 function mostrarNotificacion(mensaje, tipo = 'success') {
-  // Remover notificación anterior si existe
   const notifAnterior = document.querySelector('.notification-toast');
   if (notifAnterior) {
     notifAnterior.remove();
@@ -951,14 +1185,12 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
 
   document.body.appendChild(div);
 
-  // Remover después de 4 segundos
   setTimeout(() => {
     div.style.animation = 'slideOutNotif 0.3s ease';
     setTimeout(() => div.remove(), 300);
   }, 4000);
 }
 
-// Agregar estilos para las animaciones de notificaciones
 const notifStyles = document.createElement('style');
 notifStyles.textContent = `
   @keyframes slideInNotif {
@@ -982,7 +1214,6 @@ async function logout() {
   window.location.href = "index.html";
 }
 
-// Gráfica original
 new Chart(document.getElementById('graficaGanancias').getContext('2d'), {
   type: 'line',
   data: {
@@ -1015,17 +1246,13 @@ new Chart(document.getElementById('graficaGanancias').getContext('2d'), {
   }
 });
 
-// Event Listeners mejorados
 document.addEventListener('DOMContentLoaded', function() {
-  // Inicializar validación de sesión
   validateSession();
   
-  // Event listener para detectar nuevas respuestas de admin
   setInterval(async () => {
     await verificarNuevasRespuestas();
-  }, 60000); // Verificar cada minuto
+  }, 60000);
   
-  // Cerrar modales al hacer clic fuera
   window.addEventListener('click', function(event) {
     const modalAyuda = document.getElementById('modalAyuda');
     const modalNotificacion = document.getElementById('modalNotificacion');
@@ -1038,7 +1265,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // Prevenir que los clics dentro del modal lo cierren
   document.querySelector('.contenido-ayuda').addEventListener('click', function(event) {
     event.stopPropagation();
   });
@@ -1048,7 +1274,6 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-// Función para verificar nuevas respuestas de administrador
 async function verificarNuevasRespuestas() {
   try {
     const { data, error } = await client
@@ -1056,7 +1281,7 @@ async function verificarNuevasRespuestas() {
       .select("id, asunto, respuesta_admin, fecha_respuesta, estado")
       .eq("usuario_id", currentUserId)
       .not("respuesta_admin", "is", null)
-      .gte("fecha_respuesta", new Date(Date.now() - 5 * 60 * 1000).toISOString()); // Últimos 5 minutos
+      .gte("fecha_respuesta", new Date(Date.now() - 5 * 60 * 1000).toISOString());
 
     if (error) {
       console.error('Error verificando respuestas:', error);
@@ -1064,14 +1289,12 @@ async function verificarNuevasRespuestas() {
     }
 
     if (data && data.length > 0) {
-      // Mostrar notificación de nueva respuesta
       const respuestasNuevas = data.length;
       mostrarNotificacion(
         `Tienes ${respuestasNuevas} nueva${respuestasNuevas > 1 ? 's' : ''} respuesta${respuestasNuevas > 1 ? 's' : ''} en tus tickets`,
         'success'
       );
       
-      // Actualizar el ícono de notificaciones
       actualizarIconoNotificaciones(true);
     }
     
@@ -1080,12 +1303,10 @@ async function verificarNuevasRespuestas() {
   }
 }
 
-// Función para actualizar el ícono de notificaciones
 function actualizarIconoNotificaciones(hayNuevas = false) {
   const iconoNotif = document.getElementById('botNotificacion');
   
   if (hayNuevas) {
-    // Agregar indicador de notificación nueva
     if (!iconoNotif.querySelector('.notification-badge')) {
       const badge = document.createElement('div');
       badge.className = 'notification-badge';
@@ -1105,11 +1326,10 @@ function actualizarIconoNotificaciones(hayNuevas = false) {
         font-weight: bold;
         animation: pulseNotif 2s infinite;
       `;
-      badge.textContent = '!';
+badge.textContent = '!';
       iconoNotif.style.position = 'relative';
       iconoNotif.appendChild(badge);
       
-      // Agregar animación de pulso
       if (!document.querySelector('#pulseAnimation')) {
         const pulseStyle = document.createElement('style');
         pulseStyle.id = 'pulseAnimation';
@@ -1126,27 +1346,6 @@ function actualizarIconoNotificaciones(hayNuevas = false) {
   }
 }
 
-// Función mejorada para el toggle de notificaciones
-function toggleNotificacion() {
-  const modal = document.getElementById("modalNotificacion");
-  const isVisible = modal.style.display === "block";
-  
-  if (!isVisible) {
-    // Mostrar modal y cargar notificaciones
-    modal.style.display = "block";
-    cargarNotificaciones();
-    
-    // Remover badge de notificación
-    const badge = document.querySelector('.notification-badge');
-    if (badge) {
-      badge.remove();
-    }
-  } else {
-    modal.style.display = "none";
-  }
-}
-
-// Función para cargar notificaciones
 async function cargarNotificaciones() {
   try {
     const { data, error } = await client
@@ -1231,31 +1430,6 @@ async function cargarNotificaciones() {
   }
 }
 
-// Función para mostrar un mensaje de éxito cuando se envía un ticket
-function mostrarMensajeExito() {
-  const mensaje = document.createElement('div');
-  mensaje.style.cssText = `
-    background: rgba(40, 167, 69, 0.2);
-    border: 2px solid #28a745;
-    color: #28a745;
-    padding: 10px;
-    border-radius: 5px;
-    margin: 10px 0;
-    text-align: center;
-    font-weight: bold;
-    animation: fadeInOut 3s ease;
-  `;
-  mensaje.innerHTML = '<i class="fas fa-check-circle"></i> Ticket enviado correctamente';
-  
-  const contenidoAyuda = document.querySelector('.contenido-ayuda');
-  contenidoAyuda.insertBefore(mensaje, document.getElementById('historialTickets'));
-  
-  setTimeout(() => {
-    mensaje.remove();
-  }, 3000);
-}
-
-// Agregar estilos adicionales para animaciones
 const additionalStyles = document.createElement('style');
 additionalStyles.textContent = `
   @keyframes fadeInOut {
@@ -1278,7 +1452,6 @@ additionalStyles.textContent = `
     box-shadow: 0 2px 10px rgba(255, 71, 87, 0.5);
   }
   
-  /* Mejorar scroll en modales */
   #modalAyuda::-webkit-scrollbar,
   #modalNotificacion::-webkit-scrollbar {
     width: 6px;
@@ -1303,7 +1476,6 @@ additionalStyles.textContent = `
 `;
 document.head.appendChild(additionalStyles);
 
-// Inicializar la aplicación
 validateSession();
 
 </script>
