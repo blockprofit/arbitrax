@@ -137,7 +137,7 @@
     }
 
     .historial {
-      max-width: 800px;
+      max-width: 900px;
       margin: 40px auto;
       background: rgba(0, 0, 0, 0.5);
       border-radius: 12px;
@@ -195,17 +195,17 @@
       font-weight: 600;
     }
 
-    .status-pending {
+    .status-pendiente {
       background-color: #fff3cd;
       color: #856404;
     }
 
-    .status-paid {
+    .status-pagado {
       background-color: #d1ecf1;
       color: #0c5460;
     }
 
-    .status-expired {
+    .status-rechazado {
       background-color: #f8d7da;
       color: #721c24;
     }
@@ -228,6 +228,68 @@
       font-size: 24px;
       font-weight: bold;
       color: #00ffc3;
+    }
+
+    .solicitud-info {
+      background: rgba(0, 168, 255, 0.1);
+      border: 1px solid #00a8ff;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #00a8ff;
+    }
+
+    .pending-alert {
+      background: rgba(255, 193, 7, 0.1);
+      border: 1px solid #ffc107;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #ffc107;
+      font-weight: bold;
+    }
+
+    .error-message {
+      background: rgba(220, 53, 69, 0.1);
+      border: 1px solid #dc3545;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #dc3545;
+      display: none;
+    }
+
+    .success-message {
+      background: rgba(25, 135, 84, 0.1);
+      border: 1px solid #198754;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #198754;
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .content {
+        padding: 20px;
+      }
+      
+      .historial {
+        margin: 20px auto;
+        padding: 15px;
+      }
+      
+      table {
+        font-size: 13px;
+      }
+      
+      th, td {
+        padding: 8px 5px;
+      }
     }
   </style>
 </head>
@@ -255,35 +317,57 @@
   <h2>🏊‍♂️ Participá en la Mini Pool Semanal</h2>
   <p class="mensaje-info">Duplicá tu inversión en solo 7 días con 100% de ganancia garantizada</p>
 
+  <!-- Mensaje de error -->
+  <div class="error-message" id="errorMessage"></div>
+  
+  <!-- Mensaje de éxito -->
+  <div class="success-message" id="successMessage"></div>
+
+  <!-- Información del saldo -->
   <div class="balance-info" id="balanceInfo" style="display: none;">
     <div>Tu saldo actual:</div>
     <div class="balance-amount" id="currentBalance">$0</div>
   </div>
 
+  <!-- Alerta de solicitudes pendientes -->
+  <div class="pending-alert" id="pendingAlert" style="display: none;">
+    <i class="fas fa-clock"></i> Tienes <span id="pendingCount">0</span> solicitudes pendientes de aprobación por el administrador.
+  </div>
+
+  <!-- Información sobre el proceso -->
+  <div class="solicitud-info">
+    <i class="fas fa-info-circle"></i>
+    <strong>¿Cómo funciona?</strong><br>
+    1. Seleccioná tu nivel y confirmá la solicitud<br>
+    2. El administrador revisará y aprobará tu solicitud<br>
+    3. Una vez aprobada, recibirás el doble en 7 días<br>
+  </div>
+
   <div class="formulario">
     <select id="entrada">
       <option value="">-- Seleccioná un minipool --</option>
-      <option value="minipool_basico">🥉 Básico - $<span id="precio-basico">10,000</span></option>
-      <option value="minipool_medio">🥈 Medio - $<span id="precio-medio">25,000</span></option>
-      <option value="minipool_avanzado">🥇 Avanzado - $<span id="precio-avanzado">50,000</span></option>
+      <option value="basico">🥉 Básico - $<span id="precio-basico">10,000</span></option>
+      <option value="medio">🥈 Medio - $<span id="precio-medio">25,000</span></option>
+      <option value="avanzado">🥇 Avanzado - $<span id="precio-avanzado">50,000</span></option>
     </select>
     <button id="btnParticipar" onclick="registrarEntrada()" disabled>
       <i class="fas fa-spinner fa-spin" id="loadingIcon" style="display: none;"></i>
-      Confirmar participación
+      <span id="btnText">Enviar Solicitud</span>
     </button>
   </div>
 
   <div class="historial" id="historialPool" style="display: none;">
-    <h3>🧾 Tus Inversiones en Minipools</h3>
+    <h3>🧾 Tus Solicitudes de Minipools</h3>
     <table>
       <thead>
         <tr>
-          <th>Tipo</th>
+          <th>Nivel</th>
           <th>Monto Invertido</th>
           <th>Monto a Recibir</th>
-          <th>Fecha Inversión</th>
-          <th>Vencimiento</th>
+          <th>Fecha Solicitud</th>
+          <th>Fecha Vencimiento</th>
           <th>Estado</th>
+          <th>Fecha Pago</th>
         </tr>
       </thead>
       <tbody id="tablaPool"></tbody>
@@ -304,15 +388,18 @@
   
   let currentUserId = null;
   let currentEmail = null;
+  let userName = null;
   let userBalance = 0;
+  let userRequests = [];
 
-  // Configuración de precios (sincronizada con admin)
+  // Configuración de precios (sincronizada con admin - valores por defecto)
   const poolConfig = {
-    'minipool_basico': { name: 'Básico', icon: '🥉', amount: 10000 },
-    'minipool_medio': { name: 'Medio', icon: '🥈', amount: 25000 },
-    'minipool_avanzado': { name: 'Avanzado', icon: '🥇', amount: 50000 }
+    'basico': { name: 'Básico', icon: '🥉', amount: 10000 },
+    'medio': { name: 'Medio', icon: '🥈', amount: 25000 },
+    'avanzado': { name: 'Avanzado', icon: '🥇', amount: 50000 }
   };
 
+  // Funciones de utilidad
   function formatCurrency(amount) {
     return new Intl.NumberFormat('es-AR', {
       style: 'currency',
@@ -337,31 +424,66 @@
     return result;
   }
 
-  async function init() {
+  function showMessage(message, type = 'success') {
+    const successEl = document.getElementById('successMessage');
+    const errorEl = document.getElementById('errorMessage');
+    
+    if (type === 'success') {
+      successEl.textContent = message;
+      successEl.style.display = 'block';
+      errorEl.style.display = 'none';
+    } else {
+      errorEl.textContent = message;
+      errorEl.style.display = 'block';
+      successEl.style.display = 'none';
+    }
+    
+    setTimeout(() => {
+      successEl.style.display = 'none';
+      errorEl.style.display = 'none';
+    }, 5000);
+  }
+
+  // Función para obtener datos del usuario
+  async function getUserInfo() {
     try {
       const { data: { session } } = await client.auth.getSession();
       if (!session) {
-        alert("Sesión expirada. Iniciá sesión nuevamente.");
-        return window.location.href = "index.html";
+        showMessage("Sesión expirada. Redirigiendo al login...", 'error');
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 2000);
+        return false;
       }
       
       currentUserId = session.user.id;
       currentEmail = session.user.email;
       
-      await Promise.all([
-        loadUserBalance(),
-        cargarHistorial(),
-        updatePriceDisplay()
-      ]);
+      // Obtener nombre del perfil si existe
+      try {
+        const { data: profile } = await client
+          .from('profiles')
+          .select('nombre, email')
+          .eq('id', currentUserId)
+          .maybeSingle();
+        
+        userName = profile?.nombre || currentEmail || 'Usuario';
+      } catch (profileError) {
+        console.log('No se pudo obtener el perfil:', profileError);
+        userName = currentEmail || 'Usuario';
+      }
       
-      document.getElementById('btnParticipar').disabled = false;
+      console.log('✅ Usuario autenticado:', currentEmail);
+      return true;
       
     } catch (error) {
-      console.error('Error inicializando:', error);
-      alert('Error cargando datos. Intentá recargar la página.');
+      console.error('Error obteniendo info de usuario:', error);
+      showMessage('Error de autenticación', 'error');
+      return false;
     }
   }
 
+  // Cargar saldo del usuario
   async function loadUserBalance() {
     try {
       const { data, error } = await client
@@ -384,22 +506,42 @@
         balanceInfo.style.display = 'block';
       }
       
+      console.log('💰 Saldo cargado:', formatCurrency(userBalance));
+      
     } catch (error) {
       console.error('Error cargando balance:', error);
       userBalance = 0;
     }
   }
 
+  // Actualizar precios en la interfaz
   function updatePriceDisplay() {
-    // Actualizar precios en las opciones (si quisieras hacerlo dinámico)
-    Object.keys(poolConfig).forEach(poolType => {
-      const element = document.getElementById(`precio-${poolType.split('_')[1]}`);
+    Object.keys(poolConfig).forEach(nivel => {
+      const element = document.getElementById(`precio-${nivel}`);
       if (element) {
-        element.textContent = poolConfig[poolType].amount.toLocaleString();
+        element.textContent = poolConfig[nivel].amount.toLocaleString();
       }
     });
   }
 
+  // Actualizar alerta de solicitudes pendientes
+  function updatePendingAlert() {
+    const pendingRequests = userRequests.filter(req => 
+      req.estado_pago === 'pendiente' || req.estado_pago === null
+    );
+    
+    const alertDiv = document.getElementById('pendingAlert');
+    const countSpan = document.getElementById('pendingCount');
+    
+    if (pendingRequests.length > 0) {
+      countSpan.textContent = pendingRequests.length;
+      alertDiv.style.display = 'block';
+    } else {
+      alertDiv.style.display = 'none';
+    }
+  }
+
+  // Funciones del sidebar
   function toggleSidebar() {
     document.getElementById("sidebar").classList.toggle("active");
   }
@@ -408,57 +550,67 @@
     document.getElementById("sidebar").classList.remove("active");
   }
 
+  // Función principal para registrar entrada
   async function registrarEntrada() {
-    const poolType = document.getElementById("entrada").value;
-    if (!poolType) {
-      return alert("Seleccioná un minipool válido.");
+    const nivel = document.getElementById("entrada").value;
+    if (!nivel) {
+      return showMessage("Seleccioná un minipool válido.", 'error');
     }
 
-    const poolInfo = poolConfig[poolType];
+    const poolInfo = poolConfig[nivel];
     if (!poolInfo) {
-      return alert("Tipo de minipool inválido.");
+      return showMessage("Tipo de minipool inválido.", 'error');
     }
 
-    // Verificar saldo (opcional)
-    if (userBalance < poolInfo.amount) {
-      return alert(`Saldo insuficiente. Necesitás ${formatCurrency(poolInfo.amount)} pero tenés ${formatCurrency(userBalance)}.`);
+    // Verificar si ya tiene una solicitud pendiente para este nivel
+    const existingPending = userRequests.find(req => 
+      req.nivel === nivel && 
+      (req.estado_pago === 'pendiente' || req.estado_pago === null)
+    );
+    
+    if (existingPending) {
+      return showMessage(`Ya tienes una solicitud pendiente para ${poolInfo.name}. Esperá a que sea procesada.`, 'error');
     }
 
-    if (!confirm(`¿Confirmar inversión en ${poolInfo.icon} ${poolInfo.name}?\n\nMonto: ${formatCurrency(poolInfo.amount)}\nGanancia: 100% (${formatCurrency(poolInfo.amount * 2)})\nTiempo: 7 días`)) {
+    // Confirmación
+    if (!confirm(`¿Confirmar solicitud para ${poolInfo.icon} ${poolInfo.name}?\n\nMonto: ${formatCurrency(poolInfo.amount)}\nGanancia esperada: 100% (${formatCurrency(poolInfo.amount * 2)})\nTiempo: 7 días\n\nLa solicitud será enviada al administrador para aprobación.`)) {
       return;
     }
 
     const btnParticipar = document.getElementById('btnParticipar');
     const loadingIcon = document.getElementById('loadingIcon');
+    const btnText = document.getElementById('btnText');
     
     try {
       btnParticipar.disabled = true;
       loadingIcon.style.display = 'inline-block';
+      btnText.textContent = 'Enviando...';
 
-      // 🔧 CORRECCIÓN CRÍTICA: meta: null en lugar de meta: 100
+      // Registrar en tabla mini_pool
       const registro = {
         usuario_id: currentUserId,
-        meta: null, // ✅ CORREGIDO: null para evitar constraint error
-        fecha: new Date().toISOString(),
+        nombre: userName,
+        email: currentEmail,
+        nivel: nivel,
         monto: poolInfo.amount,
-        moneda: 'ARS',
-        aprobado: false,
-        tipo: poolType
+        fecha_entrada: new Date().toISOString(),
+        estado_pago: 'pendiente',
+        fecha_pago: null
       };
 
-      const { error } = await client.from("recompensas").insert(registro);
+      const { error } = await client.from("mini_pool").insert(registro);
       
       if (error) {
-        console.error('Error insertando:', error);
+        console.error('Error insertando solicitud:', error);
         throw new Error(`Error del servidor: ${error.message}`);
       }
 
-      alert(`✅ ¡Inversión registrada exitosamente!\n\n${poolInfo.icon} ${poolInfo.name}: ${formatCurrency(poolInfo.amount)}\n\nRecibirás ${formatCurrency(poolInfo.amount * 2)} en 7 días.`);
+      showMessage(`✅ ¡Solicitud enviada exitosamente!\n\n${poolInfo.icon} ${poolInfo.name}: ${formatCurrency(poolInfo.amount)}\n\nTu solicitud será revisada por el administrador. Una vez aprobada, recibirás ${formatCurrency(poolInfo.amount * 2)} en tu balance.`);
       
       // Recargar datos
       await Promise.all([
-        loadUserBalance(),
-        cargarHistorial()
+        cargarHistorial(),
+        loadUserBalance()
       ]);
       
       // Limpiar selección
@@ -466,54 +618,61 @@
       
     } catch (error) {
       console.error('Error completo:', error);
-      alert(`❌ Error: ${error.message}`);
+      showMessage(`❌ Error enviando solicitud: ${error.message}`, 'error');
     } finally {
       btnParticipar.disabled = false;
       loadingIcon.style.display = 'none';
+      btnText.textContent = 'Enviar Solicitud';
     }
   }
 
+// Cargar historial desde tabla mini_pool
   async function cargarHistorial() {
     try {
       const { data, error } = await client
-        .from("recompensas")
+        .from("mini_pool")
         .select("*")
         .eq("usuario_id", currentUserId)
-        .in("tipo", ["minipool_basico", "minipool_medio", "minipool_avanzado"])
-        .order("fecha", { ascending: false });
+        .order("fecha_entrada", { ascending: false });
 
       const tabla = document.getElementById("tablaPool");
       const historial = document.getElementById("historialPool");
 
       if (error) {
         console.error('Error cargando historial:', error);
+        showMessage('Error cargando historial de solicitudes', 'error');
         return;
       }
 
-      if (!data || data.length === 0) {
+      userRequests = data || [];
+
+      if (userRequests.length === 0) {
         historial.style.display = "none";
+        updatePendingAlert();
         return;
       }
 
       historial.style.display = "block";
       tabla.innerHTML = "";
 
-      data.forEach(row => {
-        const poolInfo = poolConfig[row.tipo] || { name: row.tipo, icon: '🏊‍♂️' };
-        const fechaInversion = formatDate(row.fecha);
-        const fechaVencimiento = formatDate(addDaysToDate(new Date(row.fecha), 7));
+      userRequests.forEach(row => {
+        const poolInfo = poolConfig[row.nivel] || { name: row.nivel, icon: '🏊‍♂️' };
+        const fechaSolicitud = formatDate(row.fecha_entrada);
+        const fechaVencimiento = formatDate(addDaysToDate(new Date(row.fecha_entrada), 7));
         const montoRecibir = row.monto * 2;
-        const isExpired = new Date() > addDaysToDate(new Date(row.fecha), 7) && !row.aprobado;
         
-        let estadoClass = 'status-pending';
+        let estadoClass = 'status-pendiente';
         let estadoText = '⏳ Pendiente';
+        let fechaPago = '-';
         
-        if (row.aprobado) {
-          estadoClass = 'status-paid';
+        if (row.estado_pago === 'pagado') {
+          estadoClass = 'status-pagado';
           estadoText = '✅ Pagado';
-        } else if (isExpired) {
-          estadoClass = 'status-expired';
-          estadoText = '⚠️ Vencido';
+          fechaPago = row.fecha_pago ? formatDate(row.fecha_pago) : 'Procesado';
+        } else if (row.estado_pago === 'rechazado') {
+          estadoClass = 'status-rechazado';
+          estadoText = '❌ Rechazado';
+          fechaPago = 'No aplica';
         }
 
         tabla.innerHTML += `
@@ -521,45 +680,168 @@
             <td>${poolInfo.icon} ${poolInfo.name}</td>
             <td>${formatCurrency(row.monto)}</td>
             <td>${formatCurrency(montoRecibir)}</td>
-            <td>${fechaInversion}</td>
+            <td>${fechaSolicitud}</td>
             <td>${fechaVencimiento}</td>
             <td><span class="status ${estadoClass}">${estadoText}</span></td>
+            <td>${fechaPago}</td>
           </tr>
         `;
       });
+
+      // Actualizar alerta de pendientes
+      updatePendingAlert();
+      
+      console.log('📋 Historial cargado:', userRequests.length, 'solicitudes');
       
     } catch (error) {
       console.error('Error cargando historial:', error);
+      showMessage('Error cargando historial', 'error');
     }
   }
 
+  // Función de logout
   async function logout() {
-    await client.auth.signOut();
-    window.location.href = "index.html";
+    try {
+      await client.auth.signOut();
+      window.location.href = "index.html";
+    } catch (error) {
+      console.error('Error en logout:', error);
+      window.location.href = "index.html";
+    }
   }
 
-  // Suscripción a cambios en tiempo real
-  const realtimeSubscription = client
-    .channel('user_recompensas_changes')
-    .on('postgres_changes', 
-      { 
-        event: '*', 
-        schema: 'public', 
-        table: 'recompensas',
-        filter: `usuario_id=eq.${currentUserId}`
-      }, 
-      (payload) => {
-        console.log('Cambio detectado en recompensas:', payload);
-        // Recargar historial y balance después de cambios
-        setTimeout(() => {
-          cargarHistorial();
-          loadUserBalance();
-        }, 1000);
+// Función principal de inicialización
+  async function init() {
+    try {
+      console.log('🏊‍♂️ Iniciando Minipool Usuario...');
+      
+      // Verificar autenticación
+      const isAuthenticated = await getUserInfo();
+      if (!isAuthenticated) {
+        return;
       }
-    )
-    .subscribe();
+      
+      // Cargar todos los datos
+      await Promise.all([
+        loadUserBalance(),
+        cargarHistorial(),
+        updatePriceDisplay()
+      ]);
+      
+      // Habilitar botón
+      document.getElementById('btnParticipar').disabled = false;
+      
+      console.log('✅ Minipool Usuario iniciado correctamente');
+      
+    } catch (error) {
+      console.error('Error inicializando:', error);
+      showMessage('Error cargando datos. Intentá recargar la página.', 'error');
+    }
+  }
 
-  init();
+  // Suscripción a cambios en tiempo real para mini_pool
+  let realtimeSubscription = null;
+
+  function setupRealtimeSubscription() {
+    if (!currentUserId) return;
+
+    // Limpiar suscripción existente
+    if (realtimeSubscription) {
+      realtimeSubscription.unsubscribe();
+    }
+
+    realtimeSubscription = client
+      .channel('user_minipool_changes')
+      .on('postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'mini_pool',
+          filter: `usuario_id=eq.${currentUserId}`
+        }, 
+        (payload) => {
+          console.log('📡 Cambio detectado en mini_pool:', payload);
+          
+          // Recargar datos después de un cambio
+          setTimeout(async () => {
+            await cargarHistorial();
+            await loadUserBalance();
+            
+            // Si es una aprobación, mostrar mensaje
+            if (payload.eventType === 'UPDATE' && payload.new?.estado_pago === 'pagado') {
+              const poolInfo = poolConfig[payload.new.nivel] || { name: payload.new.nivel, icon: '🏊‍♂️' };
+              const montoRecibido = payload.new.monto * 2;
+              showMessage(`🎉 ¡Tu solicitud de ${poolInfo.icon} ${poolInfo.name} fue aprobada!\nRecibirás ${formatCurrency(montoRecibido)} en tu balance.`);
+            }
+            
+            // Si es un rechazo, mostrar mensaje
+            if (payload.eventType === 'UPDATE' && payload.new?.estado_pago === 'rechazado') {
+              const poolInfo = poolConfig[payload.new.nivel] || { name: payload.new.nivel, icon: '🏊‍♂️' };
+              showMessage(`❌ Tu solicitud de ${poolInfo.icon} ${poolInfo.name} fue rechazada por el administrador.`, 'error');
+            }
+          }, 1000);
+        }
+      )
+      .subscribe();
+  }
+
+  // Suscripción a cambios en balances
+  let balanceSubscription = null;
+
+  function setupBalanceSubscription() {
+    if (!currentUserId) return;
+
+    // Limpiar suscripción existente
+    if (balanceSubscription) {
+      balanceSubscription.unsubscribe();
+    }
+
+    balanceSubscription = client
+      .channel('user_balance_changes')
+      .on('postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'balances',
+          filter: `usuario_id=eq.${currentUserId}`
+        }, 
+        (payload) => {
+          console.log('💰 Cambio detectado en balance:', payload);
+          
+          // Recargar balance después de un cambio
+          setTimeout(async () => {
+            await loadUserBalance();
+          }, 500);
+        }
+      )
+      .subscribe();
+  }
+
+  // Event listeners y inicialización
+  document.addEventListener('DOMContentLoaded', async () => {
+    await init();
+    
+    // Configurar suscripciones de tiempo real una vez autenticado
+    if (currentUserId) {
+      setupRealtimeSubscription();
+      setupBalanceSubscription();
+    }
+  });
+
+  // Limpiar suscripciones al salir
+  window.addEventListener('beforeunload', () => {
+    if (realtimeSubscription) {
+      realtimeSubscription.unsubscribe();
+    }
+    if (balanceSubscription) {
+      balanceSubscription.unsubscribe();
+    }
+  });
+
+  console.log('🎯 Minipool Usuario - Sistema cargado');
+  console.log('📋 Funcionalidades: solicitudes, historial, tiempo real');
+  console.log('💰 Integrado con sistema de balances y admin');
+
 </script>
 </body>
 </html>
