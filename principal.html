@@ -7,7 +7,6 @@
   <!-- Cambié el favicon a favicon.png -->
   <link rel="icon" href="favicon.png" type="image/png" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
     body {
@@ -234,7 +233,7 @@
       text-shadow: 0 0 20px currentColor;
     }
 
-    /* Colores específicos para cada card - COMO ESTABA ORIGINALMENTE */
+    /* Colores específicos para cada card */
     .card:nth-child(1) {
       border-color: #00d4ff;
     }
@@ -275,16 +274,71 @@
       color: #2ed573;
     }
 
-    /* GRÁFICA ORIGINAL - TAMAÑO FIJO COMO ESTABA */
-    #graficaGanancias {
+    /* NUEVA GRÁFICA SIMPLE CON CSS */
+    .simple-chart {
       width: 100%;
       max-width: 800px;
-      height: 300px !important;
+      height: 300px;
       background: rgba(0,0,0,0.4);
       padding: 20px;
       border-radius: 12px;
       margin: 0 auto;
-      display: block;
+      display: flex;
+      flex-direction: column;
+      backdrop-filter: blur(15px);
+      border: 2px solid rgba(0, 195, 255, 0.3);
+    }
+
+    .chart-title {
+      color: #00c3ff;
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .chart-bars {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      height: 200px;
+      margin-bottom: 10px;
+    }
+
+    .bar {
+      width: 40px;
+      background: linear-gradient(to top, #00d4ff, #00ffcc);
+      border-radius: 4px 4px 0 0;
+      transition: all 0.3s ease;
+      position: relative;
+      margin: 0 5px;
+    }
+
+    .bar:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0, 212, 255, 0.5);
+    }
+
+    .bar-value {
+      position: absolute;
+      top: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .chart-labels {
+      display: flex;
+      justify-content: space-around;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 14px;
+    }
+
+    .chart-label {
+      text-align: center;
+      width: 50px;
     }
 
 /* PERFIL - ESTILO TRIVIA (NO TOCAR - YA ESTÁ ACTUALIZADA) */
@@ -665,8 +719,18 @@
         padding: 20px;
       }
       
-      #graficaGanancias {
-        height: 250px !important;
+      .simple-chart {
+        height: 250px;
+        padding: 15px;
+      }
+      
+      .chart-bars {
+        height: 150px;
+      }
+      
+      .bar {
+        width: 30px;
+        margin: 0 3px;
       }
       
       .formulario {
@@ -738,8 +802,42 @@
       </div>
     </div>
 
-    <!-- GRÁFICA ORIGINAL SIMPLE -->
-    <canvas id="graficaGanancias"></canvas>
+  <!-- NUEVA GRÁFICA SIMPLE -->
+    <div class="simple-chart">
+      <div class="chart-title">Ganancias de los últimos 7 días</div>
+      <div class="chart-bars" id="chartBars">
+        <div class="bar" style="height: 60px;" data-day="0">
+          <div class="bar-value">$0</div>
+        </div>
+        <div class="bar" style="height: 80px;" data-day="1">
+          <div class="bar-value">$0</div>
+        </div>
+        <div class="bar" style="height: 50px;" data-day="2">
+          <div class="bar-value">$0</div>
+        </div>
+        <div class="bar" style="height: 90px;" data-day="3">
+          <div class="bar-value">$0</div>
+        </div>
+        <div class="bar" style="height: 70px;" data-day="4">
+          <div class="bar-value">$0</div>
+        </div>
+        <div class="bar" style="height: 100px;" data-day="5">
+          <div class="bar-value">$0</div>
+        </div>
+        <div class="bar" style="height: 85px;" data-day="6">
+          <div class="bar-value">$0</div>
+        </div>
+      </div>
+      <div class="chart-labels">
+        <div class="chart-label">Lun</div>
+        <div class="chart-label">Mar</div>
+        <div class="chart-label">Mié</div>
+        <div class="chart-label">Jue</div>
+        <div class="chart-label">Vie</div>
+        <div class="chart-label">Sáb</div>
+        <div class="chart-label">Dom</div>
+      </div>
+    </div>
   </div>
 
   <div id="perfil" class="section">
@@ -824,11 +922,11 @@ async function validateSession() {
   await obtenerSaldoDisponible();
   await cargarDatosFinancierosDinamicos();
   actualizarGananciasDinamicas();
-  crearGraficaConDatosReales(); // Crear gráfica con datos reales pero tamaño fijo
+  actualizarGraficaSimple(); // Actualizar gráfica simple
 
   setInterval(actualizarGananciasDinamicas, 60000);
   setInterval(cargarHistorialTickets, 30000);
-  setInterval(crearGraficaConDatosReales, 300000); // Actualizar gráfica cada 5 minutos
+  setInterval(actualizarGraficaSimple, 300000); // Actualizar gráfica cada 5 minutos
 }
 
 async function cargarPerfil() {
@@ -868,8 +966,8 @@ async function guardarPerfil() {
   showSection("welcome");
 }
 
-// FUNCIÓN PARA CREAR GRÁFICA SIMPLE CON DATOS REALES - TAMAÑO FIJO
-async function crearGraficaConDatosReales() {
+// FUNCIÓN PARA ACTUALIZAR LA GRÁFICA SIMPLE CON DATOS REALES
+async function actualizarGraficaSimple() {
   try {
     // Obtener datos de recompensas de los últimos 7 días
     const fechaInicio = new Date();
@@ -883,7 +981,6 @@ async function crearGraficaConDatosReales() {
       .gte("fecha", fechaInicio.toISOString());
 
     // Crear datos para los últimos 7 días
-    const labels = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
     const datosGrafica = [0, 0, 0, 0, 0, 0, 0];
     
     // Llenar con ganancias por inversión (simuladas diarias)
@@ -908,84 +1005,35 @@ async function crearGraficaConDatosReales() {
       });
     }
 
-    // Crear la gráfica original simple CON TAMAÑO FIJO
-    const ctx = document.getElementById('graficaGanancias').getContext('2d');
+    // Actualizar las barras con los datos reales
+    const bars = document.querySelectorAll('.bar');
+    const maxValue = Math.max(...datosGrafica, 100); // Al menos 100 para que se vea bien
     
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Ganancias diarias',
-          data: datosGrafica,
-          borderColor: '#00d4ff',
-          backgroundColor: 'transparent',
-          tension: 0.4,
-          pointBackgroundColor: '#00d4ff',
-          pointRadius: 4
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false, // IMPORTANTE: Mantener false pero con tamaño fijo en CSS
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: { color: 'white' },
-            grid: { color: 'rgba(255,255,255,0.1)' }
-          },
-          x: {
-            ticks: { color: 'white' },
-            grid: { color: 'rgba(255,255,255,0.05)' }
-          }
-        },
-        plugins: {
-          legend: { display: false }
-        }
-      }
+    bars.forEach((bar, index) => {
+      const valor = datosGrafica[index];
+      const altura = Math.max((valor / maxValue) * 180, 10); // Altura mínima de 10px
+      
+      bar.style.height = `${altura}px`;
+      bar.querySelector('.bar-value').textContent = `$${valor.toFixed(0)}`;
     });
 
   } catch (error) {
-    console.error('Error creando gráfica con datos reales:', error);
-    // Si hay error, crear gráfica con datos por defecto
-    crearGraficaPorDefecto();
+    console.error('Error actualizando gráfica simple:', error);
+    // Si hay error, mostrar datos por defecto
+    actualizarGraficaPorDefecto();
   }
 }
 
-function crearGraficaPorDefecto() {
-  const ctx = document.getElementById('graficaGanancias').getContext('2d');
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: ['L', 'M', 'X', 'J', 'V', 'S', 'D'],
-      datasets: [{
-        label: 'Ganancias diarias',
-        data: [120, 300, 180, 260, 210, 400, 370],
-        borderColor: '#00d4ff',
-        backgroundColor: 'transparent',
-        tension: 0.4,
-        pointBackgroundColor: '#00d4ff',
-        pointRadius: 4
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: { color: 'white' },
-          grid: { color: 'rgba(255,255,255,0.1)' }
-        },
-        x: {
-          ticks: { color: 'white' },
-          grid: { color: 'rgba(255,255,255,0.05)' }
-        }
-      },
-      plugins: {
-        legend: { display: false }
-      }
-    }
+function actualizarGraficaPorDefecto() {
+  const bars = document.querySelectorAll('.bar');
+  const datosDefault = [120, 300, 180, 260, 210, 400, 370];
+  
+  bars.forEach((bar, index) => {
+    const valor = datosDefault[index];
+    const altura = (valor / 400) * 180; // 400 es el máximo en datos default
+    
+    bar.style.height = `${altura}px`;
+    bar.querySelector('.bar-value').textContent = `$${valor}`;
   });
 }
 
