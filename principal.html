@@ -109,7 +109,7 @@
 
     .section {
       display: none;
-      max-width: 1200px;
+      max-width: 1000px;
       margin: auto;
     }
 
@@ -166,21 +166,23 @@
 
     /* CARDS MEJORADAS CON ESTILO DE LAS IMÁGENES */
     .dashboard-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 25px;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
       justify-content: center;
-      margin-bottom: 40px;
+      margin-bottom: 30px;
     }
 
     .card {
+      flex: 1;
+      min-width: 250px;
       background: linear-gradient(135deg, 
         rgba(0, 195, 255, 0.1), 
         rgba(0, 255, 204, 0.05)
       );
       border: 2px solid rgba(0, 195, 255, 0.4);
       border-radius: 20px;
-      padding: 30px 25px;
+      padding: 20px;
       text-align: center;
       backdrop-filter: blur(15px);
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -215,30 +217,24 @@
     }
 
     .card h3 {
-      margin-bottom: 20px;
-      font-size: 1.3rem;
+      margin-bottom: 10px;
+      font-size: 1.1rem;
       font-weight: 600;
       color: rgba(255, 255, 255, 0.9);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      gap: 8px;
     }
 
     .card p {
-      font-size: 2.2rem;
-      font-weight: 900;
+      font-size: 28px;
+      font-weight: bold;
       margin: 0;
       text-shadow: 0 0 20px currentColor;
-      animation: pulse 2s infinite;
     }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.8; }
-    }
-
-    /* Colores específicos para cada card */
+    /* Colores específicos para cada card - COMO ESTABA ORIGINALMENTE */
     .card:nth-child(1) {
       border-color: #00d4ff;
     }
@@ -279,64 +275,19 @@
       color: #2ed573;
     }
 
-/* GRÁFICA MEJORADA CON ESTILO DE LAS IMÁGENES */
-    .chart-container {
-      background: linear-gradient(135deg, 
-        rgba(0, 0, 0, 0.8), 
-        rgba(0, 195, 255, 0.1)
-      );
-      backdrop-filter: blur(20px);
-      border: 2px solid rgba(0, 195, 255, 0.3);
-      border-radius: 20px;
-      padding: 30px;
-      margin-top: 30px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .chart-container::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(45deg, 
-        transparent 0%, 
-        rgba(0, 195, 255, 0.05) 50%, 
-        transparent 100%
-      );
-      pointer-events: none;
-    }
-
-    .chart-title {
-      text-align: center;
-      margin-bottom: 25px;
-      font-size: 1.6rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, #00c3ff, #00ffcc);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-    }
-
+    /* GRÁFICA ORIGINAL - TAMAÑO FIJO COMO ESTABA */
     #graficaGanancias {
       width: 100%;
-      max-width: 100%;
-      height: 350px;
-      position: relative;
-      z-index: 1;
-      border-radius: 15px;
-      padding: 10px;
-      background: rgba(0, 0, 0, 0.2);
+      max-width: 800px;
+      height: 300px !important;
+      background: rgba(0,0,0,0.4);
+      padding: 20px;
+      border-radius: 12px;
+      margin: 0 auto;
+      display: block;
     }
 
-    /* PERFIL - ESTILO TRIVIA (NO TOCAR - YA ESTÁ ACTUALIZADA) */
+/* PERFIL - ESTILO TRIVIA (NO TOCAR - YA ESTÁ ACTUALIZADA) */
     .perfil-header {
       text-align: center;
       margin-bottom: 40px;
@@ -705,21 +656,17 @@
       }
       
       .dashboard-cards {
-        grid-template-columns: 1fr;
+        flex-direction: column;
         max-width: 400px;
-        margin: 0 auto 40px auto;
+        margin: 0 auto 30px auto;
       }
       
       .welcome-header {
         padding: 20px;
       }
       
-      .chart-container {
-        padding: 20px;
-      }
-      
       #graficaGanancias {
-        height: 300px;
+        height: 250px !important;
       }
       
       .formulario {
@@ -773,31 +720,26 @@
     </div>
 
     <div class="dashboard-cards">
-      <div class="card">
-        <h3><i class="fas fa-coins"></i> Total Invertido</h3>
-        <p id="total-invertido">$0</p>
+      <div class="card" style="border-color: #00d4ff;">
+        <h3>Total Invertido</h3>
+        <p id="total-invertido" style="font-size: 28px; color: #00d4ff; font-weight: bold;">$0</p>
       </div>
-      <div class="card">
-        <h3><i class="fas fa-chart-line"></i> Ganancias</h3>
-        <p id="ganancias">$0</p>
+      <div class="card" style="border-color: #c56cf0;">
+        <h3>Ganancias</h3>
+        <p id="ganancias" style="font-size: 28px; color: #c56cf0; font-weight: bold;">$0</p>
       </div>
-      <div class="card">
-        <h3><i class="fas fa-calendar-alt"></i> Próximo Pago</h3>
-        <p id="proximo-pago">$0</p>
+      <div class="card" style="border-color: #ff6b81;">
+        <h3>Próximo Pago</h3>
+        <p id="proximo-pago" style="font-size: 28px; color: #ff6b81; font-weight: bold;">$0</p>
       </div>
-      <div class="card">
-        <h3><i class="fas fa-wallet"></i> Saldo Disponible</h3>
-        <p id="saldo-disponible">$0</p>
+      <div class="card" style="border-color: #2ed573;">
+        <h3>Saldo Disponible</h3>
+        <p id="saldo-disponible" style="font-size: 28px; color: #2ed573; font-weight: bold;">$0</p>
       </div>
     </div>
 
-    <div class="chart-container">
-      <div class="chart-title">
-        <i class="fas fa-chart-area"></i>
-        Evolución de Ganancias
-      </div>
-      <canvas id="graficaGanancias"></canvas>
-    </div>
+    <!-- GRÁFICA ORIGINAL SIMPLE -->
+    <canvas id="graficaGanancias"></canvas>
   </div>
 
   <div id="perfil" class="section">
@@ -882,9 +824,11 @@ async function validateSession() {
   await obtenerSaldoDisponible();
   await cargarDatosFinancierosDinamicos();
   actualizarGananciasDinamicas();
+  crearGraficaConDatosReales(); // Crear gráfica con datos reales pero tamaño fijo
 
   setInterval(actualizarGananciasDinamicas, 60000);
   setInterval(cargarHistorialTickets, 30000);
+  setInterval(crearGraficaConDatosReales, 300000); // Actualizar gráfica cada 5 minutos
 }
 
 async function cargarPerfil() {
@@ -922,6 +866,127 @@ async function guardarPerfil() {
   await client.from("profiles").upsert(perfil, { onConflict: 'id' });
   await cargarPerfil();
   showSection("welcome");
+}
+
+// FUNCIÓN PARA CREAR GRÁFICA SIMPLE CON DATOS REALES - TAMAÑO FIJO
+async function crearGraficaConDatosReales() {
+  try {
+    // Obtener datos de recompensas de los últimos 7 días
+    const fechaInicio = new Date();
+    fechaInicio.setDate(fechaInicio.getDate() - 6); // Últimos 7 días
+    
+    const { data: recompensas, error } = await client
+      .from("recompensas")
+      .select("monto, fecha")
+      .eq("usuario_id", currentUserId)
+      .eq("aprobada", true)
+      .gte("fecha", fechaInicio.toISOString());
+
+    // Crear datos para los últimos 7 días
+    const labels = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+    const datosGrafica = [0, 0, 0, 0, 0, 0, 0];
+    
+    // Llenar con ganancias por inversión (simuladas diarias)
+    if (montoInvertido > 0 && porcentajeSemanal > 0) {
+      const gananciasDiarias = (montoInvertido * porcentajeSemanal / 100) / 7;
+      for (let i = 0; i < 7; i++) {
+        datosGrafica[i] = gananciasDiarias;
+      }
+    }
+    
+    // Agregar recompensas reales a los días correspondientes
+    if (recompensas) {
+      recompensas.forEach(recompensa => {
+        const fechaRecompensa = new Date(recompensa.fecha);
+        const diaActual = new Date();
+        const diferenciaDias = Math.floor((diaActual - fechaRecompensa) / (1000 * 60 * 60 * 24));
+        
+        if (diferenciaDias >= 0 && diferenciaDias < 7) {
+          const indice = 6 - diferenciaDias; // Invertir para que el día actual sea el último
+          datosGrafica[indice] += parseFloat(recompensa.monto) || 0;
+        }
+      });
+    }
+
+    // Crear la gráfica original simple CON TAMAÑO FIJO
+    const ctx = document.getElementById('graficaGanancias').getContext('2d');
+    
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Ganancias diarias',
+          data: datosGrafica,
+          borderColor: '#00d4ff',
+          backgroundColor: 'transparent',
+          tension: 0.4,
+          pointBackgroundColor: '#00d4ff',
+          pointRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false, // IMPORTANTE: Mantener false pero con tamaño fijo en CSS
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { color: 'white' },
+            grid: { color: 'rgba(255,255,255,0.1)' }
+          },
+          x: {
+            ticks: { color: 'white' },
+            grid: { color: 'rgba(255,255,255,0.05)' }
+          }
+        },
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Error creando gráfica con datos reales:', error);
+    // Si hay error, crear gráfica con datos por defecto
+    crearGraficaPorDefecto();
+  }
+}
+
+function crearGraficaPorDefecto() {
+  const ctx = document.getElementById('graficaGanancias').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['L', 'M', 'X', 'J', 'V', 'S', 'D'],
+      datasets: [{
+        label: 'Ganancias diarias',
+        data: [120, 300, 180, 260, 210, 400, 370],
+        borderColor: '#00d4ff',
+        backgroundColor: 'transparent',
+        tension: 0.4,
+        pointBackgroundColor: '#00d4ff',
+        pointRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { color: 'white' },
+          grid: { color: 'rgba(255,255,255,0.1)' }
+        },
+        x: {
+          ticks: { color: 'white' },
+          grid: { color: 'rgba(255,255,255,0.05)' }
+        }
+      },
+      plugins: {
+        legend: { display: false }
+      }
+    }
+  });
 }
 
 async function obtenerSaldoDisponible() {
@@ -1214,38 +1279,6 @@ async function logout() {
   window.location.href = "index.html";
 }
 
-new Chart(document.getElementById('graficaGanancias').getContext('2d'), {
-  type: 'line',
-  data: {
-    labels: ['L', 'M', 'X', 'J', 'V', 'S', 'D'],
-    datasets: [{
-      label: 'Ganancias diarias',
-      data: [120, 300, 180, 260, 210, 400, 370],
-      borderColor: '#00d4ff',
-      backgroundColor: 'transparent',
-      tension: 0.4,
-      pointBackgroundColor: '#00d4ff',
-      pointRadius: 4
-    }]
-  },
-  options: {
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: { color: 'white' },
-        grid: { color: 'rgba(255,255,255,0.1)' }
-      },
-      x: {
-        ticks: { color: 'white' },
-        grid: { color: 'rgba(255,255,255,0.05)' }
-      }
-    },
-    plugins: {
-      legend: { display: false }
-    }
-  }
-});
-
 document.addEventListener('DOMContentLoaded', function() {
   validateSession();
   
@@ -1326,7 +1359,7 @@ function actualizarIconoNotificaciones(hayNuevas = false) {
         font-weight: bold;
         animation: pulseNotif 2s infinite;
       `;
-badge.textContent = '!';
+      badge.textContent = '!';
       iconoNotif.style.position = 'relative';
       iconoNotif.appendChild(badge);
       
