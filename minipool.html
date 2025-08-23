@@ -378,21 +378,18 @@
   <div class="credit">Imagen de fondo: fondodepantallaprincipal1.jpeg</div>
 </div>
 
-</body>
-</html>
-
 <script>
   const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
   const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   
+  // Variables globales
   let currentUserId = null;
   let currentEmail = null;
-  let userName = null;
+  let currentUserName = null;
   let userBalance = 0;
-  let userRequests = [];
 
-  // Configuración de precios (sincronizada con admin - valores por defecto)
+  // Configuración de precios (sincronizada con admin)
   const poolConfig = {
     'basico': { name: 'Básico', icon: '🥉', amount: 10000 },
     'medio': { name: 'Medio', icon: '🥈', amount: 25000 },
@@ -400,6 +397,27 @@
   };
 
   // Funciones de utilidad
+  function showMessage(message, type = 'success') {
+    const errorEl = document.getElementById('errorMessage');
+    const successEl = document.getElementById('successMessage');
+    
+    if (type === 'success') {
+      successEl.textContent = message;
+      successEl.style.display = 'block';
+      errorEl.style.display = 'none';
+    } else {
+      errorEl.textContent = message;
+      errorEl.style.display = 'block';
+      successEl.style.display = 'none';
+    }
+    
+    // Ocultar después de 5 segundos
+    setTimeout(() => {
+      successEl.style.display = 'none';
+      errorEl.style.display = 'none';
+    }, 5000);
+  }
+
   function formatCurrency(amount) {
     return new Intl.NumberFormat('es-AR', {
       style: 'currency',
@@ -424,66 +442,55 @@
     return result;
   }
 
-  function showMessage(message, type = 'success') {
-    const successEl = document.getElementById('successMessage');
-    const errorEl = document.getElementById('errorMessage');
-    
-    if (type === 'success') {
-      successEl.textContent = message;
-      successEl.style.display = 'block';
-      errorEl.style.display = 'none';
-    } else {
-      errorEl.textContent = message;
-      errorEl.style.display = 'block';
-      successEl.style.display = 'none';
-    }
-    
-    setTimeout(() => {
-      successEl.style.display = 'none';
-      errorEl.style.display = 'none';
-    }, 5000);
+  // Funciones del sidebar
+  function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("active");
   }
 
-  // Función para obtener datos del usuario
-  async function getUserInfo() {
+  function closeSidebar() {
+    document.getElementById("sidebar").classList.remove("active");
+  }
+
+  async function logout() {
+    await client.auth.signOut();
+    window.location.href = "index.html";
+  }
+
+  // Cargar información del usuario
+  async function loadUserInfo() {
     try {
       const { data: { session } } = await client.auth.getSession();
       if (!session) {
         showMessage("Sesión expirada. Redirigiendo al login...", 'error');
-        setTimeout(() => {
-          window.location.href = "index.html";
-        }, 2000);
+        setTimeout(() => window.location.href = "index.html", 2000);
         return false;
       }
       
       currentUserId = session.user.id;
       currentEmail = session.user.email;
       
-      // Obtener nombre del perfil si existe
+      // Obtener nombre del usuario desde profiles si existe
       try {
-        const { data: profile } = await client
+        const { data: profileData } = await client
           .from('profiles')
-          .select('nombre, email')
+          .select('email')
           .eq('id', currentUserId)
           .maybeSingle();
         
-        userName = profile?.nombre || currentEmail || 'Usuario';
-      } catch (profileError) {
-        console.log('No se pudo obtener el perfil:', profileError);
-        userName = currentEmail || 'Usuario';
+        currentUserName = profileData?.email || currentEmail || 'Usuario';
+      } catch (error) {
+        currentUserName = currentEmail || 'Usuario';
       }
       
-      console.log('✅ Usuario autenticado:', currentEmail);
       return true;
-      
     } catch (error) {
-      console.error('Error obteniendo info de usuario:', error);
+      console.error('Error cargando información del usuario:', error);
       showMessage('Error de autenticación', 'error');
       return false;
     }
   }
 
-  // Cargar saldo del usuario
+  // Cargar saldo del usuario desde balances
   async function loadUserBalance() {
     try {
       const { data, error } = await client
@@ -506,8 +513,6 @@
         balanceInfo.style.display = 'block';
       }
       
-      console.log('💰 Saldo cargado:', formatCurrency(userBalance));
-      
     } catch (error) {
       console.error('Error cargando balance:', error);
       userBalance = 0;
@@ -525,15 +530,11 @@
   }
 
   // Actualizar alerta de solicitudes pendientes
-  function updatePendingAlert() {
-    const pendingRequests = userRequests.filter(req => 
-      req.estado_pago === 'pendiente' || req.estado_pago === null
-    );
-    
+  function updatePendingAlert(pendingRequests) {
     const alertDiv = document.getElementById('pendingAlert');
     const countSpan = document.getElementById('pendingCount');
     
-    if (pendingRequests.length > 0) {
+    if (pendingRequests && pendingRequests.length > 0) {
       countSpan.textContent = pendingRequests.length;
       alertDiv.style.display = 'block';
     } else {
@@ -541,20 +542,11 @@
     }
   }
 
-  // Funciones del sidebar
-  function toggleSidebar() {
-    document.getElementById("sidebar").classList.toggle("active");
-  }
-
-  function closeSidebar() {
-    document.getElementById("sidebar").classList.remove("active");
-  }
-
-  // Función principal para registrar entrada
+  // Función principal para registrar entrada usando tabla mini_pool
   async function registrarEntrada() {
     const nivel = document.getElementById("entrada").value;
     if (!nivel) {
-      return showMessage("Seleccioná un minipool válido.", 'error');
+      return showMessage("Selecciona un minipool válido.", 'error');
     }
 
     const poolInfo = poolConfig[nivel];
@@ -562,18 +554,12 @@
       return showMessage("Tipo de minipool inválido.", 'error');
     }
 
-    // Verificar si ya tiene una solicitud pendiente para este nivel
-    const existingPending = userRequests.find(req => 
-      req.nivel === nivel && 
-      (req.estado_pago === 'pendiente' || req.estado_pago === null)
-    );
-    
-    if (existingPending) {
-      return showMessage(`Ya tienes una solicitud pendiente para ${poolInfo.name}. Esperá a que sea procesada.`, 'error');
+    // Verificar saldo (opcional)
+    if (userBalance < poolInfo.amount) {
+      return showMessage(`Saldo insuficiente. Necesitas ${formatCurrency(poolInfo.amount)} pero tienes ${formatCurrency(userBalance)}.`, 'error');
     }
 
-    // Confirmación
-    if (!confirm(`¿Confirmar solicitud para ${poolInfo.icon} ${poolInfo.name}?\n\nMonto: ${formatCurrency(poolInfo.amount)}\nGanancia esperada: 100% (${formatCurrency(poolInfo.amount * 2)})\nTiempo: 7 días\n\nLa solicitud será enviada al administrador para aprobación.`)) {
+    if (!confirm(`¿Confirmar solicitud de inversión en ${poolInfo.icon} ${poolInfo.name}?\n\nMonto: ${formatCurrency(poolInfo.amount)}\nGanancia: 100% (${formatCurrency(poolInfo.amount * 2)})\nTiempo: 7 días\n\nLa solicitud será revisada por el administrador.`)) {
       return;
     }
 
@@ -586,31 +572,30 @@
       loadingIcon.style.display = 'inline-block';
       btnText.textContent = 'Enviando...';
 
-      // Registrar en tabla mini_pool
+      // Registrar en tabla mini_pool (conectada con admin)
       const registro = {
         usuario_id: currentUserId,
-        nombre: userName,
+        nombre: currentUserName,
         email: currentEmail,
         nivel: nivel,
         monto: poolInfo.amount,
         fecha_entrada: new Date().toISOString(),
-        estado_pago: 'pendiente',
-        fecha_pago: null
+        estado_pago: 'pendiente' // El admin debe aprobar
       };
 
       const { error } = await client.from("mini_pool").insert(registro);
       
       if (error) {
-        console.error('Error insertando solicitud:', error);
+        console.error('Error insertando en mini_pool:', error);
         throw new Error(`Error del servidor: ${error.message}`);
       }
 
-      showMessage(`✅ ¡Solicitud enviada exitosamente!\n\n${poolInfo.icon} ${poolInfo.name}: ${formatCurrency(poolInfo.amount)}\n\nTu solicitud será revisada por el administrador. Una vez aprobada, recibirás ${formatCurrency(poolInfo.amount * 2)} en tu balance.`);
+      showMessage(`Solicitud enviada exitosamente!\n\n${poolInfo.icon} ${poolInfo.name}: ${formatCurrency(poolInfo.amount)}\n\nTu solicitud será revisada por el administrador. Una vez aprobada, recibirás ${formatCurrency(poolInfo.amount * 2)} en 7 días.`, 'success');
       
       // Recargar datos
       await Promise.all([
-        cargarHistorial(),
-        loadUserBalance()
+        loadUserBalance(),
+        cargarHistorial()
       ]);
       
       // Limpiar selección
@@ -618,7 +603,7 @@
       
     } catch (error) {
       console.error('Error completo:', error);
-      showMessage(`❌ Error enviando solicitud: ${error.message}`, 'error');
+      showMessage(`Error enviando solicitud: ${error.message}`, 'error');
     } finally {
       btnParticipar.disabled = false;
       loadingIcon.style.display = 'none';
@@ -626,7 +611,7 @@
     }
   }
 
-// Cargar historial desde tabla mini_pool
+// Cargar historial desde tabla mini_pool (conectado con admin)
   async function cargarHistorial() {
     try {
       const { data, error } = await client
@@ -640,40 +625,43 @@
 
       if (error) {
         console.error('Error cargando historial:', error);
-        showMessage('Error cargando historial de solicitudes', 'error');
         return;
       }
 
-      userRequests = data || [];
-
-      if (userRequests.length === 0) {
+      if (!data || data.length === 0) {
         historial.style.display = "none";
-        updatePendingAlert();
         return;
       }
 
       historial.style.display = "block";
       tabla.innerHTML = "";
 
-      userRequests.forEach(row => {
+      const pendingRequests = [];
+
+      data.forEach(row => {
         const poolInfo = poolConfig[row.nivel] || { name: row.nivel, icon: '🏊‍♂️' };
         const fechaSolicitud = formatDate(row.fecha_entrada);
         const fechaVencimiento = formatDate(addDaysToDate(new Date(row.fecha_entrada), 7));
         const montoRecibir = row.monto * 2;
         
+        // Determinar estado y clase CSS
         let estadoClass = 'status-pendiente';
-        let estadoText = '⏳ Pendiente';
-        let fechaPago = '-';
+        let estadoText = 'Pendiente';
         
         if (row.estado_pago === 'pagado') {
           estadoClass = 'status-pagado';
-          estadoText = '✅ Pagado';
-          fechaPago = row.fecha_pago ? formatDate(row.fecha_pago) : 'Procesado';
+          estadoText = 'Pagado';
         } else if (row.estado_pago === 'rechazado') {
           estadoClass = 'status-rechazado';
-          estadoText = '❌ Rechazado';
-          fechaPago = 'No aplica';
+          estadoText = 'Rechazado';
+        } else {
+          // Estado pendiente
+          estadoText = 'Pendiente Aprobación';
+          pendingRequests.push(row);
         }
+
+        // Fecha de pago (si existe)
+        const fechaPago = row.fecha_pago ? formatDate(row.fecha_pago) : '-';
 
         tabla.innerHTML += `
           <tr>
@@ -688,64 +676,52 @@
         `;
       });
 
-      // Actualizar alerta de pendientes
-      updatePendingAlert();
-      
-      console.log('📋 Historial cargado:', userRequests.length, 'solicitudes');
+      // Actualizar alerta de solicitudes pendientes
+      updatePendingAlert(pendingRequests);
       
     } catch (error) {
       console.error('Error cargando historial:', error);
-      showMessage('Error cargando historial', 'error');
     }
   }
 
-  // Función de logout
-  async function logout() {
-    try {
-      await client.auth.signOut();
-      window.location.href = "index.html";
-    } catch (error) {
-      console.error('Error en logout:', error);
-      window.location.href = "index.html";
-    }
-  }
-
-// Función principal de inicialización
+  // Inicialización de la aplicación
   async function init() {
     try {
-      console.log('🏊‍♂️ Iniciando Minipool Usuario...');
+      console.log('Iniciando aplicación Minipool Usuario...');
       
-      // Verificar autenticación
-      const isAuthenticated = await getUserInfo();
-      if (!isAuthenticated) {
-        return;
+      // Cargar información del usuario
+      const userLoaded = await loadUserInfo();
+      if (!userLoaded) {
+        return; // Ya se mostró error y redirección
       }
       
-      // Cargar todos los datos
+      console.log('Usuario cargado:', currentEmail);
+      
+      // Cargar datos en paralelo
       await Promise.all([
         loadUserBalance(),
         cargarHistorial(),
         updatePriceDisplay()
       ]);
       
-      // Habilitar botón
+      // Habilitar botón de participar
       document.getElementById('btnParticipar').disabled = false;
       
-      console.log('✅ Minipool Usuario iniciado correctamente');
+      console.log('Aplicación Minipool Usuario inicializada correctamente');
       
     } catch (error) {
-      console.error('Error inicializando:', error);
-      showMessage('Error cargando datos. Intentá recargar la página.', 'error');
+      console.error('Error inicializando aplicación:', error);
+      showMessage('Error cargando la aplicación. Intenta recargar la página.', 'error');
     }
   }
 
-  // Suscripción a cambios en tiempo real para mini_pool
+// Suscripción a cambios en tiempo real en mini_pool
   let realtimeSubscription = null;
 
   function setupRealtimeSubscription() {
     if (!currentUserId) return;
-
-    // Limpiar suscripción existente
+    
+    // Limpiar suscripción existente si la hay
     if (realtimeSubscription) {
       realtimeSubscription.unsubscribe();
     }
@@ -760,25 +736,22 @@
           filter: `usuario_id=eq.${currentUserId}`
         }, 
         (payload) => {
-          console.log('📡 Cambio detectado en mini_pool:', payload);
+          console.log('Cambio detectado en mini_pool:', payload);
           
-          // Recargar datos después de un cambio
-          setTimeout(async () => {
-            await cargarHistorial();
-            await loadUserBalance();
-            
-            // Si es una aprobación, mostrar mensaje
-            if (payload.eventType === 'UPDATE' && payload.new?.estado_pago === 'pagado') {
-              const poolInfo = poolConfig[payload.new.nivel] || { name: payload.new.nivel, icon: '🏊‍♂️' };
-              const montoRecibido = payload.new.monto * 2;
-              showMessage(`🎉 ¡Tu solicitud de ${poolInfo.icon} ${poolInfo.name} fue aprobada!\nRecibirás ${formatCurrency(montoRecibido)} en tu balance.`);
+          // Mostrar notificación según el tipo de cambio
+          if (payload.eventType === 'UPDATE') {
+            const newData = payload.new;
+            if (newData.estado_pago === 'pagado') {
+              showMessage(`¡Tu solicitud de ${poolConfig[newData.nivel]?.name} ha sido aprobada! Recibirás ${formatCurrency(newData.monto * 2)} en tu balance.`, 'success');
+            } else if (newData.estado_pago === 'rechazado') {
+              showMessage(`Tu solicitud de ${poolConfig[newData.nivel]?.name} ha sido rechazada.`, 'error');
             }
-            
-            // Si es un rechazo, mostrar mensaje
-            if (payload.eventType === 'UPDATE' && payload.new?.estado_pago === 'rechazado') {
-              const poolInfo = poolConfig[payload.new.nivel] || { name: payload.new.nivel, icon: '🏊‍♂️' };
-              showMessage(`❌ Tu solicitud de ${poolInfo.icon} ${poolInfo.name} fue rechazada por el administrador.`, 'error');
-            }
+          }
+          
+          // Recargar historial y balance después de cambios
+          setTimeout(() => {
+            cargarHistorial();
+            loadUserBalance();
           }, 1000);
         }
       )
@@ -790,8 +763,7 @@
 
   function setupBalanceSubscription() {
     if (!currentUserId) return;
-
-    // Limpiar suscripción existente
+    
     if (balanceSubscription) {
       balanceSubscription.unsubscribe();
     }
@@ -806,27 +778,13 @@
           filter: `usuario_id=eq.${currentUserId}`
         }, 
         (payload) => {
-          console.log('💰 Cambio detectado en balance:', payload);
-          
-          // Recargar balance después de un cambio
-          setTimeout(async () => {
-            await loadUserBalance();
-          }, 500);
+          console.log('Cambio detectado en balance:', payload);
+          // Recargar balance automáticamente
+          setTimeout(() => loadUserBalance(), 500);
         }
       )
       .subscribe();
   }
-
-  // Event listeners y inicialización
-  document.addEventListener('DOMContentLoaded', async () => {
-    await init();
-    
-    // Configurar suscripciones de tiempo real una vez autenticado
-    if (currentUserId) {
-      setupRealtimeSubscription();
-      setupBalanceSubscription();
-    }
-  });
 
   // Limpiar suscripciones al salir
   window.addEventListener('beforeunload', () => {
@@ -838,9 +796,28 @@
     }
   });
 
-  console.log('🎯 Minipool Usuario - Sistema cargado');
-  console.log('📋 Funcionalidades: solicitudes, historial, tiempo real');
-  console.log('💰 Integrado con sistema de balances y admin');
+  // Event listeners principales
+  document.addEventListener('DOMContentLoaded', async () => {
+    await init();
+    
+    // Configurar suscripciones en tiempo real después de la inicialización
+    if (currentUserId) {
+      setupRealtimeSubscription();
+      setupBalanceSubscription();
+    }
+  });
+
+  // Hacer funciones disponibles globalmente para los onclick del HTML
+  window.toggleSidebar = toggleSidebar;
+  window.closeSidebar = closeSidebar;
+  window.logout = logout;
+  window.registrarEntrada = registrarEntrada;
+
+  console.log('Sistema Minipool Usuario cargado');
+  console.log('- Conectado con tabla mini_pool para solicitudes');
+  console.log('- Integrado con panel de administrador');
+  console.log('- Real-time updates habilitados');
+  console.log('- Estados: pendiente, pagado, rechazado');
 
 </script>
 </body>
