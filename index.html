@@ -194,7 +194,7 @@
     </div>
   </div>
 
-  <script>
+<script>
     const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -202,103 +202,131 @@
     const urlParams = new URLSearchParams(window.location.search);
     const ref = urlParams.get("ref");
     if (ref) localStorage.setItem("referido_por", ref);
-function showForm(id) {
-    ["loginForm", "registerForm", "recoverForm"].forEach(f => {
-      document.getElementById(f).classList.add("hidden");
-    });
-    document.getElementById(id).classList.remove("hidden");
-  }
 
-  async function register() {
-    const email = document.getElementById("regEmail").value.trim();
-    const pass1 = document.getElementById("regPass").value;
-    const pass2 = document.getElementById("regRepeat").value;
-
-    if (pass1 !== pass2) return alert("Las contraseñas no coinciden.");
-
-    const { data, error } = await client.auth.signUp({ email, password: pass1 });
-    if (error) return alert("Error al registrar: " + error.message);
-
-    const referidoPor = localStorage.getItem("referido_por");
-
-    if (referidoPor && data?.user?.id) {
-      await client.from("referidos").insert({
-        usuario_id: data.user.id,
-        referido_por: referidoPor,
-        email: email,
-        aprobado: false,
-        fecha: new Date().toISOString()
+    function showForm(id) {
+      ["loginForm", "registerForm", "recoverForm"].forEach(f => {
+        document.getElementById(f).classList.add("hidden");
       });
+      document.getElementById(id).classList.remove("hidden");
     }
 
-    alert("Cuenta creada. Revisa tu correo para verificarla.");
-    showForm("loginForm");
-  }
+    // FUNCIÓN REGISTER CORREGIDA - AHORA CREA EL PERFIL EN LA TABLA PROFILES
+    async function register() {
+      const email = document.getElementById("regEmail").value.trim();
+      const pass1 = document.getElementById("regPass").value;
+      const pass2 = document.getElementById("regRepeat").value;
 
-  async function login() {
-    const email = document.getElementById("loginEmail").value.trim();
-    const pass = document.getElementById("loginPass").value;
-    const { error } = await client.auth.signInWithPassword({ email, password: pass });
-    if (error) return alert("Error al iniciar sesión: " + error.message);
-    window.location.href = "principal.html";
-  }
+      if (pass1 !== pass2) return alert("Las contraseñas no coinciden.");
 
-  async function recoverPassword() {
-    const email = document.getElementById("recoveryEmail").value.trim();
-    const { error } = await client.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + '/reset.html'
-    });
-    if (error) return alert("Error al enviar el correo: " + error.message);
-    alert("Correo de recuperación enviado.");
-    showForm("loginForm");
-  }
+      // 1. Crear usuario en Auth
+      const { data, error } = await client.auth.signUp({ email, password: pass1 });
+      if (error) return alert("Error al registrar: " + error.message);
 
-  const translations = {
-    es: {
-      loginTitle: "Iniciar Sesión", registerTitle: "Registrarse", recoverTitle: "Recuperar Contraseña",
-      loginBtn: "Entrar", createBtn: "Crear cuenta", sendBtn: "Enviar",
-      noAccount: "¿No tienes cuenta?", registerLink: "Registrarse", forgotPass: "¿Olvidaste tu contraseña?",
-      backLogin: "Volver al inicio", backLogin2: "Volver al inicio"
-    },
-    en: {
-      loginTitle: "Login", registerTitle: "Register", recoverTitle: "Reset Password",
-      loginBtn: "Login", createBtn: "Create account", sendBtn: "Send",
-      noAccount: "Don't have an account?", registerLink: "Register", forgotPass: "Forgot password?",
-      backLogin: "Back to login", backLogin2: "Back to login"
-    },
-    pt: {
-      loginTitle: "Entrar", registerTitle: "Registrar", recoverTitle: "Recuperar Senha",
-      loginBtn: "Acessar", createBtn: "Criar conta", sendBtn: "Enviar",
-      noAccount: "Não tem uma conta?", registerLink: "Registrar-se", forgotPass: "Esqueceu a senha?",
-      backLogin: "Voltar", backLogin2: "Voltar"
+      // 2. CREAR EL PERFIL EN LA TABLA PROFILES (ESTO FALTABA!)
+      if (data?.user?.id) {
+        const { error: profileError } = await client
+          .from("profiles")
+          .insert({
+            id: data.user.id,
+            email: email,
+            created_at: new Date().toISOString(),
+            nivel: 'basico',
+            monto_confirmado: 0,
+            porcentaje: 0,
+            recarga_confirmada: false,
+            rol: 'usuario',
+            plan_activo: false,
+            ganancia_acumulada: 0,
+            saldo_disponible: 0,
+            recompensa_aprobada: false
+          });
+
+        if (profileError) {
+          console.error("Error creating profile:", profileError);
+          return alert("Error al registrar: " + profileError.message);
+        }
+      }
+
+      // 3. Manejar referidos (igual que antes)
+      const referidoPor = localStorage.getItem("referido_por");
+      if (referidoPor && data?.user?.id) {
+        await client.from("referidos").insert({
+          usuario_id: data.user.id,
+          referido_por: referidoPor,
+          email: email,
+          aprobado: false,
+          fecha: new Date().toISOString()
+        });
+      }
+
+      alert("Cuenta creada. Revisa tu correo para verificarla.");
+      showForm("loginForm");
     }
-  };
 
-  function toggleLangMenu() {
-    const menu = document.getElementById("langOptions");
-    menu.style.display = menu.style.display === "block" ? "none" : "block";
-  }
+    async function login() {
+      const email = document.getElementById("loginEmail").value.trim();
+      const pass = document.getElementById("loginPass").value;
+      const { error } = await client.auth.signInWithPassword({ email, password: pass });
+      if (error) return alert("Error al iniciar sesión: " + error.message);
+      window.location.href = "principal.html";
+    }
 
-  function setLang(lang) {
-    const t = translations[lang];
-    document.getElementById("loginTitle").innerText = t.loginTitle;
-    document.getElementById("registerTitle").innerText = t.registerTitle;
-    document.getElementById("recoverTitle").innerText = t.recoverTitle;
-    document.getElementById("loginBtn").innerText = t.loginBtn;
-    document.getElementById("createBtn").innerText = t.createBtn;
-    document.getElementById("sendBtn").innerText = t.sendBtn;
-    document.getElementById("noAccount").innerText = t.noAccount;
-    document.getElementById("registerLink").innerText = t.registerLink;
-    document.getElementById("forgotPass").innerText = t.forgotPass;
-    document.getElementById("backLogin").innerText = t.backLogin;
-    document.getElementById("backLogin2").innerText = t.backLogin2;
+    async function recoverPassword() {
+      const email = document.getElementById("recoveryEmail").value.trim();
+      const { error } = await client.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/reset.html'
+      });
+      if (error) return alert("Error al enviar el correo: " + error.message);
+      alert("Correo de recuperación enviado.");
+      showForm("loginForm");
+    }
 
-    const flags = { es: "es", en: "gb", pt: "br" };
-    const names = { es: "ESP", en: "ENG", pt: "POR" };
-    document.getElementById("currentLang").innerHTML =
-      `<img src="https://flagcdn.com/${flags[lang]}.svg" width="20" /> ${names[lang]}`;
-    document.getElementById("langOptions").style.display = "none";
-  }
-</script>
+    const translations = {
+      es: {
+        loginTitle: "Iniciar Sesión", registerTitle: "Registrarse", recoverTitle: "Recuperar Contraseña",
+        loginBtn: "Entrar", createBtn: "Crear cuenta", sendBtn: "Enviar",
+        noAccount: "¿No tienes cuenta?", registerLink: "Registrarse", forgotPass: "¿Olvidaste tu contraseña?",
+        backLogin: "Volver al inicio", backLogin2: "Volver al inicio"
+      },
+      en: {
+        loginTitle: "Login", registerTitle: "Register", recoverTitle: "Reset Password",
+        loginBtn: "Login", createBtn: "Create account", sendBtn: "Send",
+        noAccount: "Don't have an account?", registerLink: "Register", forgotPass: "Forgot password?",
+        backLogin: "Back to login", backLogin2: "Back to login"
+      },
+      pt: {
+        loginTitle: "Entrar", registerTitle: "Registrar", recoverTitle: "Recuperar Senha",
+        loginBtn: "Acessar", createBtn: "Criar conta", sendBtn: "Enviar",
+        noAccount: "Não tem uma conta?", registerLink: "Registrar-se", forgotPass: "Esqueceu a senha?",
+        backLogin: "Voltar", backLogin2: "Voltar"
+      }
+    };
+
+    function toggleLangMenu() {
+      const menu = document.getElementById("langOptions");
+      menu.style.display = menu.style.display === "block" ? "none" : "block";
+    }
+
+    function setLang(lang) {
+      const t = translations[lang];
+      document.getElementById("loginTitle").innerText = t.loginTitle;
+      document.getElementById("registerTitle").innerText = t.registerTitle;
+      document.getElementById("recoverTitle").innerText = t.recoverTitle;
+      document.getElementById("loginBtn").innerText = t.loginBtn;
+      document.getElementById("createBtn").innerText = t.createBtn;
+      document.getElementById("sendBtn").innerText = t.sendBtn;
+      document.getElementById("noAccount").innerText = t.noAccount;
+      document.getElementById("registerLink").innerText = t.registerLink;
+      document.getElementById("forgotPass").innerText = t.forgotPass;
+      document.getElementById("backLogin").innerText = t.backLogin;
+      document.getElementById("backLogin2").innerText = t.backLogin2;
+
+      const flags = { es: "es", en: "gb", pt: "br" };
+      const names = { es: "ESP", en: "ENG", pt: "POR" };
+      document.getElementById("currentLang").innerHTML =
+        `<img src="https://flagcdn.com/${flags[lang]}.svg" width="20" /> ${names[lang]}`;
+      document.getElementById("langOptions").style.display = "none";
+    }
+  </script>
 </body>
 </html>
