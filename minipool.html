@@ -273,6 +273,20 @@
       display: none;
     }
 
+    .debug-panel {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.8);
+      color: #00ff00;
+      padding: 10px;
+      border-radius: 5px;
+      font-family: monospace;
+      font-size: 12px;
+      max-width: 300px;
+      z-index: 9999;
+    }
+
     @media (max-width: 768px) {
       .content {
         padding: 20px;
@@ -289,6 +303,11 @@
       
       th, td {
         padding: 8px 5px;
+      }
+
+      .debug-panel {
+        position: relative;
+        margin: 10px auto;
       }
     }
   </style>
@@ -378,16 +397,34 @@
   <div class="credit">Imagen de fondo: fondodepantallaprincipal1.jpeg</div>
 </div>
 
+<!-- Panel de debugging -->
+<div class="debug-panel" id="debugPanel">
+  <strong>🔧 Debug Panel</strong><br>
+  <div id="debugInfo">Cargando...</div>
+</div>
+
 <script>
+  // === CONFIGURACIÓN SUPABASE ===
   const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
-  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  
+  // DEBUG: Verificar Supabase disponible
+  console.log('🔧 [DEBUG] Supabase disponible:', typeof supabase !== 'undefined');
+  
+  let client = null;
+  try {
+    client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log('✅ [DEBUG] Cliente Supabase creado correctamente');
+  } catch (error) {
+    console.error('❌ [DEBUG] Error creando cliente Supabase:', error);
+  }
   
   // Variables globales
   let currentUserId = null;
   let currentEmail = null;
   let currentUserName = null;
   let userBalance = 0;
+  let debugInfo = [];
 
   // Configuración de precios (sincronizada con admin)
   const poolConfig = {
@@ -396,8 +433,20 @@
     'avanzado': { name: 'Avanzado', icon: '🥇', amount: 50000 }
   };
 
+  // === FUNCIONES DE DEBUG ===
+  function updateDebugPanel(message) {
+    debugInfo.push(`${new Date().toLocaleTimeString()}: ${message}`);
+    const debugPanel = document.getElementById('debugInfo');
+    if (debugPanel) {
+      debugPanel.innerHTML = debugInfo.slice(-10).join('<br>');
+    }
+    console.log(`🔧 [DEBUG] ${message}`);
+  }
+
   // Funciones de utilidad
   function showMessage(message, type = 'success') {
+    updateDebugPanel(`Mostrando mensaje ${type}: ${message.substring(0, 50)}...`);
+    
     const errorEl = document.getElementById('errorMessage');
     const successEl = document.getElementById('successMessage');
     
@@ -411,11 +460,11 @@
       successEl.style.display = 'none';
     }
     
-    // Ocultar después de 5 segundos
+    // Ocultar después de 8 segundos para debugging
     setTimeout(() => {
       successEl.style.display = 'none';
       errorEl.style.display = 'none';
-    }, 5000);
+    }, 8000);
   }
 
   function formatCurrency(amount) {
@@ -444,23 +493,50 @@
 
   // Funciones del sidebar
   function toggleSidebar() {
-    document.getElementById("sidebar").classList.toggle("active");
+    updateDebugPanel('Toggle sidebar ejecutado');
+    const sidebar = document.getElementById("sidebar");
+    if (sidebar) {
+      sidebar.classList.toggle("active");
+    }
   }
 
   function closeSidebar() {
-    document.getElementById("sidebar").classList.remove("active");
+    updateDebugPanel('Close sidebar ejecutado');
+    const sidebar = document.getElementById("sidebar");
+    if (sidebar) {
+      sidebar.classList.remove("active");
+    }
   }
 
   async function logout() {
-    await client.auth.signOut();
-    window.location.href = "index.html";
+    updateDebugPanel('Logout ejecutado');
+    try {
+      await client.auth.signOut();
+      window.location.href = "index.html";
+    } catch (error) {
+      updateDebugPanel(`Error en logout: ${error.message}`);
+    }
   }
 
   // Cargar información del usuario
   async function loadUserInfo() {
+    updateDebugPanel('Iniciando loadUserInfo...');
+    
+    if (!client) {
+      updateDebugPanel('❌ Cliente Supabase no disponible');
+      return false;
+    }
+
     try {
-      const { data: { session } } = await client.auth.getSession();
+      const { data: { session }, error } = await client.auth.getSession();
+      
+      if (error) {
+        updateDebugPanel(`❌ Error obteniendo sesión: ${error.message}`);
+        return false;
+      }
+      
       if (!session) {
+        updateDebugPanel('❌ No hay sesión activa');
         showMessage("Sesión expirada. Redirigiendo al login...", 'error');
         setTimeout(() => window.location.href = "index.html", 2000);
         return false;
@@ -468,6 +544,7 @@
       
       currentUserId = session.user.id;
       currentEmail = session.user.email;
+      updateDebugPanel(`✅ Sesión encontrada: ${currentEmail}`);
       
       // Obtener nombre del usuario desde profiles si existe
       try {
@@ -478,12 +555,15 @@
           .maybeSingle();
         
         currentUserName = profileData?.email || currentEmail || 'Usuario';
+        updateDebugPanel(`✅ Nombre usuario: ${currentUserName}`);
       } catch (error) {
         currentUserName = currentEmail || 'Usuario';
+        updateDebugPanel(`⚠️ Error cargando perfil, usando email: ${error.message}`);
       }
       
       return true;
     } catch (error) {
+      updateDebugPanel(`❌ Error en loadUserInfo: ${error.message}`);
       console.error('Error cargando información del usuario:', error);
       showMessage('Error de autenticación', 'error');
       return false;
@@ -492,6 +572,13 @@
 
   // Cargar saldo del usuario desde balances
   async function loadUserBalance() {
+    updateDebugPanel('Iniciando loadUserBalance...');
+    
+    if (!currentUserId) {
+      updateDebugPanel('❌ No hay usuario ID para cargar balance');
+      return;
+    }
+
     try {
       const { data, error } = await client
         .from('balances')
@@ -504,6 +591,7 @@
       }
 
       userBalance = data?.saldo || 0;
+      updateDebugPanel(`✅ Balance cargado: ${userBalance}`);
       
       const balanceInfo = document.getElementById('balanceInfo');
       const balanceAmount = document.getElementById('currentBalance');
@@ -511,9 +599,13 @@
       if (balanceInfo && balanceAmount) {
         balanceAmount.textContent = formatCurrency(userBalance);
         balanceInfo.style.display = 'block';
+        updateDebugPanel('✅ Balance mostrado en UI');
+      } else {
+        updateDebugPanel('❌ Elementos de balance no encontrados en DOM');
       }
       
     } catch (error) {
+      updateDebugPanel(`❌ Error cargando balance: ${error.message}`);
       console.error('Error cargando balance:', error);
       userBalance = 0;
     }
@@ -521,10 +613,15 @@
 
   // Actualizar precios en la interfaz
   function updatePriceDisplay() {
+    updateDebugPanel('Actualizando precios en interfaz...');
+    
     Object.keys(poolConfig).forEach(nivel => {
       const element = document.getElementById(`precio-${nivel}`);
       if (element) {
         element.textContent = poolConfig[nivel].amount.toLocaleString();
+        updateDebugPanel(`✅ Precio ${nivel} actualizado`);
+      } else {
+        updateDebugPanel(`❌ Elemento precio-${nivel} no encontrado`);
       }
     });
   }
@@ -537,29 +634,51 @@
     if (pendingRequests && pendingRequests.length > 0) {
       countSpan.textContent = pendingRequests.length;
       alertDiv.style.display = 'block';
+      updateDebugPanel(`✅ ${pendingRequests.length} solicitudes pendientes mostradas`);
     } else {
       alertDiv.style.display = 'none';
+      updateDebugPanel('✅ No hay solicitudes pendientes');
     }
   }
 
   // Función principal para registrar entrada usando tabla mini_pool
   async function registrarEntrada() {
-    const nivel = document.getElementById("entrada").value;
+    updateDebugPanel('🚀 Iniciando registrarEntrada...');
+    
+    const entradaSelect = document.getElementById("entrada");
+    if (!entradaSelect) {
+      updateDebugPanel('❌ Elemento entrada no encontrado');
+      return;
+    }
+    
+    const nivel = entradaSelect.value;
+    updateDebugPanel(`Nivel seleccionado: ${nivel}`);
+    
     if (!nivel) {
-      return showMessage("Selecciona un minipool válido.", 'error');
+      showMessage("Selecciona un minipool válido.", 'error');
+      return;
     }
 
     const poolInfo = poolConfig[nivel];
     if (!poolInfo) {
-      return showMessage("Tipo de minipool inválido.", 'error');
+      showMessage("Tipo de minipool inválido.", 'error');
+      return;
     }
 
-    // Verificar saldo (opcional)
+    updateDebugPanel(`Pool info: ${poolInfo.name} - ${poolInfo.amount}`);
+
+    // Verificar saldo
     if (userBalance < poolInfo.amount) {
-      return showMessage(`Saldo insuficiente. Necesitas ${formatCurrency(poolInfo.amount)} pero tienes ${formatCurrency(userBalance)}.`, 'error');
+      const mensaje = `Saldo insuficiente. Necesitas ${formatCurrency(poolInfo.amount)} pero tienes ${formatCurrency(userBalance)}.`;
+      showMessage(mensaje, 'error');
+      updateDebugPanel(`❌ Saldo insuficiente: ${userBalance} < ${poolInfo.amount}`);
+      return;
     }
 
-    if (!confirm(`¿Confirmar solicitud de inversión en ${poolInfo.icon} ${poolInfo.name}?\n\nMonto: ${formatCurrency(poolInfo.amount)}\nGanancia: 100% (${formatCurrency(poolInfo.amount * 2)})\nTiempo: 7 días\n\nLa solicitud será revisada por el administrador.`)) {
+    const confirmMessage = `¿Confirmar solicitud de inversión en ${poolInfo.icon} ${poolInfo.name}?\n\nMonto: ${formatCurrency(poolInfo.amount)}\nGanancia: 100% (${formatCurrency(poolInfo.amount * 2)})\nTiempo: 7 días\n\nLa solicitud será revisada por el administrador.`;
+    
+    if (!confirm(confirmMessage)) {
+      updateDebugPanel('❌ Usuario canceló confirmación');
       return;
     }
 
@@ -568,6 +687,8 @@
     const btnText = document.getElementById('btnText');
     
     try {
+      updateDebugPanel('🔄 Enviando solicitud a Supabase...');
+      
       btnParticipar.disabled = true;
       loadingIcon.style.display = 'inline-block';
       btnText.textContent = 'Enviando...';
@@ -580,19 +701,26 @@
         nivel: nivel,
         monto: poolInfo.amount,
         fecha_entrada: new Date().toISOString(),
-        estado_pago: 'pendiente' // El admin debe aprobar
+        estado_pago: 'pendiente'
       };
 
-      const { error } = await client.from("mini_pool").insert(registro);
+      updateDebugPanel(`Datos a insertar: ${JSON.stringify(registro, null, 2)}`);
+
+      const { data, error } = await client.from("mini_pool").insert(registro);
       
       if (error) {
         console.error('Error insertando en mini_pool:', error);
+        updateDebugPanel(`❌ Error BD: ${error.message}`);
         throw new Error(`Error del servidor: ${error.message}`);
       }
 
-      showMessage(`Solicitud enviada exitosamente!\n\n${poolInfo.icon} ${poolInfo.name}: ${formatCurrency(poolInfo.amount)}\n\nTu solicitud será revisada por el administrador. Una vez aprobada, recibirás ${formatCurrency(poolInfo.amount * 2)} en 7 días.`, 'success');
+      updateDebugPanel('✅ Solicitud enviada exitosamente a BD');
+      
+      const successMessage = `Solicitud enviada exitosamente!\n\n${poolInfo.icon} ${poolInfo.name}: ${formatCurrency(poolInfo.amount)}\n\nTu solicitud será revisada por el administrador. Una vez aprobada, recibirás ${formatCurrency(poolInfo.amount * 2)} en 7 días.`;
+      showMessage(successMessage, 'success');
       
       // Recargar datos
+      updateDebugPanel('🔄 Recargando datos...');
       await Promise.all([
         loadUserBalance(),
         cargarHistorial()
@@ -600,9 +728,11 @@
       
       // Limpiar selección
       document.getElementById("entrada").value = "";
+      updateDebugPanel('✅ Proceso completado');
       
     } catch (error) {
       console.error('Error completo:', error);
+      updateDebugPanel(`❌ Error completo: ${error.message}`);
       showMessage(`Error enviando solicitud: ${error.message}`, 'error');
     } finally {
       btnParticipar.disabled = false;
@@ -613,7 +743,16 @@
 
 // Cargar historial desde tabla mini_pool (conectado con admin)
   async function cargarHistorial() {
+    updateDebugPanel('📋 Iniciando cargarHistorial...');
+    
+    if (!currentUserId) {
+      updateDebugPanel('❌ No hay usuario ID para cargar historial');
+      return;
+    }
+
     try {
+      updateDebugPanel('🔍 Consultando tabla mini_pool...');
+      
       const { data, error } = await client
         .from("mini_pool")
         .select("*")
@@ -625,20 +764,27 @@
 
       if (error) {
         console.error('Error cargando historial:', error);
+        updateDebugPanel(`❌ Error BD historial: ${error.message}`);
         return;
       }
 
+      updateDebugPanel(`✅ Datos recibidos: ${data ? data.length : 0} registros`);
+
       if (!data || data.length === 0) {
         historial.style.display = "none";
+        updateDebugPanel('ℹ️ No hay registros, ocultando historial');
         return;
       }
 
       historial.style.display = "block";
       tabla.innerHTML = "";
+      updateDebugPanel('✅ Mostrando tabla historial');
 
       const pendingRequests = [];
 
-      data.forEach(row => {
+      data.forEach((row, index) => {
+        updateDebugPanel(`📝 Procesando registro ${index + 1}: ${row.nivel}`);
+        
         const poolInfo = poolConfig[row.nivel] || { name: row.nivel, icon: '🏊‍♂️' };
         const fechaSolicitud = formatDate(row.fecha_entrada);
         const fechaVencimiento = formatDate(addDaysToDate(new Date(row.fecha_entrada), 7));
@@ -676,26 +822,45 @@
         `;
       });
 
+      updateDebugPanel(`✅ Tabla generada con ${data.length} filas`);
+      
       // Actualizar alerta de solicitudes pendientes
       updatePendingAlert(pendingRequests);
       
     } catch (error) {
       console.error('Error cargando historial:', error);
+      updateDebugPanel(`❌ Error cargarHistorial: ${error.message}`);
     }
   }
 
   // Inicialización de la aplicación
   async function init() {
+    updateDebugPanel('🚀 === INICIANDO APLICACIÓN MINIPOOL ===');
+    
     try {
       console.log('Iniciando aplicación Minipool Usuario...');
+      updateDebugPanel('1. Verificando elementos DOM...');
+      
+      // Verificar elementos críticos
+      const elementos = ['entrada', 'btnParticipar', 'errorMessage', 'successMessage'];
+      elementos.forEach(id => {
+        const elemento = document.getElementById(id);
+        updateDebugPanel(`   - ${id}: ${elemento ? '✅' : '❌'}`);
+      });
+      
+      updateDebugPanel('2. Cargando información del usuario...');
       
       // Cargar información del usuario
       const userLoaded = await loadUserInfo();
       if (!userLoaded) {
+        updateDebugPanel('❌ No se pudo cargar usuario - ABORTANDO');
         return; // Ya se mostró error y redirección
       }
       
       console.log('Usuario cargado:', currentEmail);
+      updateDebugPanel(`✅ Usuario: ${currentEmail}`);
+      
+      updateDebugPanel('3. Cargando datos en paralelo...');
       
       // Cargar datos en paralelo
       await Promise.all([
@@ -704,90 +869,188 @@
         updatePriceDisplay()
       ]);
       
+      updateDebugPanel('4. Habilitando interfaz...');
+      
       // Habilitar botón de participar
-      document.getElementById('btnParticipar').disabled = false;
+      const btnParticipar = document.getElementById('btnParticipar');
+      if (btnParticipar) {
+        btnParticipar.disabled = false;
+        updateDebugPanel('✅ Botón habilitado');
+      } else {
+        updateDebugPanel('❌ Botón no encontrado');
+      }
       
       console.log('Aplicación Minipool Usuario inicializada correctamente');
+      updateDebugPanel('🎉 === APLICACIÓN INICIALIZADA CORRECTAMENTE ===');
+      
+      // Hacer funciones disponibles globalmente
+      window.toggleSidebar = toggleSidebar;
+      window.closeSidebar = closeSidebar;
+      window.logout = logout;
+      window.registrarEntrada = registrarEntrada;
+      
+      updateDebugPanel('✅ Funciones expuestas globalmente');
       
     } catch (error) {
       console.error('Error inicializando aplicación:', error);
+      updateDebugPanel(`❌ ERROR CRÍTICO: ${error.message}`);
       showMessage('Error cargando la aplicación. Intenta recargar la página.', 'error');
     }
   }
+
+  // === DIAGNÓSTICO INICIAL ===
+  updateDebugPanel('🔧 === DEBUGGING TEMPORAL ACTIVADO ===');
+  updateDebugPanel(`DOM Estado: ${document.readyState}`);
+  updateDebugPanel(`Supabase: ${typeof supabase !== 'undefined' ? '✅' : '❌'}`);
+  updateDebugPanel(`Cliente: ${client ? '✅' : '❌'}`);
+
+  // Test elementos DOM básicos
+  document.addEventListener('DOMContentLoaded', () => {
+    updateDebugPanel('📄 DOM Cargado - Verificando elementos...');
+    
+    const elementos = [
+      'entrada', 'btnParticipar', 'errorMessage', 
+      'successMessage', 'balanceInfo', 'pendingAlert'
+    ];
+    
+    elementos.forEach(id => {
+      const existe = !!document.getElementById(id);
+      updateDebugPanel(`${existe ? '✅' : '❌'} ${id}`);
+    });
+  });
 
 // Suscripción a cambios en tiempo real en mini_pool
   let realtimeSubscription = null;
 
   function setupRealtimeSubscription() {
-    if (!currentUserId) return;
+    updateDebugPanel('🔄 Configurando suscripción realtime mini_pool...');
+    
+    if (!currentUserId) {
+      updateDebugPanel('❌ No hay usuario ID para suscripción');
+      return;
+    }
     
     // Limpiar suscripción existente si la hay
     if (realtimeSubscription) {
       realtimeSubscription.unsubscribe();
+      updateDebugPanel('🗑️ Suscripción anterior limpiada');
     }
 
-    realtimeSubscription = client
-      .channel('user_minipool_changes')
-      .on('postgres_changes', 
-        { 
-          event: '*', 
-          schema: 'public', 
-          table: 'mini_pool',
-          filter: `usuario_id=eq.${currentUserId}`
-        }, 
-        (payload) => {
-          console.log('Cambio detectado en mini_pool:', payload);
-          
-          // Mostrar notificación según el tipo de cambio
-          if (payload.eventType === 'UPDATE') {
-            const newData = payload.new;
-            if (newData.estado_pago === 'pagado') {
-              showMessage(`¡Tu solicitud de ${poolConfig[newData.nivel]?.name} ha sido aprobada! Recibirás ${formatCurrency(newData.monto * 2)} en tu balance.`, 'success');
-            } else if (newData.estado_pago === 'rechazado') {
-              showMessage(`Tu solicitud de ${poolConfig[newData.nivel]?.name} ha sido rechazada.`, 'error');
+    try {
+      realtimeSubscription = client
+        .channel('user_minipool_changes')
+        .on('postgres_changes', 
+          { 
+            event: '*', 
+            schema: 'public', 
+            table: 'mini_pool',
+            filter: `usuario_id=eq.${currentUserId}`
+          }, 
+          (payload) => {
+            console.log('Cambio detectado en mini_pool:', payload);
+            updateDebugPanel(`🔔 Cambio detectado: ${payload.eventType}`);
+            
+            // Mostrar notificación según el tipo de cambio
+            if (payload.eventType === 'UPDATE') {
+              const newData = payload.new;
+              if (newData.estado_pago === 'pagado') {
+                showMessage(`¡Tu solicitud de ${poolConfig[newData.nivel]?.name} ha sido aprobada! Recibirás ${formatCurrency(newData.monto * 2)} en tu balance.`, 'success');
+              } else if (newData.estado_pago === 'rechazado') {
+                showMessage(`Tu solicitud de ${poolConfig[newData.nivel]?.name} ha sido rechazada.`, 'error');
+              }
             }
+            
+            // Recargar historial y balance después de cambios
+            setTimeout(() => {
+              cargarHistorial();
+              loadUserBalance();
+            }, 1000);
           }
-          
-          // Recargar historial y balance después de cambios
-          setTimeout(() => {
-            cargarHistorial();
-            loadUserBalance();
-          }, 1000);
-        }
-      )
-      .subscribe();
+        )
+        .subscribe();
+        
+      updateDebugPanel('✅ Suscripción mini_pool configurada');
+    } catch (error) {
+      updateDebugPanel(`❌ Error configurando suscripción: ${error.message}`);
+    }
   }
 
   // Suscripción a cambios en balances
   let balanceSubscription = null;
 
   function setupBalanceSubscription() {
-    if (!currentUserId) return;
+    updateDebugPanel('🔄 Configurando suscripción realtime balance...');
+    
+    if (!currentUserId) {
+      updateDebugPanel('❌ No hay usuario ID para suscripción balance');
+      return;
+    }
     
     if (balanceSubscription) {
       balanceSubscription.unsubscribe();
+      updateDebugPanel('🗑️ Suscripción balance anterior limpiada');
     }
 
-    balanceSubscription = client
-      .channel('user_balance_changes')
-      .on('postgres_changes', 
-        { 
-          event: '*', 
-          schema: 'public', 
-          table: 'balances',
-          filter: `usuario_id=eq.${currentUserId}`
-        }, 
-        (payload) => {
-          console.log('Cambio detectado en balance:', payload);
-          // Recargar balance automáticamente
-          setTimeout(() => loadUserBalance(), 500);
-        }
-      )
-      .subscribe();
+    try {
+      balanceSubscription = client
+        .channel('user_balance_changes')
+        .on('postgres_changes', 
+          { 
+            event: '*', 
+            schema: 'public', 
+            table: 'balances',
+            filter: `usuario_id=eq.${currentUserId}`
+          }, 
+          (payload) => {
+            console.log('Cambio detectado en balance:', payload);
+            updateDebugPanel(`💰 Cambio balance: ${payload.eventType}`);
+            // Recargar balance automáticamente
+            setTimeout(() => loadUserBalance(), 500);
+          }
+        )
+        .subscribe();
+        
+      updateDebugPanel('✅ Suscripción balance configurada');
+    } catch (error) {
+      updateDebugPanel(`❌ Error configurando suscripción balance: ${error.message}`);
+    }
+  }
+
+  // Test de conexión Supabase
+  async function testSupabaseConnection() {
+    updateDebugPanel('🧪 Probando conexión Supabase...');
+    
+    if (!client) {
+      updateDebugPanel('❌ Cliente no disponible para test');
+      return;
+    }
+    
+    try {
+      // Test básico de conectividad
+      const { data, error } = await client
+        .from('mini_pool')
+        .select('count', { count: 'exact' })
+        .limit(1);
+      
+      if (error) {
+        updateDebugPanel(`❌ Test conexión falló: ${error.message}`);
+      } else {
+        updateDebugPanel('✅ Conexión Supabase OK');
+      }
+      
+      // Test de autenticación
+      const { data: { session } } = await client.auth.getSession();
+      updateDebugPanel(`🔐 Sesión: ${session ? '✅ Activa' : '❌ Inactiva'}`);
+      
+    } catch (error) {
+      updateDebugPanel(`❌ Test conexión error: ${error.message}`);
+    }
   }
 
   // Limpiar suscripciones al salir
   window.addEventListener('beforeunload', () => {
+    updateDebugPanel('👋 Limpiando suscripciones antes de salir...');
+    
     if (realtimeSubscription) {
       realtimeSubscription.unsubscribe();
     }
@@ -798,26 +1061,58 @@
 
   // Event listeners principales
   document.addEventListener('DOMContentLoaded', async () => {
+    updateDebugPanel('📄 DOM Cargado - Iniciando aplicación...');
+    
+    // Ejecutar test de conexión
+    await testSupabaseConnection();
+    
+    // Inicializar aplicación
     await init();
     
     // Configurar suscripciones en tiempo real después de la inicialización
     if (currentUserId) {
+      updateDebugPanel('🔄 Configurando suscripciones tiempo real...');
       setupRealtimeSubscription();
       setupBalanceSubscription();
+    } else {
+      updateDebugPanel('❌ No se pueden configurar suscripciones sin usuario ID');
     }
   });
 
-  // Hacer funciones disponibles globalmente para los onclick del HTML
-  window.toggleSidebar = toggleSidebar;
-  window.closeSidebar = closeSidebar;
-  window.logout = logout;
-  window.registrarEntrada = registrarEntrada;
+  // === DEBUGGING FINAL ===
+  setTimeout(() => {
+    updateDebugPanel('🔍 === DIAGNÓSTICO FINAL ===');
+    updateDebugPanel(`Funciones globales:`);
+    updateDebugPanel(`- toggleSidebar: ${typeof window.toggleSidebar}`);
+    updateDebugPanel(`- closeSidebar: ${typeof window.closeSidebar}`);
+    updateDebugPanel(`- logout: ${typeof window.logout}`);
+    updateDebugPanel(`- registrarEntrada: ${typeof window.registrarEntrada}`);
+    
+    // Test click en botón
+    const btnParticipar = document.getElementById('btnParticipar');
+    if (btnParticipar) {
+      updateDebugPanel(`✅ Botón encontrado, disabled: ${btnParticipar.disabled}`);
+      updateDebugPanel(`✅ onclick: ${btnParticipar.onclick ? 'Definido' : 'No definido'}`);
+    } else {
+      updateDebugPanel('❌ Botón no encontrado en DOM');
+    }
+    
+    // Test selección
+    const entrada = document.getElementById('entrada');
+    if (entrada) {
+      updateDebugPanel(`✅ Select encontrado, opciones: ${entrada.options.length}`);
+    } else {
+      updateDebugPanel('❌ Select no encontrado en DOM');
+    }
+    
+  }, 3000);
 
-  console.log('Sistema Minipool Usuario cargado');
+  console.log('🎉 Sistema Minipool Usuario cargado con debugging');
   console.log('- Conectado con tabla mini_pool para solicitudes');
   console.log('- Integrado con panel de administrador');
   console.log('- Real-time updates habilitados');
   console.log('- Estados: pendiente, pagado, rechazado');
+  console.log('- 🔧 Panel de debugging activado (esquina inferior derecha)');
 
 </script>
 </body>
