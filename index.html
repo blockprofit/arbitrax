@@ -210,7 +210,7 @@
       document.getElementById(id).classList.remove("hidden");
     }
 
-    // FUNCIÓN REGISTER CORREGIDA - AHORA CREA EL PERFIL EN LA TABLA PROFILES
+    // FUNCIÓN REGISTER COMPLETAMENTE CORREGIDA
     async function register() {
       const email = document.getElementById("regEmail").value.trim();
       const pass1 = document.getElementById("regPass").value;
@@ -218,49 +218,72 @@
 
       if (pass1 !== pass2) return alert("Las contraseñas no coinciden.");
 
-      // 1. Crear usuario en Auth
-      const { data, error } = await client.auth.signUp({ email, password: pass1 });
-      if (error) return alert("Error al registrar: " + error.message);
+      try {
+        // 1. Crear usuario en Auth
+        const { data, error } = await client.auth.signUp({ email, password: pass1 });
+        if (error) throw new Error("Auth error: " + error.message);
 
-      // 2. CREAR EL PERFIL EN LA TABLA PROFILES (ESTO FALTABA!)
-      if (data?.user?.id) {
-        const { error: profileError } = await client
-          .from("profiles")
-          .insert({
-            id: data.user.id,
-            email: email,
-            created_at: new Date().toISOString(),
-            nivel: 'basico',
-            monto_confirmado: 0,
-            porcentaje: 0,
-            recarga_confirmada: false,
-            rol: 'usuario',
-            plan_activo: false,
-            ganancia_acumulada: 0,
-            saldo_disponible: 0,
-            recompensa_aprobada: false
-          });
+        console.log("Usuario creado en Auth:", data);
 
-        if (profileError) {
-          console.error("Error creating profile:", profileError);
-          return alert("Error al registrar: " + profileError.message);
+        // 2. Crear perfil con TODOS los campos necesarios
+        if (data?.user?.id) {
+          console.log("Creando perfil para usuario:", data.user.id);
+          
+          const { data: profileData, error: profileError } = await client
+            .from("profiles")
+            .insert({
+              id: data.user.id,
+              email: email,
+              created_at: new Date().toISOString(),
+              // Campos que pueden ser NULL - los enviamos como NULL explícitamente
+              username: null,
+              nombre: null,
+              apellido: null,
+              dni: null,
+              celular: null,
+              cbu: null,
+              nivel: null,
+              monto_confirmado: null,
+              porcentaje: null,
+              recarga_confirmada: false, // boolean default
+              rol: null,
+              plan_activo: false, // boolean default
+              ganancia_acumulada: null,
+              ganancia_actualizada: null,
+              ultimo_calculo: null,
+              saldo_disponible: null,
+              recompensa_aprobada: false // boolean default
+            });
+
+          if (profileError) {
+            console.error("Error detallado del perfil:", profileError);
+            throw new Error("Profile error: " + profileError.message);
+          }
+
+          console.log("Perfil creado exitosamente:", profileData);
+
+          // 3. Manejar referidos
+          const referidoPor = localStorage.getItem("referido_por");
+          if (referidoPor) {
+            console.log("Creando referido para:", referidoPor);
+            const { error: refError } = await client.from("referidos").insert({
+              usuario_id: data.user.id,
+              referido_por: referidoPor,
+              email: email,
+              aprobado: false,
+              fecha: new Date().toISOString()
+            });
+            if (refError) console.error("Error referido:", refError);
+          }
         }
-      }
 
-      // 3. Manejar referidos (igual que antes)
-      const referidoPor = localStorage.getItem("referido_por");
-      if (referidoPor && data?.user?.id) {
-        await client.from("referidos").insert({
-          usuario_id: data.user.id,
-          referido_por: referidoPor,
-          email: email,
-          aprobado: false,
-          fecha: new Date().toISOString()
-        });
-      }
+        alert("Cuenta creada. Revisa tu correo para verificarla.");
+        showForm("loginForm");
 
-      alert("Cuenta creada. Revisa tu correo para verificarla.");
-      showForm("loginForm");
+      } catch (error) {
+        console.error("Error completo:", error);
+        alert("Error al registrar: " + error.message);
+      }
     }
 
     async function login() {
