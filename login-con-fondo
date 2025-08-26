@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cash New - Ingreso, Registro y Recuperación</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: url('https://via.placeholder.com/1920x1080') no-repeat center center/cover;
+            color: white;
+        }
+        .container {
+            width: 300px;
+            margin: auto;
+            margin-top: 100px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+        }
+        input {
+            background: #fff;
+            color: #000;
+        }
+        button {
+            background-color: #f39c12;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #e67e22;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="login-container">
+        <h1>Iniciar Sesión</h1>
+        <input type="text" id="username" placeholder="Usuario" required>
+        <input type="password" id="password" placeholder="Contraseña" required>
+        <button onclick="login()">Iniciar Sesión</button>
+        <p><a href="javascript:void(0)" onclick="showRecoveryForm()">¿Olvidaste tu contraseña?</a></p>
+        <p><a href="javascript:void(0)" onclick="showRegistrationForm()">¿No tienes cuenta? Regístrate</a></p>
+    </div>
+
+    <!-- Formulario de Recuperación de Contraseña -->
+    <div class="container" id="recovery-container" style="display:none;">
+        <h1>Recuperación de Contraseña</h1>
+        <input type="email" id="recovery-email" placeholder="Correo Electrónico" required>
+        <button onclick="recoverPassword()">Recuperar Contraseña</button>
+        <p><a href="javascript:void(0)" onclick="showLoginForm()">Volver al inicio de sesión</a></p>
+    </div>
+
+    <!-- Formulario de Registro -->
+    <div class="container" id="registration-container" style="display:none;">
+        <h1>Registrarse</h1>
+        <input type="text" id="register-username" placeholder="Usuario" required>
+        <input type="email" id="register-email" placeholder="Correo Electrónico" required>
+        <input type="password" id="register-password" placeholder="Contraseña" required>
+        <button onclick="register()">Registrar</button>
+        <p><a href="javascript:void(0)" onclick="showLoginForm()">Volver al inicio de sesión</a></p>
+    </div>
+
+    <script>
+        // Muestra el formulario de inicio de sesión
+        function showLoginForm() {
+            document.getElementById('login-container').style.display = 'block';
+            document.getElementById('recovery-container').style.display = 'none';
+            document.getElementById('registration-container').style.display = 'none';
+        }
+
+        // Muestra el formulario de recuperación de contraseña
+        function showRecoveryForm() {
+            document.getElementById('login-container').style.display = 'none';
+            document.getElementById('recovery-container').style.display = 'block';
+            document.getElementById('registration-container').style.display = 'none';
+        }
+
+        // Muestra el formulario de registro
+        function showRegistrationForm() {
+            document.getElementById('login-container').style.display = 'none';
+            document.getElementById('recovery-container').style.display = 'none';
+            document.getElementById('registration-container').style.display = 'block';
+        }
+
+        // Función para iniciar sesión
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (username === 'Brian95s' && password === 'Demian31') {
+                alert('Bienvenido al Panel de Control');
+                // Redirigir a la página del panel de administración aquí
+            } else {
+                alert('Usuario o contraseña incorrectos');
+            }
+        }
+
+        // Función para registrar usuario (simulada)
+        function register() {
+            const username = document.getElementById('register-username').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            
+            // Aquí deberías realizar el registro en tu base de datos
+            alert(Usuario ${username} registrado correctamente con el correo ${email});
+            showLoginForm();
+        }
+
+        // Función para recuperar la contraseña (simulada)
+        function recoverPassword() {
+            const email = document.getElementById('recovery-email').value;
+            
+            // Aquí deberías hacer el envío de la notificación al administrador
+            alert('Se ha enviado una solicitud de recuperación. El administrador será notificado.');
+            
+            // Simulación de notificación al administrador (backend)
+            fetch('/send-recovery-request', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Solicitud enviada al administrador');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
