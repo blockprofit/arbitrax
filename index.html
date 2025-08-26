@@ -37,7 +37,7 @@
     }
 
     body {
-      background: url('fondodepantallaprincipal1.jpeg') no-repeat center center fixed;
+      background: url('https://github.com/blockprofit/arbitrax/blob/main/fondodepantallainicio.jpeg?raw=true') no-repeat center center fixed;
       background-size: cover;
       display: flex;
       justify-content: center;
@@ -73,96 +73,33 @@
       }
     }
 
-    /* Logo principal de la plataforma */
-    .main-logo {
+    /* Logo flotante ArbitraX arriba del cuadro */
+    .floating-logo {
       position: absolute;
-      top: 80px;
+      top: -70px;
       left: 50%;
       transform: translateX(-50%);
-      width: 120px;
-      height: 120px;
-      z-index: 2;
-      filter: drop-shadow(0 0 20px rgba(0, 195, 255, 0.5));
-      animation: logoFloat 4s ease-in-out infinite;
-    }
-
-    .main-logo img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-
-    @keyframes logoFloat {
-      0%, 100% { transform: translateX(-50%) translateY(0px); }
-      50% { transform: translateX(-50%) translateY(-10px); }
-    }
-
-    /* Logos de marca flotantes */
-    .brand-logos {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 1;
-      overflow: hidden;
-    }
-
-    /* Logo B en hexágono - más pequeño y reposicionado */
-    .bitcoin-logo {
-      position: absolute;
-      top: 20%;
-      right: 15%;
-      width: 80px;
-      height: 80px;
-      opacity: 0.15;
-      animation: floatSlow 8s ease-in-out infinite;
-      z-index: 1;
-    }
-
-    .bitcoin-logo svg {
-      width: 100%;
-      height: 100%;
-      filter: drop-shadow(0 0 15px rgba(0, 195, 255, 0.3));
-    }
-
-    /* Logos de texto ArbitraX - más pequeños */
-    .brand-logo {
-      position: absolute;
       font-size: 3rem;
       font-weight: 900;
-      color: #00c3ff;
-      user-select: none;
-      animation: float 6s ease-in-out infinite;
-      opacity: 0.1;
+      background: linear-gradient(135deg, #00c3ff, #00ffcc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 30px rgba(0, 195, 255, 0.5);
+      animation: floatingGlow 3s ease-in-out infinite alternate;
+      letter-spacing: 2px;
+      z-index: 3;
     }
 
-    .brand-logo:nth-child(2) {
-      top: 15%;
-      left: 8%;
-      transform: rotate(0deg);
-      animation-delay: 0s;
-      font-size: 2.5rem;
-    }
-
-    .brand-logo:nth-child(3) {
-      top: 25%;
-      left: 75%;
-      transform: rotate(0deg);
-      animation-delay: 2s;
-      font-size: 2rem;
-      color: #00ffcc;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-15px); }
-    }
-
-    @keyframes floatSlow {
-      0%, 100% { transform: translateY(0px) scale(1); }
-      50% { transform: translateY(-10px) scale(1.05); }
+    @keyframes floatingGlow {
+      from { 
+        filter: brightness(1) drop-shadow(0 0 20px rgba(0, 195, 255, 0.7)); 
+        transform: translateX(-50%) translateY(0px);
+      }
+      to { 
+        filter: brightness(1.2) drop-shadow(0 0 35px rgba(0, 255, 204, 0.9)); 
+        transform: translateX(-50%) translateY(-8px);
+      }
     }
 
     .login-container {
@@ -179,7 +116,7 @@
       box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
       position: relative;
       transition: all 0.3s ease;
-      margin-top: 150px;
+      margin-top: 80px;
     }
 
     .login-container:hover {
@@ -404,22 +341,21 @@
 
     /* Responsive */
     @media (max-width: 768px) {
-      .main-logo {
-        top: 40px;
-        width: 80px;
-        height: 80px;
+      .floating-logo {
+        font-size: 2.2rem;
+        top: -60px;
       }
 
       .login-container {
         margin: 20px;
-        margin-top: 140px;
+        margin-top: 80px;
         padding: 30px 25px;
         max-width: 350px;
       }
 
       .language-menu {
-        top: 10px;
-        right: 10px;
+        top: 15px;
+        right: 15px;
       }
 
       .language-menu button {
@@ -452,47 +388,24 @@
         font-size: 2.5rem;
         bottom: 30px;
       }
-
-      .bitcoin-logo {
-        width: 60px;
-        height: 60px;
-        top: 18%;
-        right: 10%;
-      }
-
-      .brand-logo {
-        font-size: 2rem;
-      }
-
-      .brand-logo:nth-child(2) {
-        font-size: 1.8rem;
-        top: 12%;
-        left: 8%;
-      }
-
-      .brand-logo:nth-child(3) {
-        font-size: 1.5rem;
-        top: 20%;
-        left: 70%;
-      }
     }
 
     @media (max-width: 480px) {
-      .main-logo {
-        top: 25px;
-        width: 60px;
-        height: 60px;
+      .floating-logo {
+        font-size: 1.8rem;
+        top: -50px;
+        letter-spacing: 1px;
       }
 
       .login-container {
         margin: 15px;
-        margin-top: 110px;
+        margin-top: 70px;
         padding: 25px 20px;
       }
 
       .language-menu {
-        top: 8px;
-        right: 8px;
+        top: 10px;
+        right: 10px;
       }
 
       .language-menu button {
@@ -521,72 +434,14 @@
         font-size: 2rem;
         bottom: 20px;
       }
-
-      .bitcoin-logo {
-        width: 45px;
-        height: 45px;
-        top: 15%;
-        right: 8%;
-      }
-
-      .brand-logo {
-        font-size: 1.5rem;
-      }
-
-      .brand-logo:nth-child(2) {
-        font-size: 1.3rem;
-        top: 10%;
-        left: 6%;
-      }
-
-      .brand-logo:nth-child(3) {
-        font-size: 1rem;
-        top: 18%;
-        left: 65%;
-      }
     }
   </style>
 </head>
 
 <body>
-  <!-- Logo principal de la plataforma -->
-  <div class="main-logo">
-    <img src="https://github.com/blockprofit/arbitrax/blob/main/fondodepantallainicio.jpeg?raw=true" alt="ArbitraX Logo">
-  </div>
-
-  <!-- Logos de marca flotantes -->
-  <div class="brand-logos">
-    <!-- Logo Bitcoin/B en hexágono -->
-    <div class="bitcoin-logo">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <!-- Hexágono -->
-        <polygon points="25,15 75,15 90,50 75,85 25,85 10,50" 
-                 fill="none" 
-                 stroke="#00c3ff" 
-                 stroke-width="2"/>
-        
-        <!-- B de Bitcoin -->
-        <text x="50" y="62" 
-              text-anchor="middle" 
-              font-family="Arial, sans-serif" 
-              font-size="45" 
-              font-weight="bold" 
-              fill="#00ffcc">B</text>
-        
-        <!-- Líneas decorativas internas -->
-        <line x1="20" y1="30" x2="80" y2="30" stroke="#00c3ff" stroke-width="1" opacity="0.5"/>
-        <line x1="20" y1="70" x2="80" y2="70" stroke="#00c3ff" stroke-width="1" opacity="0.5"/>
-        <line x1="35" y1="20" x2="35" y2="80" stroke="#00c3ff" stroke-width="1" opacity="0.5"/>
-        <line x1="65" y1="20" x2="65" y2="80" stroke="#00c3ff" stroke-width="1" opacity="0.5"/>
-      </svg>
-    </div>
-    
-    <!-- Logos de texto ArbitraX -->
-    <div class="brand-logo">ArbitraX</div>
-    <div class="brand-logo">ArbitraX</div>
-  </div>
-
   <div class="login-container">
+    <!-- Logo flotante ArbitraX -->
+    <div class="floating-logo">ArbitraX</div>
     <!-- Menú de idioma -->
     <div class="language-menu">
       <button onclick="toggleLangMenu()" id="currentLang">
