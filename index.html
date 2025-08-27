@@ -47,13 +47,39 @@
       position: relative;
     }
 
+    /* Logo ArbitraX */
+    .logo-container {
+      position: absolute;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 4rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #00c3ff, #00ffcc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 30px rgba(0, 195, 255, 0.5);
+      animation: logoGlow 3s ease-in-out infinite alternate;
+      letter-spacing: 2px;
+    }
+
+    @keyframes logoGlow {
+      from { 
+        filter: brightness(1) drop-shadow(0 0 20px rgba(0, 195, 255, 0.7)); 
+      }
+      to { 
+        filter: brightness(1.2) drop-shadow(0 0 35px rgba(0, 255, 204, 0.9)); 
+      }
+    }
+
     /* Logo flotante ArbitraX arriba del cuadro */
     .floating-logo {
       position: absolute;
       top: -70px;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 2.5rem;
+      font-size: 3rem;
       font-weight: 900;
       background: linear-gradient(135deg, #00c3ff, #00ffcc);
       -webkit-background-clip: text;
@@ -78,26 +104,24 @@
 
     .login-container {
       background: linear-gradient(135deg, 
-        rgba(0, 0, 0, 0.9), 
-        rgba(0, 195, 255, 0.15)
+        rgba(0, 0, 0, 0.85), 
+        rgba(0, 195, 255, 0.1)
       );
-      backdrop-filter: blur(25px);
-      border: 2px solid rgba(0, 195, 255, 0.4);
+      backdrop-filter: blur(20px);
+      border: 2px solid rgba(0, 195, 255, 0.3);
       border-radius: 20px;
       padding: 40px 35px;
       width: 100%;
-      max-width: 450px;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+      max-width: 420px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
       position: relative;
       transition: all 0.3s ease;
-      z-index: 2;
-      margin: 20px;
       margin-top: 80px;
     }
 
     .login-container:hover {
-      border-color: rgba(0, 255, 204, 0.5);
-      box-shadow: 0 30px 80px rgba(0, 195, 255, 0.4);
+      border-color: rgba(0, 255, 204, 0.4);
+      box-shadow: 0 30px 80px rgba(0, 195, 255, 0.3);
     }
 
     .language-menu {
@@ -315,45 +339,23 @@
       color: #ff6666;
     }
 
-    /* Logo ArbitraX inferior */
-    .logo-container {
-      position: absolute;
-      bottom: 50px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 3.5rem;
-      font-weight: 900;
-      background: linear-gradient(135deg, #00c3ff, #00ffcc);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      text-shadow: 0 0 30px rgba(0, 195, 255, 0.5);
-      animation: logoGlow 3s ease-in-out infinite alternate;
-      letter-spacing: 2px;
-      z-index: 1;
-    }
-
-    @keyframes logoGlow {
-      from { 
-        filter: brightness(1) drop-shadow(0 0 20px rgba(0, 195, 255, 0.7)); 
-      }
-      to { 
-        filter: brightness(1.2) drop-shadow(0 0 35px rgba(0, 255, 204, 0.9)); 
-      }
-    }
-
-    /* Responsive optimizado */
+    /* Responsive */
     @media (max-width: 768px) {
       .floating-logo {
-        font-size: 2rem;
-        top: -55px;
+        font-size: 2.2rem;
+        top: -60px;
       }
 
       .login-container {
-        max-width: 380px;
-        padding: 35px 30px;
-        margin: 15px;
-        margin-top: 70px;
+        margin: 20px;
+        margin-top: 80px;
+        padding: 30px 25px;
+        max-width: 350px;
+      }
+
+      .language-menu {
+        top: 15px;
+        right: 15px;
       }
 
       .language-menu button {
@@ -367,34 +369,43 @@
         top: 38px;
       }
 
+      .language-menu ul li {
+        padding: 10px 12px;
+        font-size: 0.8rem;
+      }
+
       h2 {
-        font-size: 1.7rem;
+        font-size: 1.6rem;
         margin-bottom: 25px;
       }
 
       input, button {
-        padding: 15px 18px;
+        padding: 14px 18px;
         font-size: 15px;
       }
 
       .logo-container {
-        font-size: 2.8rem;
-        bottom: 35px;
+        font-size: 2.5rem;
+        bottom: 30px;
       }
     }
 
     @media (max-width: 480px) {
       .floating-logo {
-        font-size: 1.7rem;
-        top: -45px;
+        font-size: 1.8rem;
+        top: -50px;
         letter-spacing: 1px;
       }
 
       .login-container {
-        max-width: 320px;
-        padding: 30px 25px;
-        margin: 10px;
-        margin-top: 60px;
+        margin: 15px;
+        margin-top: 70px;
+        padding: 25px 20px;
+      }
+
+      .language-menu {
+        top: 10px;
+        right: 10px;
       }
 
       .language-menu button {
@@ -409,54 +420,19 @@
         top: 35px;
       }
 
-      h2 {
-        font-size: 1.5rem;
-      }
-
-      input, button {
-        padding: 14px 16px;
-        font-size: 14px;
-      }
-
-      .logo-container {
-        font-size: 2.2rem;
-        bottom: 25px;
-      }
-    }
-
-    /* Desktop optimizations */
-    @media (min-width: 1024px) {
-      .floating-logo {
-        font-size: 3rem;
-        top: -80px;
-      }
-
-      .login-container {
-        max-width: 520px;
-        padding: 50px 45px;
-        margin-top: 100px;
+      .language-menu ul li {
+        padding: 8px 10px;
+        font-size: 0.75rem;
+        gap: 6px;
       }
 
       h2 {
-        font-size: 2.3rem;
-        margin-bottom: 35px;
-      }
-
-      input, button {
-        padding: 18px 22px;
-        font-size: 17px;
-        margin: 18px 0;
-      }
-
-      .language-menu button {
-        padding: 10px 14px;
-        font-size: 0.9rem;
-        min-width: 85px;
+        font-size: 1.4rem;
       }
 
       .logo-container {
-        font-size: 4rem;
-        bottom: 60px;
+        font-size: 2rem;
+        bottom: 20px;
       }
     }
   </style>
