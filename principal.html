@@ -452,7 +452,7 @@
       transform: translateX(-50%) translateY(-5px);
     }
 
-.chart-labels-pro {
+    .chart-labels-pro {
       position: absolute;
       bottom: 0;
       left: 40px;
@@ -744,7 +744,7 @@
       transform: scale(1.2);
     }
 
-/* ESTILOS MEJORADOS PARA TICKETS */
+/* ESTILOS MEJORADOS PARA TICKETS (NO TOCAR - YA FUNCIONALES) */
     #historialTickets {
       margin-top: 20px;
       border-top: 1px solid rgba(0, 195, 255, 0.3);
@@ -854,51 +854,6 @@
       text-align: right;
     }
 
-    .ticket-user-response {
-      background: rgba(0, 255, 204, 0.1);
-      border-left: 3px solid #00ffcc;
-      padding: 10px;
-      border-radius: 5px;
-      margin-top: 10px;
-    }
-    
-    .ticket-user-response-header {
-      color: #00ffcc;
-      font-weight: bold;
-      font-size: 0.85rem;
-      margin-bottom: 5px;
-    }
-    
-    .ticket-user-response-content {
-      color: rgba(255, 255, 255, 0.9);
-      font-size: 0.9rem;
-      line-height: 1.4;
-    }
-    
-    .ticket-user-response-date {
-      color: rgba(255, 255, 255, 0.6);
-      font-size: 0.75rem;
-      margin-top: 5px;
-      text-align: right;
-    }
-    
-    .ticket-reply-section {
-      background: rgba(0, 195, 255, 0.05);
-      border: 1px solid rgba(0, 195, 255, 0.2);
-      border-radius: 8px;
-      padding: 15px;
-      margin-top: 15px;
-    }
-    
-    .ticket-reply-section::before {
-      content: "💬 Responder al administrador:";
-      display: block;
-      color: #00c3ff;
-      font-weight: bold;
-      font-size: 0.9rem;
-      margin-bottom: 10px;
-    }
-
     .no-tickets {
       text-align: center;
       color: rgba(255, 255, 255, 0.5);
@@ -960,12 +915,14 @@
         right: 5%;
         left: 5%;
       }
-
+      
       .ticket-header-user {
         flex-direction: column;
         align-items: flex-start;
       }
     }
+  </style>
+</head>
 
 <body>
 <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
@@ -1107,7 +1064,7 @@
   </div>
 </div>
 
-<!-- MODALES CORREGIDOS -->
+<!-- Modales (NO TOCAR) -->
 <div id="botAyuda" onclick="toggleAyuda()"><i class="fas fa-comment-dots"></i></div>
 <div id="modalAyuda" class="modal">
   <div class="contenido-ayuda">
@@ -1139,7 +1096,6 @@
 </div>
 
 <script>
-
 const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWxlemtjeHdyanZ5eGx4c2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTksImV4cCI6MjA2NDY1Mjk5OX0.ac82tkUR7AT0QVsuzuAGA8SXLkgnM9OX62meYNGnToI';
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -1208,71 +1164,58 @@ async function guardarPerfil() {
   showSection("welcome");
 }
 
-// FUNCIÓN CORREGIDA PARA LA GRÁFICA - USA LOS DATOS REALES DEL SISTEMA
+// FUNCIÓN PARA ACTUALIZAR LA GRÁFICA PROFESIONAL CON DATOS REALES
 async function actualizarGraficaProfesional() {
   try {
-    // Calcular ganancias diarias basadas en el sistema actual
-    const gananciasDiarias = [];
-    const fechaHoy = new Date();
+    // Obtener datos de recompensas de los últimos 7 días
+    const fechaInicio = new Date();
+    fechaInicio.setDate(fechaInicio.getDate() - 6); // Últimos 7 días
     
-    // Si no hay inversión, mostrar ceros
-    if (montoInvertido <= 0 || porcentajeSemanal <= 0) {
+    const { data: recompensas, error } = await client
+      .from("recompensas")
+      .select("monto, fecha")
+      .eq("usuario_id", currentUserId)
+      .eq("aprobada", true)
+      .gte("fecha", fechaInicio.toISOString());
+
+    // Crear datos para los últimos 7 días
+    const datosGrafica = [0, 0, 0, 0, 0, 0, 0];
+    
+    // Llenar con ganancias por inversión (simuladas diarias)
+    if (montoInvertido > 0 && porcentajeSemanal > 0) {
+      const gananciasDiarias = (montoInvertido * porcentajeSemanal / 100) / 7;
       for (let i = 0; i < 7; i++) {
-        gananciasDiarias.push(0);
-      }
-    } else {
-      // Calcular ganancia diaria base (lo que se genera automáticamente)
-      const gananciaDiariaBase = (montoInvertido * porcentajeSemanal / 100) / 7;
-      
-      // Obtener cambios en saldo disponible (retiros/depósitos) últimos 7 días
-      const fechaInicio = new Date();
-      fechaInicio.setDate(fechaInicio.getDate() - 6);
-      
-      const { data: movimientos } = await client
-        .from("balances")
-        .select("saldo, updated_at")
-        .eq("usuario_id", currentUserId)
-        .gte("updated_at", fechaInicio.toISOString())
-        .order("updated_at", { ascending: true });
-      
-      // Crear array de ganancias para los últimos 7 días
-      for (let i = 0; i < 7; i++) {
-        const fecha = new Date();
-        fecha.setDate(fecha.getDate() - (6 - i));
-        
-        let gananciaDelDia = gananciaDiariaBase;
-        
-        // Agregar cualquier ganancia adicional de recompensas ese día
-        const { data: recompensasDelDia } = await client
-          .from("recompensas")
-          .select("monto")
-          .eq("usuario_id", currentUserId)
-          .eq("aprobada", true)
-          .gte("fecha", fecha.toISOString().split('T')[0])
-          .lt("fecha", new Date(fecha.getTime() + 24*60*60*1000).toISOString().split('T')[0]);
-        
-        if (recompensasDelDia && recompensasDelDia.length > 0) {
-          const totalRecompensas = recompensasDelDia.reduce((sum, r) => sum + parseFloat(r.monto || 0), 0);
-          gananciaDelDia += totalRecompensas;
-        }
-        
-        gananciasDiarias.push(gananciaDelDia);
+        datosGrafica[i] = gananciasDiarias;
       }
     }
+    
+    // Agregar recompensas reales a los días correspondientes
+    if (recompensas) {
+      recompensas.forEach(recompensa => {
+        const fechaRecompensa = new Date(recompensa.fecha);
+        const diaActual = new Date();
+        const diferenciaDias = Math.floor((diaActual - fechaRecompensa) / (1000 * 60 * 60 * 24));
+        
+        if (diferenciaDias >= 0 && diferenciaDias < 7) {
+          const indice = 6 - diferenciaDias; // Invertir para que el día actual sea el último
+          datosGrafica[indice] += parseFloat(recompensa.monto) || 0;
+        }
+      });
+    }
 
-    // Actualizar las barras con los datos calculados
+    // Actualizar las barras profesionales con los datos reales
     const bars = document.querySelectorAll('.professional-bar');
-    const maxValue = Math.max(...gananciasDiarias, 50); // Mínimo 50 para visualización
+    const maxValue = Math.max(...datosGrafica, 100); // Al menos 100 para que se vea bien
     
     let totalSemana = 0;
     let mejorDiaValor = 0;
     
     bars.forEach((bar, index) => {
-      const valor = gananciasDiarias[index];
-      const altura = Math.max((valor / maxValue) * 180, 10);
+      const valor = datosGrafica[index];
+      const altura = Math.max((valor / maxValue) * 180, 15); // Altura mínima de 15px
       
       bar.style.height = `${altura}px`;
-      bar.querySelector('.bar-value-pro').textContent = `$${valor.toFixed(2)}`;
+      bar.querySelector('.bar-value-pro').textContent = `$${valor.toFixed(0)}`;
       
       totalSemana += valor;
       if (valor > mejorDiaValor) mejorDiaValor = valor;
@@ -1286,33 +1229,25 @@ async function actualizarGraficaProfesional() {
     document.getElementById('mejorDia').textContent = `$${mejorDiaValor.toFixed(2)}`;
 
   } catch (error) {
-    console.error('Error actualizando gráfica:', error);
-    // En caso de error, mostrar datos basados en el cálculo actual simple
-    actualizarGraficaConDatosActuales();
+    console.error('Error actualizando gráfica profesional:', error);
+    // Si hay error, mostrar datos por defecto
+    actualizarGraficaProfesionalPorDefecto();
   }
 }
 
-// Función de respaldo que usa solo los datos actuales del sistema
-function actualizarGraficaConDatosActuales() {
+function actualizarGraficaProfesionalPorDefecto() {
   const bars = document.querySelectorAll('.professional-bar');
+  const datosDefault = [120, 300, 180, 260, 210, 400, 370];
   
-  // Calcular ganancia diaria basada en los datos actuales
-  let gananciaDiaria = 0;
-  if (montoInvertido > 0 && porcentajeSemanal > 0) {
-    gananciaDiaria = (montoInvertido * porcentajeSemanal / 100) / 7;
-  }
-  
-  // Crear variación realista para los últimos 7 días
-  const variaciones = [0.8, 1.2, 0.9, 1.1, 1.0, 1.3, 1.05]; // Factores de variación
   let totalSemana = 0;
   let mejorDiaValor = 0;
   
   bars.forEach((bar, index) => {
-    const valor = gananciaDiaria * variaciones[index];
-    const altura = valor > 0 ? Math.max((valor / (gananciaDiaria * 1.4)) * 180, 15) : 15;
+    const valor = datosDefault[index];
+    const altura = (valor / 400) * 180; // 400 es el máximo en datos default
     
     bar.style.height = `${altura}px`;
-    bar.querySelector('.bar-value-pro').textContent = `$${valor.toFixed(2)}`;
+    bar.querySelector('.bar-value-pro').textContent = `$${valor}`;
     
     totalSemana += valor;
     if (valor > mejorDiaValor) mejorDiaValor = valor;
@@ -1419,7 +1354,7 @@ function toggleAyuda() {
 function toggleNotificacion() {
   const modal = document.getElementById("modalNotificacion");
   const isVisible = modal.style.display === "block";
-
+  
   if (!isVisible) {
     modal.style.display = "block";
     cargarNotificaciones();
@@ -1472,7 +1407,6 @@ async function enviarTicket() {
   }
 }
 
-// FUNCIÓN CORREGIDA DE TICKETS - PERMITE RESPONDER EN "EN_PROCESO"
 async function cargarHistorialTickets() {
   try {
     const { data, error } = await client
@@ -1499,7 +1433,6 @@ async function cargarHistorialTickets() {
     data.forEach(ticket => {
       const fechaCreacion = formatearFecha(ticket.fecha);
       const fechaRespuesta = ticket.fecha_respuesta ? formatearFecha(ticket.fecha_respuesta) : null;
-      const puedeResponder = ticket.estado === 'en_proceso' || ticket.estado === 'pendiente';
       
       html += `
         <div class="ticket-item-user">
@@ -1532,74 +1465,6 @@ async function cargarHistorialTickets() {
               </div>
             </div>
           ` : ''}
-          
-          ${puedeResponder && ticket.respuesta_admin && !ticket.respuesta_usuario ? `
-            <div style="background: rgba(0, 195, 255, 0.05); border: 1px solid rgba(0, 195, 255, 0.2); border-radius: 8px; padding: 15px; margin-top: 15px;">
-              <div style="color: #00c3ff; font-weight: bold; font-size: 0.9rem; margin-bottom: 10px;">💬 Responder al administrador:</div>
-              <textarea id="respuestaUsuario-${ticket.id}" placeholder="Escribe tu respuesta..." style="width: 100%; min-height: 80px; margin: 10px 0; padding: 10px; border: 1px solid rgba(0, 195, 255, 0.3); border-radius: 8px; background: rgba(34, 34, 34, 0.8); color: white; resize: vertical;"></textarea>
-              <button onclick="responderTicket(${ticket.id})" style="background: linear-gradient(135deg, #00c3ff, #00ffcc); border: none; padding: 8px 16px; color: black; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%;">
-                <i class="fas fa-reply"></i> Enviar Respuesta
-              </button>
-            </div>
-          ` : ''}
-        </div>
-      `;
-    });
-    
-    container.innerHTML = html;
-    
-  } catch (error) {
-    console.error('Error en cargarHistorialTickets:', error);
-  }
-}
-
-// Agregar esta función nueva al final de tu script
-async function responderTicket(ticketId) {
-  const textarea = document.getElementById(`respuestaUsuario-${ticketId}`);
-  const respuesta = textarea.value.trim();
-  
-  if (!respuesta) {
-    alert("Por favor escribe una respuesta");
-    return;
-  }
-
-  try {
-    const { error } = await client
-      .from("tickets")
-      .update({
-        respuesta_usuario: respuesta,
-        fecha_respuesta_usuario: new Date().toISOString(),
-        estado: 'en_proceso'
-      })
-      .eq("id", ticketId);
-
-    if (error) {
-      alert("Error al enviar respuesta");
-      return;
-    }
-
-    alert("Respuesta enviada correctamente");
-    textarea.value = "";
-    await cargarHistorialTickets();
-    
-  } catch (error) {
-    alert("Error al enviar respuesta");
-  }
-}
-          
-          ${ticket.estado === 'resuelto' ? `
-            <div style="
-              background: rgba(40, 167, 69, 0.1);
-              border: 1px solid #28a745;
-              border-radius: 8px;
-              padding: 10px;
-              margin-top: 10px;
-              text-align: center;
-              color: #28a745;
-            ">
-              <i class="fas fa-check-circle"></i> Este ticket ha sido marcado como resuelto
-            </div>
-          ` : ''}
         </div>
       `;
     });
@@ -1609,44 +1474,6 @@ async function responderTicket(ticketId) {
   } catch (error) {
     console.error('Error en cargarHistorialTickets:', error);
     document.getElementById("listaTickets").innerHTML = '<div class="no-tickets">Error al cargar tickets.</div>';
-  }
-}
-
-// NUEVA FUNCIÓN PARA RESPONDER TICKETS
-async function responderTicket(ticketId) {
-  const textarea = document.getElementById(`respuestaUsuario-${ticketId}`);
-  const respuesta = textarea.value.trim();
-  
-  if (!respuesta) {
-    mostrarNotificacion("Por favor escribe una respuesta", "error");
-    return;
-  }
-
-  try {
-    const { error } = await client
-      .from("tickets")
-      .update({
-        respuesta_usuario: respuesta,
-        fecha_respuesta_usuario: new Date().toISOString(),
-        estado: 'en_proceso' // Mantener en proceso para que el admin pueda ver la respuesta
-      })
-      .eq("id", ticketId);
-
-    if (error) {
-      console.error('Error enviando respuesta:', error);
-      mostrarNotificacion("Error al enviar respuesta", "error");
-      return;
-    }
-
-    mostrarNotificacion("Respuesta enviada correctamente", "success");
-    textarea.value = "";
-    
-    // Recargar tickets para mostrar la respuesta
-    await cargarHistorialTickets();
-    
-  } catch (error) {
-    console.error('Error en responderTicket:', error);
-    mostrarNotificacion("Error al enviar respuesta", "error");
   }
 }
 
@@ -1692,13 +1519,26 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     animation: slideInNotif 0.3s ease;
   `;
 
-document.body.appendChild(div);
+  document.body.appendChild(div);
 
   setTimeout(() => {
     div.style.animation = 'slideOutNotif 0.3s ease';
     setTimeout(() => div.remove(), 300);
   }, 4000);
 }
+
+const notifStyles = document.createElement('style');
+notifStyles.textContent = `
+  @keyframes slideInNotif {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes slideOutNotif {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+  }
+`;
+document.head.appendChild(notifStyles);
 
 async function logout() {
   if (currentUserId) {
@@ -1709,6 +1549,34 @@ async function logout() {
   await client.auth.signOut();
   window.location.href = "index.html";
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  validateSession();
+  
+  setInterval(async () => {
+    await verificarNuevasRespuestas();
+  }, 60000);
+  
+  window.addEventListener('click', function(event) {
+    const modalAyuda = document.getElementById('modalAyuda');
+    const modalNotificacion = document.getElementById('modalNotificacion');
+    
+    if (event.target === modalAyuda) {
+      modalAyuda.style.display = 'none';
+    }
+    if (event.target === modalNotificacion) {
+      modalNotificacion.style.display = 'none';
+    }
+  });
+  
+  document.querySelector('.contenido-ayuda').addEventListener('click', function(event) {
+    event.stopPropagation();
+  });
+  
+  document.querySelector('.contenido-notificacion').addEventListener('click', function(event) {
+    event.stopPropagation();
+  });
+});
 
 async function verificarNuevasRespuestas() {
   try {
@@ -1866,7 +1734,6 @@ async function cargarNotificaciones() {
   }
 }
 
-// ESTILOS ADICIONALES Y ANIMACIONES
 const additionalStyles = document.createElement('style');
 additionalStyles.textContent = `
   @keyframes fadeInOut {
@@ -1887,15 +1754,6 @@ additionalStyles.textContent = `
   
   .notification-badge {
     box-shadow: 0 2px 10px rgba(255, 71, 87, 0.5);
-  }
-  
-  @keyframes slideInNotif {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-  }
-  @keyframes slideOutNotif {
-    from { transform: translateX(0); opacity: 1; }
-    to { transform: translateX(100%); opacity: 0; }
   }
   
   #modalAyuda::-webkit-scrollbar,
@@ -1921,35 +1779,6 @@ additionalStyles.textContent = `
   }
 `;
 document.head.appendChild(additionalStyles);
-
-// INICIALIZACIÓN Y EVENT LISTENERS
-document.addEventListener('DOMContentLoaded', function() {
-  validateSession();
-  
-  setInterval(async () => {
-    await verificarNuevasRespuestas();
-  }, 60000);
-  
-  window.addEventListener('click', function(event) {
-    const modalAyuda = document.getElementById('modalAyuda');
-    const modalNotificacion = document.getElementById('modalNotificacion');
-    
-    if (event.target === modalAyuda) {
-      modalAyuda.style.display = 'none';
-    }
-    if (event.target === modalNotificacion) {
-      modalNotificacion.style.display = 'none';
-    }
-  });
-  
-  document.querySelector('.contenido-ayuda').addEventListener('click', function(event) {
-    event.stopPropagation();
-  });
-  
-  document.querySelector('.contenido-notificacion').addEventListener('click', function(event) {
-    event.stopPropagation();
-  });
-});
 
 validateSession();
 
