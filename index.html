@@ -50,10 +50,10 @@
     /* Logo flotante ArbitraX arriba del cuadro */
     .floating-logo {
       position: absolute;
-      top: -60px;
+      top: -55px;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 2.2rem;
+      font-size: 2rem;
       font-weight: 900;
       background: linear-gradient(135deg, #00c3ff, #00ffcc);
       -webkit-background-clip: text;
@@ -84,15 +84,15 @@
       backdrop-filter: blur(25px);
       border: 2px solid rgba(0, 195, 255, 0.4);
       border-radius: 20px;
-      padding: 35px 30px;
+      padding: 32px 28px;
       width: 100%;
-      max-width: 400px;
+      max-width: 380px;
       box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
       position: relative;
       transition: all 0.3s ease;
       z-index: 2;
       margin: 20px;
-      margin-top: 70px;
+      margin-top: 65px;
     }
 
     .login-container:hover {
@@ -110,18 +110,18 @@
     .language-menu button {
       background: linear-gradient(135deg, rgba(0, 195, 255, 0.2), rgba(0, 255, 204, 0.1));
       border: 2px solid rgba(0, 195, 255, 0.3);
-      padding: 8px 12px;
+      padding: 7px 11px;
       border-radius: 10px;
       font-weight: bold;
       cursor: pointer;
       color: white;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
       transition: all 0.3s ease;
       backdrop-filter: blur(10px);
-      font-size: 0.9rem;
-      min-width: 80px;
+      font-size: 0.85rem;
+      min-width: 75px;
     }
 
     .language-menu button:hover {
@@ -133,7 +133,7 @@
     .language-menu ul {
       display: none;
       position: absolute;
-      top: 45px;
+      top: 42px;
       right: 0;
       list-style: none;
       background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(0, 195, 255, 0.1));
@@ -142,20 +142,20 @@
       border-radius: 12px;
       padding: 8px 0;
       margin: 0;
-      width: 120px;
+      width: 110px;
       z-index: 99;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     }
 
     .language-menu ul li {
-      padding: 12px 15px;
+      padding: 11px 14px;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 9px;
       transition: all 0.3s ease;
       color: white;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
     }
 
     .language-menu ul li:hover {
@@ -164,8 +164,8 @@
 
     h2 {
       text-align: center;
-      margin-bottom: 25px;
-      font-size: 1.8rem;
+      margin-bottom: 24px;
+      font-size: 1.65rem;
       font-weight: 700;
       background: linear-gradient(135deg, #00c3ff, #00ffcc);
       -webkit-background-clip: text;
@@ -176,11 +176,11 @@
 
     input {
       width: 100%;
-      padding: 14px 18px;
-      margin: 12px 0;
+      padding: 13px 17px;
+      margin: 11px 0;
       border: 2px solid rgba(0, 195, 255, 0.4);
       border-radius: 12px;
-      font-size: 15px;
+      font-size: 14px;
       background: linear-gradient(135deg, 
         rgba(34, 34, 34, 0.9), 
         rgba(0, 195, 255, 0.1)
@@ -207,11 +207,11 @@
 
     button {
       width: 100%;
-      padding: 15px 18px;
-      margin: 18px 0 8px 0;
+      padding: 14px 17px;
+      margin: 16px 0 8px 0;
       border: none;
       border-radius: 12px;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
       cursor: pointer;
       background: linear-gradient(135deg, #00c3ff, #00ffcc);
@@ -247,8 +247,8 @@
 
     .form-switch {
       text-align: center;
-      margin-top: 20px;
-      font-size: 14px;
+      margin-top: 18px;
+      font-size: 13px;
       color: rgba(255, 255, 255, 0.8);
     }
 
@@ -257,10 +257,10 @@
       text-decoration: none;
       cursor: pointer;
       display: inline-block;
-      margin: 5px 8px;
+      margin: 4px 7px;
       font-weight: bold;
       transition: all 0.3s ease;
-      padding: 5px 10px;
+      padding: 4px 9px;
       border-radius: 6px;
     }
 
@@ -287,10 +287,10 @@
 
     /* Success/Error messages */
     .message {
-      padding: 12px 16px;
-      margin: 15px 0;
+      padding: 11px 15px;
+      margin: 14px 0;
       border-radius: 10px;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       text-align: center;
       opacity: 0;
@@ -315,13 +315,13 @@
       color: #ff6666;
     }
 
-    /* Logo ArbitraX inferior */
+    /* Logo ArbitraX inferior - CORREGIDO PARA MÓVIL */
     .logo-container {
-      position: absolute;
-      bottom: 40px;
+      position: fixed;
+      bottom: 30px;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 3.2rem;
+      font-size: 2.8rem;
       font-weight: 900;
       background: linear-gradient(135deg, #00c3ff, #00ffcc);
       -webkit-background-clip: text;
@@ -342,121 +342,199 @@
       }
     }
 
-    /* Responsive optimizado */
+    /* Responsive optimizado para 100% zoom en desktop */
     @media (max-width: 768px) {
       .floating-logo {
-        font-size: 1.9rem;
-        top: -50px;
+        font-size: 1.7rem;
+        top: -45px;
       }
 
       .login-container {
-        max-width: 350px;
-        padding: 30px 25px;
+        max-width: 340px;
+        padding: 28px 24px;
         margin: 15px;
-        margin-top: 60px;
+        margin-top: 55px;
       }
 
       .language-menu button {
         padding: 6px 8px;
-        font-size: 0.8rem;
-        min-width: 70px;
+        font-size: 0.75rem;
+        min-width: 65px;
+        gap: 5px;
       }
 
       .language-menu ul {
-        width: 100px;
-        top: 38px;
+        width: 95px;
+        top: 36px;
+      }
+
+      .language-menu ul li {
+        padding: 9px 12px;
+        font-size: 0.75rem;
+        gap: 7px;
       }
 
       h2 {
-        font-size: 1.6rem;
-        margin-bottom: 22px;
+        font-size: 1.45rem;
+        margin-bottom: 20px;
       }
 
       input, button {
-        padding: 13px 16px;
-        font-size: 14px;
+        padding: 12px 15px;
+        font-size: 13px;
+        margin: 10px 0;
+      }
+
+      .form-switch {
+        font-size: 12px;
+        margin-top: 15px;
       }
 
       .logo-container {
-        font-size: 2.4rem;
+        font-size: 2.2rem;
         bottom: 25px;
       }
     }
 
     @media (max-width: 480px) {
       .floating-logo {
-        font-size: 1.6rem;
-        top: -40px;
+        font-size: 1.5rem;
+        top: -38px;
         letter-spacing: 1px;
       }
 
       .login-container {
-        max-width: 320px;
-        padding: 25px 20px;
-        margin: 10px;
-        margin-top: 50px;
+        max-width: 310px;
+        padding: 24px 20px;
+        margin: 12px;
+        margin-top: 48px;
       }
 
       .language-menu button {
-        padding: 5px 6px;
-        font-size: 0.75rem;
-        min-width: 60px;
-        gap: 5px;
+        padding: 5px 7px;
+        font-size: 0.7rem;
+        min-width: 58px;
+        gap: 4px;
       }
 
       .language-menu ul {
-        width: 85px;
-        top: 35px;
+        width: 80px;
+        top: 33px;
+      }
+
+      .language-menu ul li {
+        padding: 8px 10px;
+        font-size: 0.7rem;
+        gap: 5px;
       }
 
       h2 {
-        font-size: 1.4rem;
+        font-size: 1.3rem;
+        margin-bottom: 18px;
       }
 
       input, button {
-        padding: 12px 15px;
-        font-size: 14px;
+        padding: 11px 14px;
+        font-size: 13px;
+        margin: 9px 0;
+      }
+
+      .form-switch {
+        font-size: 11px;
+        margin-top: 12px;
+      }
+
+      .form-switch a {
+        margin: 3px 5px;
+        padding: 3px 7px;
       }
 
       .logo-container {
-        font-size: 2rem;
+        font-size: 1.8rem;
         bottom: 20px;
       }
     }
 
-    /* Desktop optimizations */
+    /* Desktop optimizations - CORREGIDO PARA 100% ZOOM */
     @media (min-width: 1024px) {
       .floating-logo {
-        font-size: 2.4rem;
-        top: -65px;
+        font-size: 2.1rem;
+        top: -58px;
+      }
+
+      .login-container {
+        max-width: 400px;
+        padding: 36px 32px;
+        margin-top: 70px;
+      }
+
+      h2 {
+        font-size: 1.75rem;
+        margin-bottom: 26px;
+      }
+
+      input, button {
+        padding: 15px 19px;
+        font-size: 15px;
+        margin: 13px 0;
+      }
+
+      .language-menu button {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        min-width: 75px;
+        gap: 7px;
+      }
+
+      .language-menu ul {
+        width: 110px;
+        top: 42px;
+      }
+
+      .language-menu ul li {
+        padding: 11px 14px;
+        font-size: 0.85rem;
+        gap: 9px;
+      }
+
+      .form-switch {
+        font-size: 13px;
+        margin-top: 18px;
+      }
+
+      .logo-container {
+        font-size: 3.2rem;
+        bottom: 35px;
+      }
+    }
+
+    /* Extra large screens */
+    @media (min-width: 1440px) {
+      .floating-logo {
+        font-size: 2.3rem;
+        top: -62px;
       }
 
       .login-container {
         max-width: 420px;
-        padding: 40px 35px;
-        margin-top: 80px;
+        padding: 38px 34px;
+        margin-top: 75px;
       }
 
       h2 {
-        font-size: 1.9rem;
+        font-size: 1.85rem;
         margin-bottom: 28px;
       }
 
       input, button {
         padding: 16px 20px;
-        font-size: 16px;
+        font-size: 15px;
         margin: 14px 0;
       }
 
-      .language-menu button {
-        padding: 9px 12px;
-        font-size: 0.9rem;
-        min-width: 80px;
-      }
-
       .logo-container {
-        font-size: 3.5rem;
-        bottom: 45px;
+        font-size: 3.4rem;
+        bottom: 40px;
       }
     }
   </style>
@@ -527,7 +605,7 @@
       </div>
     </div>
 
-    <!-- Recuperar contraseña -->
+<!-- Recuperar contraseña -->
     <div id="recoverForm" class="hidden">
       <h2 id="recoverTitle">
         <i class="fas fa-key"></i>
