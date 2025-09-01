@@ -809,9 +809,10 @@
 
     @keyframes pulse {
       0%, 100% { transform: scale(1); }
-      50% { transform: 
+      50% { transform: scale(1.02); }
+    }
 
-@media (max-width: 768px) {
+    @media (max-width: 768px) {
       .content {
         padding: 20px 10px;
       }
@@ -986,13 +987,13 @@ let mysteryBoxConfig = {
   minipool_remaining: 0,
   empty_remaining: 0,
   total_available: 0,
-  cajas_disponibles: 0 // CONTADOR PRINCIPAL DE CAJAS
+  cajas_disponibles: 0 // CONTADOR PRINCIPAL CRÍTICO
 };
 
-// FUNCIÓN CORREGIDA: Cargar configuración con prioridad en cajas_disponibles
+// FUNCIÓN CRÍTICA CORREGIDA: Cargar configuración con verificación estricta
 async function cargarConfiguracionMysteryBox() {
   try {
-    console.log('🔄 Cargando configuración de Mystery Box desde admin...');
+    console.log('Cargando configuración de Mystery Box desde admin...');
     
     const { data, error } = await supabaseClient
       .from('mystery_box_config')
@@ -1004,7 +1005,7 @@ async function cargarConfiguracionMysteryBox() {
 
     if (error) {
       console.error('Error cargando configuración:', error);
-      mostrarError('❌ Error al cargar configuración del administrador.');
+      mostrarError('Error al cargar configuración del administrador.');
       return false;
     }
 
@@ -1017,52 +1018,60 @@ async function cargarConfiguracionMysteryBox() {
         minipool_remaining: data.minipool_remaining || 0,
         empty_remaining: data.empty_remaining || 0,
         total_available: (data.cash_remaining || 0) + (data.trivia_remaining || 0) + (data.minipool_remaining || 0) + (data.empty_remaining || 0),
-        cajas_disponibles: data.cajas_disponibles || 0 // CARGAR CONTADOR PRINCIPAL
+        // CRÍTICO: Cargar contador principal correctamente
+        cajas_disponibles: data.cajas_disponibles || 0
       };
       
-      console.log('✅ Configuración cargada:', {
+      console.log('Configuración cargada desde admin:', {
         costo: mysteryBoxConfig.cost,
         premios_disponibles: mysteryBoxConfig.total_available,
         cajas_disponibles: mysteryBoxConfig.cajas_disponibles,
         efectivo_disponible: mysteryBoxConfig.cash_remaining,
-        monto_efectivo: mysteryBoxConfig.cash_amount
+        trivia_disponible: mysteryBoxConfig.trivia_remaining,
+        minipool_disponible: mysteryBoxConfig.minipool_remaining,
+        vacias_disponibles: mysteryBoxConfig.empty_remaining
       });
 
       updateUI();
       updateStockIndicators();
       return true;
     } else {
-      console.warn('⚠️ No se encontró configuración activa');
-      mostrarError('⚠️ No hay configuración de Mystery Box disponible en el administrador.');
+      console.warn('No se encontró configuración activa en admin');
+      mostrarError('No hay configuración de Mystery Box disponible en el administrador.');
       return false;
     }
     
   } catch (error) {
-    console.error('💥 Error cargando configuración:', error);
-    mostrarError('❌ Error de conexión al cargar configuración.');
+    console.error('Error cargando configuración:', error);
+    mostrarError('Error de conexión al cargar configuración.');
     return false;
   }
 }
 
-// FUNCIÓN CORREGIDA: updateStockIndicators con PRIORIDAD del contador principal
+// FUNCIÓN CRÍTICA CORREGIDA: updateStockIndicators con PRIORIDAD ABSOLUTA
 function updateStockIndicators() {
   const stockIndicator = document.getElementById('stockIndicator');
   const stockText = document.getElementById('stockText');
   const stockWarnings = document.getElementById('stockWarnings');
   const treasureChest = document.getElementById('treasureChest');
   
-  // ✅ CORRECCIÓN CRÍTICA: Verificar cajas_disponibles PRIMERO
+  console.log('Verificando estado del stock:', {
+    cajas_disponibles: mysteryBoxConfig.cajas_disponibles,
+    premios_disponibles: mysteryBoxConfig.total_available
+  });
+  
+  // VERIFICACIÓN PRIMERA Y CRÍTICA: cajas_disponibles
   if (mysteryBoxConfig.cajas_disponibles <= 0) {
-    // Sistema pausado - PRIORIDAD MÁXIMA
+    // SISTEMA PAUSADO - PRIORIDAD MÁXIMA
     stockIndicator.className = 'stock-indicator system-paused';
     stockIndicator.style.display = 'inline-flex';
-    stockText.innerHTML = '🚨 SISTEMA PAUSADO - No hay cajas disponibles';
+    stockText.innerHTML = 'SISTEMA PAUSADO - No hay cajas disponibles';
     
     // Mostrar mensaje especial de sistema pausado
     stockWarnings.innerHTML = `
       <div class="system-paused-message">
         <i class="fas fa-pause-circle" style="font-size: 1.5rem; margin-bottom: 10px; display: block;"></i>
-        <strong>🚨 SISTEMA TEMPORALMENTE PAUSADO 🚨</strong>
+        <strong>SISTEMA TEMPORALMENTE PAUSADO</strong>
         <br><br>
         No hay cajas disponibles en este momento.<br>
         El administrador debe liberar nuevas cajas para reactivar el sistema.
@@ -1074,48 +1083,48 @@ function updateStockIndicators() {
     // Deshabilitar cofre visualmente
     treasureChest.classList.add('disabled');
     
-    console.log('🚨 Sistema pausado: cajas_disponibles = 0');
+    console.log('SISTEMA PAUSADO: cajas_disponibles = 0');
     return; // SALIR INMEDIATAMENTE - no verificar stock individual
   }
   
-  // Sistema activo - verificar stock de premios
+  // Sistema activo - verificar stock de premios individuales
   treasureChest.classList.remove('disabled');
   
   if (mysteryBoxConfig.total_available <= 0) {
     stockIndicator.className = 'stock-indicator critical';
     stockIndicator.style.display = 'inline-flex';
-    stockText.textContent = '🚨 ¡Sin premios disponibles!';
+    stockText.textContent = 'Sin premios disponibles!';
     
     stockWarnings.innerHTML = `
       <div class="stock-critical">
         <i class="fas fa-exclamation-triangle"></i>
-        ¡AGOTADO! No hay premios disponibles en este momento
+        AGOTADO! No hay premios disponibles en este momento
       </div>
     `;
   } else if (mysteryBoxConfig.total_available <= 5) {
     stockIndicator.className = 'stock-indicator low';
     stockIndicator.style.display = 'inline-flex';
-    stockText.textContent = `⚠️ Solo quedan ${mysteryBoxConfig.total_available} premios`;
+    stockText.textContent = `Solo quedan ${mysteryBoxConfig.total_available} premios`;
     
     stockWarnings.innerHTML = `
       <div class="stock-warning">
         <i class="fas fa-exclamation-triangle"></i>
-        ¡ÚLTIMOS PREMIOS! Solo quedan ${mysteryBoxConfig.total_available} premios disponibles
+        ÚLTIMOS PREMIOS! Solo quedan ${mysteryBoxConfig.total_available} premios disponibles
       </div>
     `;
   } else {
     stockIndicator.className = 'stock-indicator';
     stockIndicator.style.display = 'inline-flex';
-    stockText.innerHTML = `✅ ${mysteryBoxConfig.total_available} premios disponibles<br><small>🎁 ${mysteryBoxConfig.cajas_disponibles} cajas restantes</small>`;
+    stockText.innerHTML = `${mysteryBoxConfig.total_available} premios disponibles<br><small>${mysteryBoxConfig.cajas_disponibles} cajas restantes</small>`;
     stockWarnings.innerHTML = '';
   }
   
   document.getElementById('totalAvailable').textContent = `${mysteryBoxConfig.total_available} disponibles`;
 }
 
-// FUNCIÓN CORREGIDA: updateUI con orden correcto de validaciones
+// FUNCIÓN CRÍTICA CORREGIDA: updateUI con verificación PRIMERA de cajas
 function updateUI() {
-  console.log('🔄 Actualizando UI. Estado actual:', {
+  console.log('Actualizando UI. Estado actual:', {
     saldo_usuario: userBalance,
     costo_caja: mysteryBoxConfig.cost,
     premios_disponibles: mysteryBoxConfig.total_available,
@@ -1133,45 +1142,247 @@ function updateUI() {
   openButton.style.opacity = '1';
   openButton.disabled = false;
   
-  // ✅ CORRECCIÓN: Orden correcto de validaciones según análisis
+  // ORDEN CORRECTO DE VALIDACIONES - CAJAS DISPONIBLES PRIMERO
   if (isOpening) {
     // 1. Está procesando una compra
     openButton.disabled = true;
     openButton.innerHTML = '<div class="spinner"></div> Abriendo...';
-    console.log('✅ Botón: Abriendo...');
+    console.log('Botón: Abriendo...');
   } else if (mysteryBoxConfig.cajas_disponibles <= 0) {
-    // 2. ✅ PRIORIDAD MÁXIMA: Sistema pausado - sin cajas disponibles
+    // 2. PRIORIDAD ABSOLUTA: Sistema pausado - sin cajas disponibles
     openButton.disabled = true;
     openButton.classList.add('system-paused');
     openButton.innerHTML = '<i class="fas fa-pause"></i> Sistema Pausado';
     openButton.title = 'El sistema está pausado - sin cajas disponibles';
-    console.log('🚨 Botón: Sistema pausado (cajas_disponibles = 0)');
+    console.log('BOTÓN PAUSADO: cajas_disponibles = 0');
   } else if (mysteryBoxConfig.total_available <= 0) {
-    // 3. No hay premios
+    // 3. No hay premios individuales
     openButton.disabled = true;
     openButton.classList.add('no-stock');
     openButton.innerHTML = '<i class="fas fa-times"></i> Sin Premios Disponibles';
     openButton.title = 'No hay premios disponibles';
-    console.log('✅ Botón: Sin premios disponibles');
+    console.log('Botón: Sin premios disponibles');
   } else if (userBalance < mysteryBoxConfig.cost) {
     // 4. Saldo insuficiente
     openButton.disabled = true;
     openButton.style.opacity = '0.7';
     openButton.innerHTML = `<i class="fas fa-wallet"></i> Saldo Insuficiente`;
     openButton.title = 'Saldo insuficiente';
-    console.log('✅ Botón: Saldo insuficiente');
+    console.log('Botón: Saldo insuficiente');
   } else {
     // 5. Todo OK - puede comprar
     openButton.disabled = false;
     openButton.innerHTML = `<i class="fas fa-key"></i> Abrir Caja (${formatCurrency(mysteryBoxConfig.cost)})`;
     openButton.title = '';
-    console.log('✅ Botón: Listo para comprar');
+    console.log('Botón: Listo para comprar');
   }
 }
 
-// FUNCIÓN: Generar premio basado en inventario limitado
+// FUNCIÓN PRINCIPAL CRÍTICA CORREGIDA: abrirCaja con VERIFICACIÓN PRIORITARIA ABSOLUTA
+async function abrirCaja() {
+  if (isOpening) {
+    console.log('Ya se está abriendo una caja, ignorando click');
+    return;
+  }
+  
+  try {
+    console.log('Iniciando apertura de caja...');
+    
+    // VERIFICACIÓN CRÍTICA PRIMERA: Recargar configuración ANTES de validar
+    console.log('Recargando configuración desde admin...');
+    const configReloaded = await cargarConfiguracionMysteryBox();
+    if (!configReloaded) {
+      mostrarError('Error al verificar disponibilidad de cajas');
+      return;
+    }
+    
+    // VERIFICACIÓN PRIMERA Y ABSOLUTA: cajas_disponibles (PRIORIDAD MÁXIMA)
+    console.log('Verificando contador principal:', mysteryBoxConfig.cajas_disponibles);
+    if (mysteryBoxConfig.cajas_disponibles <= 0) {
+      mostrarError('Sistema pausado - No hay cajas disponibles en este momento');
+      console.log('COMPRA BLOQUEADA: cajas_disponibles = 0');
+      updateUI(); // Actualizar UI para mostrar estado pausado
+      updateStockIndicators();
+      return; // SALIR INMEDIATAMENTE
+    }
+    
+    // Verificar saldo actualizado
+    await cargarSaldoUsuario();
+    
+    if (userBalance < mysteryBoxConfig.cost) {
+      mostrarError('Saldo insuficiente para abrir la caja');
+      return;
+    }
+    
+    if (mysteryBoxConfig.total_available <= 0) {
+      mostrarError('No hay premios disponibles en este momento');
+      return;
+    }
+
+    // Marcar como procesando INMEDIATAMENTE
+    isOpening = true;
+    updateUI();
+    
+    const chest = document.getElementById('treasureChest');
+    const lid = document.getElementById('chestLid');
+    const lock = document.getElementById('chestLock');
+    const prizeReveal = document.getElementById('prizeReveal');
+    
+    console.log('Registrando compra y descontando saldo...');
+    await registerMysteryBoxPurchase();
+    await descontarSaldo(mysteryBoxConfig.cost);
+    
+    console.log('Generando premio desde inventario...');
+    const prize = generateRandomPrizeFromInventory();
+    
+    console.log('Consumiendo premio del inventario y decrementando cajas...');
+    await consumirPremioDelInventario(prize);
+    
+    // Verificar estado después de compra
+    console.log('Estado después de compra:', {
+      cajas_restantes: mysteryBoxConfig.cajas_disponibles,
+      premios_restantes: mysteryBoxConfig.total_available,
+      sistema_pausado: mysteryBoxConfig.cajas_disponibles <= 0
+    });
+    
+    // Animación de temblor
+    chest.classList.add('opening');
+    
+    setTimeout(() => {
+      // Ocultar el candado con animación
+      lock.style.opacity = '0';
+      lock.style.transform = 'translateX(-50%) scale(0) rotate(180deg)';
+      
+      // Abrir la tapa del cofre
+      lid.classList.add('open');
+      
+      // Crear efectos visuales
+      createLightExplosion();
+      createFloatingCoins();
+      
+      setTimeout(() => {
+        createParticleExplosion();
+      }, 800);
+      
+    }, 1000);
+    
+    console.log('Registrando premio en historial...');
+    await registerPrizeWon(prize);
+    
+    if (prize.value > 0 && prize.type === 'cash') {
+      console.log('Agregando premio al saldo:', prize.value);
+      await agregarPremioAlSaldo(prize.value);
+      mostrarExito(`Ganaste ${formatCurrency(prize.value)}! Se agregó a tu saldo.`);
+    }
+    
+    // Mensaje especial si el sistema se pausó
+    if (mysteryBoxConfig.cajas_disponibles <= 0) {
+      setTimeout(() => {
+        mostrarError('¡Última caja! El sistema se ha pausado automáticamente hasta que el administrador libere nuevas cajas.');
+      }, 3000);
+    }
+    
+    setTimeout(() => {
+      // Mostrar premio
+      document.getElementById('prizeIcon').textContent = prize.icon;
+      document.getElementById('prizeTitle').textContent = prize.title;
+      document.getElementById('prizeDescription').textContent = prize.description;
+      
+      prizeReveal.classList.add('show');
+    }, 2800);
+    
+    // Actualizar configuración después del premio
+    setTimeout(async () => {
+      await cargarConfiguracionMysteryBox();
+      updateStockIndicators();
+    }, 3000);
+    
+  } catch (error) {
+    console.error('Error abriendo caja:', error);
+    mostrarError('Error al abrir la caja: ' + error.message);
+    
+    // Resetear estado en caso de error
+    isOpening = false;
+    updateUI();
+  }
+}
+
+// FUNCIÓN CORREGIDA: Consumir premio + decrementar AMBOS contadores
+async function consumirPremioDelInventario(prize) {
+  try {
+    console.log('Consumiendo premio del inventario:', prize.type);
+    
+    let updateField = '';
+    let newValue = 0;
+    
+    switch (prize.type) {
+      case 'cash':
+        updateField = 'cash_remaining';
+        newValue = Math.max(0, mysteryBoxConfig.cash_remaining - 1);
+        mysteryBoxConfig.cash_remaining = newValue;
+        break;
+      case 'trivia_entry':
+        updateField = 'trivia_remaining';
+        newValue = Math.max(0, mysteryBoxConfig.trivia_remaining - 1);
+        mysteryBoxConfig.trivia_remaining = newValue;
+        break;
+      case 'minipool_entry':
+        updateField = 'minipool_remaining';
+        newValue = Math.max(0, mysteryBoxConfig.minipool_remaining - 1);
+        mysteryBoxConfig.minipool_remaining = newValue;
+        break;
+      case 'empty':
+        updateField = 'empty_remaining';
+        newValue = Math.max(0, mysteryBoxConfig.empty_remaining - 1);
+        mysteryBoxConfig.empty_remaining = newValue;
+        break;
+      default:
+        console.warn('Tipo de premio desconocido:', prize.type);
+        return;
+    }
+    
+    // CORRECCIÓN CRÍTICA: Decrementar AMBOS contadores
+    const newCajasDisponibles = Math.max(0, mysteryBoxConfig.cajas_disponibles - 1);
+    
+    console.log(`Actualizando: ${updateField} = ${newValue}, cajas_disponibles = ${newCajasDisponibles}`);
+    
+    // Actualizar en la base de datos - AMBOS campos
+    const { error } = await supabaseClient
+      .from('mystery_box_config')
+      .update({ 
+        [updateField]: newValue,
+        cajas_disponibles: newCajasDisponibles // CRÍTICO: Decrementar contador principal
+      })
+      .eq('is_active', true);
+
+    if (error) {
+      console.error('Error actualizando inventario:', error);
+      throw error;
+    }
+    
+    // Actualizar configuración local
+    mysteryBoxConfig.cajas_disponibles = newCajasDisponibles;
+    mysteryBoxConfig.total_available = mysteryBoxConfig.cash_remaining + 
+                                      mysteryBoxConfig.trivia_remaining + 
+                                      mysteryBoxConfig.minipool_remaining + 
+                                      mysteryBoxConfig.empty_remaining;
+    
+    console.log('Inventario actualizado:', {
+      campo_actualizado: updateField,
+      nuevo_valor: newValue,
+      cajas_disponibles: mysteryBoxConfig.cajas_disponibles,
+      total_disponible: mysteryBoxConfig.total_available
+    });
+    
+  } catch (error) {
+    console.error('Error consumiendo premio del inventario:', error);
+    throw error;
+  }
+}
+
+// Función para generar premio basado en inventario limitado
 function generateRandomPrizeFromInventory() {
-  console.log('🎲 Generando premio desde inventario:', mysteryBoxConfig);
+  console.log('Generando premio desde inventario:', mysteryBoxConfig);
   
   const availablePrizes = [];
   
@@ -1230,81 +1441,8 @@ function generateRandomPrizeFromInventory() {
   const randomIndex = Math.floor(Math.random() * availablePrizes.length);
   const selectedPrize = availablePrizes[randomIndex];
   
-  console.log('🎁 Premio seleccionado:', selectedPrize);
+  console.log('Premio seleccionado:', selectedPrize);
   return selectedPrize;
-}
-
-// FUNCIÓN CORREGIDA: Consumir premio + decrementar AMBOS contadores
-async function consumirPremioDelInventario(prize) {
-  try {
-    console.log('📦 Consumiendo premio del inventario:', prize.type);
-    
-    let updateField = '';
-    let newValue = 0;
-    
-    switch (prize.type) {
-      case 'cash':
-        updateField = 'cash_remaining';
-        newValue = Math.max(0, mysteryBoxConfig.cash_remaining - 1);
-        mysteryBoxConfig.cash_remaining = newValue;
-        break;
-      case 'trivia_entry':
-        updateField = 'trivia_remaining';
-        newValue = Math.max(0, mysteryBoxConfig.trivia_remaining - 1);
-        mysteryBoxConfig.trivia_remaining = newValue;
-        break;
-      case 'minipool_entry':
-        updateField = 'minipool_remaining';
-        newValue = Math.max(0, mysteryBoxConfig.minipool_remaining - 1);
-        mysteryBoxConfig.minipool_remaining = newValue;
-        break;
-      case 'empty':
-        updateField = 'empty_remaining';
-        newValue = Math.max(0, mysteryBoxConfig.empty_remaining - 1);
-        mysteryBoxConfig.empty_remaining = newValue;
-        break;
-      default:
-        console.warn('⚠️ Tipo de premio desconocido:', prize.type);
-        return;
-    }
-    
-    // ✅ CORRECCIÓN CRÍTICA: Decrementar AMBOS contadores
-    const newCajasDisponibles = Math.max(0, mysteryBoxConfig.cajas_disponibles - 1);
-    
-    console.log(`🎁 Actualizando: ${updateField} = ${newValue}, cajas_disponibles = ${newCajasDisponibles}`);
-    
-    // Actualizar en la base de datos - AMBOS campos
-    const { error } = await supabaseClient
-      .from('mystery_box_config')
-      .update({ 
-        [updateField]: newValue,
-        cajas_disponibles: newCajasDisponibles // ✅ CRÍTICO: Decrementar contador principal
-      })
-      .eq('is_active', true);
-
-    if (error) {
-      console.error('❌ Error actualizando inventario:', error);
-      throw error;
-    }
-    
-    // Actualizar configuración local
-    mysteryBoxConfig.cajas_disponibles = newCajasDisponibles;
-    mysteryBoxConfig.total_available = mysteryBoxConfig.cash_remaining + 
-                                      mysteryBoxConfig.trivia_remaining + 
-                                      mysteryBoxConfig.minipool_remaining + 
-                                      mysteryBoxConfig.empty_remaining;
-    
-    console.log('✅ Inventario actualizado:', {
-      campo_actualizado: updateField,
-      nuevo_valor: newValue,
-      cajas_disponibles: mysteryBoxConfig.cajas_disponibles,
-      total_disponible: mysteryBoxConfig.total_available
-    });
-    
-  } catch (error) {
-    console.error('💥 Error consumiendo premio del inventario:', error);
-    throw error;
-  }
 }
 
 // Función para verificar usuario
@@ -1408,38 +1546,6 @@ async function agregarPremioAlSaldo(premio) {
     console.error('Error agregando premio:', error);
     throw error;
   }
-}
-
-// Función para formatear moneda
-function formatCurrency(amount) {
-  return new Intl.NumberFormat('es-AR', {
-    style: 'currency',
-    currency: 'ARS',
-    minimumFractionDigits: 0
-  }).format(amount);
-}
-
-// Función para mostrar errores
-function mostrarError(message) {
-  const errorDiv = document.getElementById('errorMessage');
-  errorDiv.textContent = message;
-  errorDiv.style.display = 'block';
-  setTimeout(() => {
-    errorDiv.style.display = 'none';
-  }, 8000);
-}
-
-// Función para mostrar mensajes de éxito
-function mostrarExito(message) {
-  const stockWarnings = document.getElementById('stockWarnings');
-  const successDiv = document.createElement('div');
-  successDiv.className = 'success-message';
-  successDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
-  stockWarnings.appendChild(successDiv);
-  
-  setTimeout(() => {
-    successDiv.remove();
-  }, 5000);
 }
 
 // Función para registrar compra
@@ -1604,129 +1710,43 @@ function createFloatingCoins() {
   }
 }
 
-// FUNCIÓN PRINCIPAL CORREGIDA: abrirCaja con lógica prioritaria
-async function abrirCaja() {
-  if (isOpening) {
-    console.log('⚠️ Ya se está abriendo una caja, ignorando click');
-    return;
-  }
-  
-  try {
-    console.log('🎁 Iniciando apertura de caja...');
-    
-    // Verificar saldo actualizado
-    await cargarSaldoUsuario();
-    
-    // VERIFICACIÓN PRIMERA: cajas_disponibles (PRIORIDAD ABSOLUTA)
-    if (mysteryBoxConfig.cajas_disponibles <= 0) {
-      mostrarError('🚨 Sistema pausado - No hay cajas disponibles en este momento');
-      console.log('🚨 Compra bloqueada: cajas_disponibles = 0');
-      return;
-    }
-    
-    if (userBalance < mysteryBoxConfig.cost) {
-      mostrarError('❌ Saldo insuficiente para abrir la caja');
-      return;
-    }
-    
-    if (mysteryBoxConfig.total_available <= 0) {
-      mostrarError('❌ No hay premios disponibles en este momento');
-      return;
-    }
+// Función para formatear moneda
+function formatCurrency(amount) {
+  return new Intl.NumberFormat('es-AR', {
+    style: 'currency',
+    currency: 'ARS',
+    minimumFractionDigits: 0
+  }).format(amount);
+}
 
-    // Marcar como procesando INMEDIATAMENTE
-    isOpening = true;
-    updateUI();
-    
-    const chest = document.getElementById('treasureChest');
-    const lid = document.getElementById('chestLid');
-    const lock = document.getElementById('chestLock');
-    const prizeReveal = document.getElementById('prizeReveal');
-    
-    console.log('💰 Registrando compra y descontando saldo...');
-    await registerMysteryBoxPurchase();
-    await descontarSaldo(mysteryBoxConfig.cost);
-    
-    console.log('🎲 Generando premio desde inventario...');
-    const prize = generateRandomPrizeFromInventory();
-    
-    console.log('📦 Consumiendo premio del inventario y decrementando cajas...');
-    await consumirPremioDelInventario(prize);
-    
-    // Verificar estado después de compra
-    console.log('📊 Estado después de compra:', {
-      cajas_restantes: mysteryBoxConfig.cajas_disponibles,
-      premios_restantes: mysteryBoxConfig.total_available,
-      sistema_pausado: mysteryBoxConfig.cajas_disponibles <= 0
-    });
-    
-    // Animación de temblor
-    chest.classList.add('opening');
-    
-    setTimeout(() => {
-      // Ocultar el candado con animación
-      lock.style.opacity = '0';
-      lock.style.transform = 'translateX(-50%) scale(0) rotate(180deg)';
-      
-      // Abrir la tapa del cofre
-      lid.classList.add('open');
-      
-      // Crear efectos visuales
-      createLightExplosion();
-      createFloatingCoins();
-      
-      setTimeout(() => {
-        createParticleExplosion();
-      }, 800);
-      
-    }, 1000);
-    
-    console.log('📝 Registrando premio en historial...');
-    await registerPrizeWon(prize);
-    
-    if (prize.value > 0 && prize.type === 'cash') {
-      console.log('💵 Agregando premio al saldo:', prize.value);
-      await agregarPremioAlSaldo(prize.value);
-      mostrarExito(`🎉 ¡Ganaste ${formatCurrency(prize.value)}! Se agregó a tu saldo.`);
-    }
-    
-    // Mensaje especial si el sistema se pausó
-    if (mysteryBoxConfig.cajas_disponibles <= 0) {
-      setTimeout(() => {
-        mostrarError('🚨 ¡Última caja! El sistema se ha pausado automáticamente hasta que el administrador libere nuevas cajas.');
-      }, 3000);
-    }
-    
-    setTimeout(() => {
-      // Mostrar premio
-      document.getElementById('prizeIcon').textContent = prize.icon;
-      document.getElementById('prizeTitle').textContent = prize.title;
-      document.getElementById('prizeDescription').textContent = prize.description;
-      
-      prizeReveal.classList.add('show');
-    }, 2800);
-    
-    // Actualizar configuración después del premio
-    setTimeout(async () => {
-      await cargarConfiguracionMysteryBox();
-      updateStockIndicators();
-    }, 3000);
-    
-  } catch (error) {
-    console.error('💥 Error abriendo caja:', error);
-    mostrarError('❌ Error al abrir la caja: ' + error.message);
-    
-    // Resetear estado en caso de error
-    isOpening = false;
-    updateUI();
-  }
+// Función para mostrar errores
+function mostrarError(message) {
+  const errorDiv = document.getElementById('errorMessage');
+  errorDiv.textContent = message;
+  errorDiv.style.display = 'block';
+  setTimeout(() => {
+    errorDiv.style.display = 'none';
+  }, 8000);
+}
+
+// Función para mostrar mensajes de éxito
+function mostrarExito(message) {
+  const stockWarnings = document.getElementById('stockWarnings');
+  const successDiv = document.createElement('div');
+  successDiv.className = 'success-message';
+  successDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+  stockWarnings.appendChild(successDiv);
+  
+  setTimeout(() => {
+    successDiv.remove();
+  }, 5000);
 }
 
 // FUNCIÓN RESETEAR COFRE CORREGIDA
 function resetChest() {
-  console.log('🔄 Reseteando cofre...');
-  
-  const chest = document.getElementById('treasureChest');
+  console.log('Reseteando cofre...');
+
+const chest = document.getElementById('treasureChest');
   const lid = document.getElementById('chestLid');
   const lock = document.getElementById('chestLock');
   const prizeReveal = document.getElementById('prizeReveal');
@@ -1736,7 +1756,7 @@ function resetChest() {
   
   // Resetear estado PRIMERO
   isOpening = false;
-  console.log('✅ Estado isOpening reseteado a:', isOpening);
+  console.log('Estado isOpening reseteado a:', isOpening);
   
   // Reset todas las animaciones
   chest.classList.remove('opening');
@@ -1761,7 +1781,7 @@ function resetChest() {
     createFloatingCoins();
   }, 500);
   
-  console.log('✅ Cofre reseteado correctamente');
+  console.log('Cofre reseteado correctamente');
 }
 
 // Funciones del sidebar
@@ -1782,19 +1802,19 @@ async function logout() {
 // FUNCIÓN INICIALIZAR CORREGIDA
 async function initializePage() {
   try {
-    console.log('🎁 Iniciando Mystery Box con contador principal de cajas...');
+    console.log('Iniciando Mystery Box con contador principal de cajas...');
     
     await verificarUsuario();
-    console.log('✅ Usuario autenticado:', usuarioActual.email);
+    console.log('Usuario autenticado:', usuarioActual.email);
     
     const configLoaded = await cargarConfiguracionMysteryBox();
     if (!configLoaded) {
-      console.error('❌ No se pudo cargar configuración del admin');
+      console.error('No se pudo cargar configuración del admin');
       return;
     }
     
     await cargarSaldoUsuario();
-    console.log('💰 Saldo cargado:', userBalance);
+    console.log('Saldo cargado:', userBalance);
     
     updateUI();
     updateStockIndicators();
@@ -1809,51 +1829,50 @@ async function initializePage() {
       }
     }, 8000);
     
-    // Recargar configuración cada 15 segundos
+    // CORRECCIÓN CRÍTICA: Recargar configuración cada 10 segundos para detectar cambios del admin
     setInterval(async () => {
       if (!isOpening) {
-        console.log('🔄 Verificando cambios desde admin...');
+        console.log('Verificando cambios desde admin...');
         const previousCajas = mysteryBoxConfig.cajas_disponibles;
         await cargarConfiguracionMysteryBox();
         
         // Detectar cambios en el contador de cajas
         if (previousCajas !== mysteryBoxConfig.cajas_disponibles) {
-          console.log(`📦 Contador de cajas actualizado: ${previousCajas} → ${mysteryBoxConfig.cajas_disponibles}`);
+          console.log(`Contador de cajas actualizado: ${previousCajas} → ${mysteryBoxConfig.cajas_disponibles}`);
           
           if (mysteryBoxConfig.cajas_disponibles > 0 && previousCajas <= 0) {
-            mostrarExito('🎉 ¡Sistema reactivado! Ya hay cajas disponibles nuevamente');
+            mostrarExito('Sistema reactivado! Ya hay cajas disponibles nuevamente');
           }
         }
         
         updateStockIndicators();
-        // Solo actualizar UI si no está procesando
         if (!isOpening) {
           updateUI();
         }
       }
-    }, 15000);
+    }, 10000); // Cada 10 segundos para mejor sincronización
     
-    console.log('🎁 Mystery Box inicializado correctamente');
+    console.log('Mystery Box inicializado correctamente');
     
   } catch (error) {
-    console.error('💥 Error inicializando página:', error);
-    mostrarError('❌ Error al cargar la página: ' + error.message);
+    console.error('Error inicializando página:', error);
+    mostrarError('Error al cargar la página: ' + error.message);
   }
 }
 
-// Event listeners corregidos
+// EVENT LISTENERS CORREGIDOS
 document.addEventListener('DOMContentLoaded', initializePage);
 
 // Event listener para el cofre
 document.getElementById('treasureChest').addEventListener('click', (e) => {
   e.preventDefault();
   e.stopPropagation();
-  console.log('🖱️ Click en cofre detectado');
+  console.log('Click en cofre detectado');
   
-  // Verificación: No procesar si el sistema está pausado
+  // VERIFICACIÓN CRÍTICA: No procesar si el sistema está pausado
   if (mysteryBoxConfig.cajas_disponibles <= 0) {
-    console.log('🚨 Click ignorado: Sistema pausado');
-    mostrarError('🚨 El sistema está pausado - No hay cajas disponibles');
+    console.log('Click ignorado: Sistema pausado - cajas_disponibles = 0');
+    mostrarError('El sistema está pausado - No hay cajas disponibles');
     return;
   }
   
@@ -1864,33 +1883,33 @@ document.getElementById('treasureChest').addEventListener('click', (e) => {
 document.getElementById('openButton').addEventListener('click', (e) => {
   e.preventDefault();
   e.stopPropagation();
-  console.log('🖱️ Click en botón detectado');
+  console.log('Click en botón detectado');
   
-  // Verificación: No procesar si el sistema está pausado
+  // VERIFICACIÓN CRÍTICA: No procesar si el sistema está pausado
   if (mysteryBoxConfig.cajas_disponibles <= 0) {
-    console.log('🚨 Click ignorado: Sistema pausado');
-    mostrarError('🚨 El sistema está pausado - No hay cajas disponibles');
+    console.log('Click ignorado: Sistema pausado - cajas_disponibles = 0');
+    mostrarError('El sistema está pausado - No hay cajas disponibles');
     return;
   }
   
   if (!isOpening) {
     abrirCaja();
   } else {
-    console.log('⚠️ Botón clickeado pero ya está procesando');
+    console.log('Botón clickeado pero ya está procesando');
   }
 });
 
-console.log('🎁 Mystery Box Usuario - Sistema CORREGIDO cargado');
-console.log('🔗 Conectado con panel de administrador');
-console.log('📦 Correcciones aplicadas:');
-console.log('  - ✅ PRIORIDAD ABSOLUTA del contador cajas_disponibles');
-console.log('  - ✅ Verificación PRIMERA en abrirCaja()');
-console.log('  - ✅ Sistema pausado cuando cajas_disponibles = 0');
-console.log('  - ✅ Decrementador CORREGIDO de ambos contadores');
-console.log('  - ✅ updateStockIndicators() con orden correcto');
-console.log('  - ✅ updateUI() con validaciones prioritarias');
-console.log('  - ✅ Event listeners optimizados');
-console.log('  - ✅ Sincronización perfecta con panel admin');
+console.log('Mystery Box Usuario - Sistema CRÍTICO CORREGIDO');
+console.log('Correcciones aplicadas:');
+console.log('  - PRIORIDAD ABSOLUTA del contador cajas_disponibles');
+console.log('  - Verificación PRIMERA en abrirCaja() con recarga de config');
+console.log('  - Sistema pausado cuando cajas_disponibles = 0');
+console.log('  - Decrementador CORREGIDO de ambos contadores');
+console.log('  - updateStockIndicators() con orden correcto');
+console.log('  - updateUI() con validaciones prioritarias');
+console.log('  - Event listeners con verificación previa');
+console.log('  - Sincronización cada 10 segundos con panel admin');
+console.log('  - Bloqueo total cuando contador principal = 0');
 
 </script>
 </body>
