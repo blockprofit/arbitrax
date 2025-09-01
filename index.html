@@ -224,7 +224,7 @@
       overflow: hidden;
     }
 
-button::before {
+    button::before {
       content: '';
       position: absolute;
       top: 0;
@@ -272,6 +272,179 @@ button::before {
 
     .hidden {
       display: none;
+    }
+
+    /* Checkbox para términos y condiciones */
+    .terms-container {
+      display: flex;
+      align-items: flex-start;
+      margin: 15px 0;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.8);
+      gap: 10px;
+    }
+
+    .terms-container input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+      padding: 0;
+      transform: scale(1.2);
+      accent-color: #00c3ff;
+    }
+
+    .terms-text {
+      line-height: 1.4;
+    }
+
+    .terms-link {
+      color: #00c3ff !important;
+      text-decoration: underline;
+      cursor: pointer;
+      display: inline;
+      margin: 0;
+      padding: 0;
+      background: none;
+      border: none;
+      border-radius: 0;
+      transition: color 0.3s ease;
+    }
+
+    .terms-link:hover {
+      color: #00ffcc !important;
+      background: none;
+      transform: none;
+    }
+
+    /* Modal para términos y condiciones */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+      background: linear-gradient(135deg, 
+        rgba(0, 0, 0, 0.95), 
+        rgba(0, 195, 255, 0.1)
+      );
+      backdrop-filter: blur(20px);
+      margin: 2% auto;
+      padding: 0;
+      border: 2px solid rgba(0, 195, 255, 0.4);
+      border-radius: 20px;
+      width: 90%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+      position: relative;
+    }
+
+    .modal-header {
+      padding: 20px 30px;
+      border-bottom: 2px solid rgba(0, 195, 255, 0.3);
+      position: sticky;
+      top: 0;
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(10px);
+      z-index: 10;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      background: linear-gradient(135deg, #00c3ff, #00ffcc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .modal-body {
+      padding: 20px 30px;
+      overflow-y: auto;
+      max-height: calc(90vh - 140px);
+      color: white;
+    }
+
+    .modal-body h3 {
+      color: #00c3ff;
+      font-size: 1.1rem;
+      margin-top: 25px;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .modal-body p, .modal-body ul {
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+
+    .modal-body ul {
+      padding-left: 0;
+      list-style: none;
+    }
+
+    .modal-body li {
+      margin-bottom: 8px;
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .modal-body li::before {
+      content: "⚡";
+      position: absolute;
+      left: 0;
+      color: #00c3ff;
+    }
+
+    .modal-footer {
+      padding: 15px 30px;
+      border-top: 2px solid rgba(0, 195, 255, 0.3);
+      text-align: center;
+      background: rgba(0, 0, 0, 0.9);
+      position: sticky;
+      bottom: 0;
+    }
+
+    .modal-close {
+      background: linear-gradient(135deg, #00c3ff, #00ffcc);
+      color: black;
+      border: none;
+      padding: 10px 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+
+    .modal-close:hover {
+      background: linear-gradient(135deg, #0099cc, #00cc99);
+      transform: translateY(-2px);
+    }
+
+    .warning-box {
+      background: linear-gradient(135deg, 
+        rgba(255, 193, 7, 0.2), 
+        rgba(255, 193, 7, 0.1)
+      );
+      border: 2px solid #ffc107;
+      border-radius: 12px;
+      padding: 15px;
+      margin: 15px 0;
+      font-size: 0.85rem;
+    }
+
+    .warning-box::before {
+      content: "⚠️ ";
+      font-size: 1rem;
     }
 
     /* Loading animation */
@@ -541,7 +714,8 @@ button::before {
 </head>
 
 <body>
-  <div class="login-container">
+
+<div class="login-container">
     <!-- Logo flotante ArbitraX -->
     <div class="floating-logo">ArbitraX</div>
     <!-- Menú de idioma -->
@@ -593,6 +767,14 @@ button::before {
       <input type="email" id="regEmail" placeholder="Correo electrónico" />
       <input type="password" id="regPass" placeholder="Contraseña" />
       <input type="password" id="regRepeat" placeholder="Repetir contraseña" />
+      
+      <div class="terms-container">
+        <input type="checkbox" id="termsCheckbox" />
+        <div class="terms-text">
+          Acepto los <span class="terms-link" onclick="openTermsModal()">términos y condiciones</span>
+        </div>
+      </div>
+      
       <button onclick="register()" id="createBtn">
         <i class="fas fa-check"></i>
         Crear cuenta
@@ -627,6 +809,101 @@ button::before {
 
   <!-- Logo ArbitraX -->
   <div class="logo-container">ArbitraX</div>
+
+  <!-- Modal de Términos y Condiciones -->
+  <div id="termsModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-file-contract"></i> Términos y Condiciones</h2>
+      </div>
+      <div class="modal-body">
+        <div class="warning-box">
+          Al acceder, registrarte y utilizar esta plataforma, aceptás sin restricciones los presentes términos y condiciones, los cuales regulan la participación del usuario en los servicios ofrecidos: inversión en criptomonedas, minería digital, arbitraje automatizado, programas de referidos, sorteos y funcionalidades como Trivia, Mini Pool y Mystery Box.
+        </div>
+
+        <h3>🔧 Uso de la plataforma</h3>
+        <ul>
+          <li>La plataforma actúa como intermediario digital que canaliza inversiones hacia actividades automatizadas vinculadas a criptoactivos.</li>
+          <li>La participación está sujeta a validación de perfil y requisitos mínimos para cada función.</li>
+          <li>Los usuarios deben mantener sus credenciales seguras. La empresa no se responsabiliza por accesos no autorizados por negligencia.</li>
+        </ul>
+
+        <h3>📈 Riesgos y rendimientos</h3>
+        <ul>
+          <li>Las inversiones están sujetas a riesgo de mercado y no se garantiza retorno alguno.</li>
+          <li>Los porcentajes anunciados son estimaciones históricas, no contratos de rendimiento.</li>
+          <li>El usuario acepta la posibilidad de pérdidas totales o parciales del capital invertido.</li>
+        </ul>
+
+        <h3>⚖️ Limitación de responsabilidad</h3>
+        <ul>
+          <li>No nos responsabilizamos por interrupciones, ataques informáticos o cambios regulatorios.</li>
+          <li>No brindamos asesoramiento financiero. Las decisiones del usuario son autónomas.</li>
+          <li>La empresa no responde por resultados individuales ni expectativas personales.</li>
+        </ul>
+
+        <h3>🔄 Modificaciones del servicio</h3>
+        <ul>
+          <li>La empresa puede modificar, suspender o eliminar funcionalidades sin previo aviso.</li>
+          <li>Estos términos pueden ser actualizados en cualquier momento.</li>
+          <li>El uso de múltiples cuentas, abuso de referidos o manipulación de la plataforma está prohibido.</li>
+        </ul>
+
+        <h3>🎁 Participación en sorteos</h3>
+        <ul>
+          <li>Solo usuarios que cumplan con condiciones específicas pueden participar.</li>
+          <li>Los ganadores y premios se determinan exclusivamente por el administrador.</li>
+          <li>Los premios están sujetos a disponibilidad y rendimiento de la plataforma.</li>
+        </ul>
+
+        <h3>🧠 Trivia</h3>
+        <ul>
+          <li>La sección de Trivia es de carácter lúdico y educativo, no representa una promesa de beneficio económico.</li>
+          <li>El sistema puede aplicar reglas de clasificación automática según respuestas y tiempo.</li>
+          <li>La plataforma no se hace responsable por fallas técnicas que afecten el desarrollo de la Trivia.</li>
+        </ul>
+
+        <h3>🏊‍♂️ Mini Pool</h3>
+        <ul>
+          <li>El Mini Pool es una funcionalidad promocional con rendimiento variable.</li>
+          <li>Está sujeta a cupos semanales y condiciones internas de liquidez.</li>
+          <li>No garantiza pagos si la inversión no se encuentra validada o el usuario no cumple con requisitos.</li>
+        </ul>
+
+        <h3>📦 Mystery Box</h3>
+        <ul>
+          <li>Los premios son aleatorios y virtuales. La plataforma no garantiza premios monetarios.</li>
+          <li>Los premios pueden incluir beneficios, puntos o accesos limitados dentro de la app.</li>
+          <li>Una vez abierta la caja, no hay posibilidad de cambio, devolución o reclamo.</li>
+        </ul>
+
+        <h3>🏛️ Jurisdicción</h3>
+        <ul>
+          <li>Este sistema no constituye una entidad financiera ni está regulado por entes oficiales.</li>
+          <li>Los usuarios deben cumplir las normativas de su país respecto a ingresos digitales o criptoactivos.</li>
+        </ul>
+
+        <h3>📞 Contacto y soporte</h3>
+        <ul>
+          <li>La atención se realiza únicamente mediante los canales oficiales mencionados dentro de la plataforma.</li>
+          <li>La empresa no responderá consultas enviadas por medios no autorizados.</li>
+        </ul>
+
+        <div class="warning-box">
+          Al continuar usando esta plataforma, el usuario declara comprender y aceptar todos los puntos anteriores, liberando expresamente de responsabilidad a los desarrolladores, administradores, proveedores y aliados de cualquier daño directo o indirecto derivado del uso del sistema.
+        </div>
+
+        <p style="text-align: center; margin-top: 20px; font-size: 0.8rem; opacity: 0.8;">
+          <i class="fas fa-calendar-alt"></i> Última actualización: junio 2025
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-close" onclick="closeTermsModal()">
+          <i class="fas fa-times"></i> Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
 
 <script>
     const SUPABASE_URL = 'https://ovulezkcxwrjvyxlxsdv.supabase.co';
@@ -676,15 +953,47 @@ button::before {
       }
     }
 
-    // FUNCIÓN REGISTER CORREGIDA - SIN VERIFICACIONES PREMATURAS
+    // Funciones del modal de términos y condiciones
+    function openTermsModal() {
+      document.getElementById('termsModal').style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeTermsModal() {
+      document.getElementById('termsModal').style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+
+    // Cerrar modal al hacer clic fuera de él
+    window.onclick = function(event) {
+      const modal = document.getElementById('termsModal');
+      if (event.target == modal) {
+        closeTermsModal();
+      }
+    }
+
+    // Cerrar modal con tecla Escape
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        closeTermsModal();
+      }
+    });
+
+    // FUNCIÓN REGISTER CORREGIDA - CON VALIDACIÓN DE TÉRMINOS
     async function register() {
       const email = document.getElementById("regEmail").value.trim();
       const pass1 = document.getElementById("regPass").value;
       const pass2 = document.getElementById("regRepeat").value;
+      const termsAccepted = document.getElementById("termsCheckbox").checked;
 
       // Validaciones básicas
       if (!email || !pass1 || !pass2) {
         showMessage("Completa todos los campos", 'error');
+        return;
+      }
+
+      if (!termsAccepted) {
+        showMessage("Debes aceptar los términos y condiciones", 'error');
         return;
       }
 
@@ -735,6 +1044,7 @@ button::before {
         document.getElementById("regEmail").value = '';
         document.getElementById("regPass").value = '';
         document.getElementById("regRepeat").value = '';
+        document.getElementById("termsCheckbox").checked = false;
         
         // Cambiar a login después de un breve delay
         setTimeout(() => {
