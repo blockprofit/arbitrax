@@ -1013,7 +1013,10 @@
         // Solo hacer signUp - el trigger se encarga del resto
         const { data, error } = await client.auth.signUp({ 
           email, 
-          password: pass1 
+          password: pass1,
+          options: {
+            emailRedirectTo: window.location.origin + '/index.html'
+          }
         });
 
         if (error) {
