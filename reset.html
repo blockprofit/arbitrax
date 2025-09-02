@@ -275,7 +275,12 @@
     async function redirectToLogin() {
       // Cerrar sesión antes de redirigir para evitar auto-login
       await client.auth.signOut();
-      window.location.href = 'index.html';
+      
+      // Limpiar la URL de cualquier token antes de redirigir
+      window.history.replaceState({}, document.title, window.location.pathname);
+      
+      // Redirigir al login con URL absoluta
+      window.location.href = window.location.origin + '/index.html';
     }
 
     // Ejecutar al cargar la página
