@@ -488,7 +488,7 @@
       color: #ff6666;
     }
 
-    /* Logo ArbitraX inferior - CORREGIDO PARA MÓVIL */
+/* Logo ArbitraX inferior - CORREGIDO PARA MÓVIL */
     .logo-container {
       position: fixed;
       bottom: 25px;
@@ -506,7 +506,7 @@
       z-index: 1;
     }
 
-@keyframes logoGlow {
+    @keyframes logoGlow {
       from { 
         filter: brightness(1) drop-shadow(0 0 20px rgba(0, 195, 255, 0.7)); 
       }
@@ -994,7 +994,7 @@
       }
     });
 
-// FUNCIÓN REGISTER CORREGIDA - CON VALIDACIÓN DE TÉRMINOS
+    // FUNCIÓN REGISTER CORREGIDA - CON VALIDACIÓN DE TÉRMINOS Y URL CORRECTA
     async function register() {
       const email = document.getElementById("regEmail").value.trim();
       const pass1 = document.getElementById("regPass").value;
@@ -1030,7 +1030,7 @@
           email, 
           password: pass1,
           options: {
-            emailRedirectTo: window.location.origin + '/reset-password.html'
+            emailRedirectTo: window.location.origin + '/reset.html'
           }
         });
 
@@ -1058,7 +1058,7 @@
         // Éxito - mostrar mensaje y cambiar a login
         showMessage("¡Cuenta creada exitosamente! Revisa tu correo para verificarla.", 'success');
         
-        // Limpiar campos
+ // Limpiar campos
         document.getElementById("regEmail").value = '';
         document.getElementById("regPass").value = '';
         document.getElementById("regRepeat").value = '';
@@ -1142,7 +1142,7 @@
 
       try {
         const { error } = await client.auth.resetPasswordForEmail(email, {
-          redirectTo: window.location.origin + '/reset-password.html'
+          redirectTo: window.location.origin + '/reset.html'
         });
         
         if (error) {
