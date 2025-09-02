@@ -915,20 +915,17 @@
     const ref = urlParams.get("ref");
     if (ref) localStorage.setItem("referido_por", ref);
 
-    // FUNCIÓN CRÍTICA: Detectar si es redirección desde confirmación de email
-    function isEmailConfirmationRedirect() {
-      // Verificar si hay parámetros de confirmación de email en la URL
+    // Limpiar tokens de confirmación de email al cargar la página
+    window.addEventListener('load', function() {
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const type = hashParams.get('type');
       
-      // Si viene de confirmación de email, limpiar URL y no hacer auto-login
       if (type === 'signup' || type === 'email_change') {
-        // Limpiar la URL inmediatamente
+        // Limpiar la URL y mostrar mensaje de confirmación
         window.history.replaceState({}, document.title, window.location.pathname);
-        return true;
+        showMessage("Email confirmado exitosamente. Ya puedes iniciar sesión.", 'success');
       }
-      return false;
-    }
+    });
 
     // Funciones de UI
     function showForm(id) {
@@ -968,7 +965,7 @@
       }
     }
 
-    // Funciones del modal de términos y condiciones
+// Funciones del modal de términos y condiciones
     function openTermsModal() {
       document.getElementById('termsModal').style.display = 'block';
       document.body.style.overflow = 'hidden';
@@ -994,7 +991,7 @@
       }
     });
 
-    // FUNCIÓN REGISTER CORREGIDA - AHORA REDIRIGE A INDEX.HTML
+    // FUNCIÓN REGISTER CORREGIDA - REDIRIGE A INDEX.HTML
     async function register() {
       const email = document.getElementById("regEmail").value.trim();
       const pass1 = document.getElementById("regPass").value;
@@ -1055,7 +1052,7 @@
           }
         }
 
-// Éxito - mostrar mensaje y cambiar a login
+        // Éxito - mostrar mensaje y cambiar a login
         showMessage("¡Cuenta creada exitosamente! Revisa tu correo para verificarla.", 'success');
         
         // Limpiar campos
@@ -1219,27 +1216,6 @@
       
       if (!langMenu.contains(event.target)) {
         langOptions.style.display = 'none';
-      }
-    });
-
-    // LISTENER MODIFICADO: Verificar si ya hay sesión activa pero IGNORAR confirmaciones de email
-    client.auth.onAuthStateChange((event, session) => {
-      // Si es una confirmación de email, NO redirigir automáticamente
-      if (isEmailConfirmationRedirect()) {
-        showMessage("Email confirmado exitosamente. Ya puedes iniciar sesión.", 'success');
-        return;
-      }
-
-      // Solo redirigir si hay sesión Y no es confirmación de email
-      if (event === 'SIGNED_IN' && session && !isEmailConfirmationRedirect()) {
-        window.location.href = 'principal.html';
-      }
-    });
-
-    // Al cargar la página, verificar si es redirección de confirmación
-    window.addEventListener('load', function() {
-      if (isEmailConfirmationRedirect()) {
-        showMessage("Email confirmado exitosamente. Ya puedes iniciar sesión.", 'success');
       }
     });
   </script>
