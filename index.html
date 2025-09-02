@@ -506,7 +506,7 @@
       z-index: 1;
     }
 
-    @keyframes logoGlow {
+@keyframes logoGlow {
       from { 
         filter: brightness(1) drop-shadow(0 0 20px rgba(0, 195, 255, 0.7)); 
       }
@@ -915,6 +915,21 @@
     const ref = urlParams.get("ref");
     if (ref) localStorage.setItem("referido_por", ref);
 
+    // FUNCIÓN CRÍTICA: Detectar si es redirección desde confirmación de email
+    function isEmailConfirmationRedirect() {
+      // Verificar si hay parámetros de confirmación de email en la URL
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const type = hashParams.get('type');
+      
+      // Si viene de confirmación de email, limpiar URL y no hacer auto-login
+      if (type === 'signup' || type === 'email_change') {
+        // Limpiar la URL inmediatamente
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return true;
+      }
+      return false;
+    }
+
     // Funciones de UI
     function showForm(id) {
       ["loginForm", "registerForm", "recoverForm"].forEach(f => {
@@ -979,7 +994,7 @@
       }
     });
 
-    // FUNCIÓN REGISTER CORREGIDA - CON VALIDACIÓN DE TÉRMINOS
+// FUNCIÓN REGISTER CORREGIDA - CON VALIDACIÓN DE TÉRMINOS
     async function register() {
       const email = document.getElementById("regEmail").value.trim();
       const pass1 = document.getElementById("regPass").value;
@@ -1015,7 +1030,7 @@
           email, 
           password: pass1,
           options: {
-            emailRedirectTo: window.location.origin + '/index.html'
+            emailRedirectTo: window.location.origin + '/reset-password.html'
           }
         });
 
@@ -1127,7 +1142,7 @@
 
       try {
         const { error } = await client.auth.resetPasswordForEmail(email, {
-          redirectTo: window.location.origin + '/reset.html'
+          redirectTo: window.location.origin + '/reset-password.html'
         });
         
         if (error) {
@@ -1207,11 +1222,24 @@
       }
     });
 
-    // Verificar si ya hay sesión activa
+    // LISTENER MODIFICADO: Verificar si ya hay sesión activa pero IGNORAR confirmaciones de email
     client.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session) {
-        // Si ya está logueado, redirigir
+      // Si es una confirmación de email, NO redirigir automáticamente
+      if (isEmailConfirmationRedirect()) {
+        showMessage("Email confirmado exitosamente. Ya puedes iniciar sesión.", 'success');
+        return;
+      }
+
+      // Solo redirigir si hay sesión Y no es confirmación de email
+      if (event === 'SIGNED_IN' && session && !isEmailConfirmationRedirect()) {
         window.location.href = 'principal.html';
+      }
+    });
+
+    // Al cargar la página, verificar si es redirección de confirmación
+    window.addEventListener('load', function() {
+      if (isEmailConfirmationRedirect()) {
+        showMessage("Email confirmado exitosamente. Ya puedes iniciar sesión.", 'success');
       }
     });
   </script>
