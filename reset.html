@@ -72,52 +72,10 @@
     }
     .success { background: rgba(0, 255, 204, 0.2); border: 2px solid rgba(0, 255, 204, 0.4); color: #00ffcc; }
     .error { background: rgba(255, 100, 100, 0.2); border: 2px solid rgba(255, 100, 100, 0.4); color: #ff6666; }
-    .loading {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid rgba(0, 195, 255, 0.3);
-      border-top: 4px solid #00c3ff;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    .loading {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid rgba(0, 195, 255, 0.3);
-      border-top: 4px solid #00c3ff;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
   </style>
 </head>
 <body>
   <div class="reset-container">
-    <!-- Loading inicial -->
-    <div id="loadingContainer" class="loading">
-      <div class="spinner"></div>
-      <p style="margin-left: 15px;">Procesando...</p>
-    </div>
-
     <!-- Confirmación de email exitosa -->
     <div id="emailConfirmed" class="hidden">
       <h2><i class="fas fa-check-circle"></i> Email Confirmado</h2>
@@ -131,7 +89,7 @@
     </div>
 
     <!-- Formulario de reset de contraseña -->
-    <div id="resetPasswordForm" class="hidden">
+    <div id="resetPasswordForm">
       <h2><i class="fas fa-key"></i> Restablecer Contraseña</h2>
       <div id="messageContainer"></div>
       
@@ -168,7 +126,7 @@
 
     // Función para mostrar diferentes contenedores
     function showContainer(containerId) {
-      const containers = ['loadingContainer', 'emailConfirmed', 'resetPasswordForm', 'errorContainer'];
+      const containers = ['emailConfirmed', 'resetPasswordForm', 'errorContainer'];
       containers.forEach(id => {
         document.getElementById(id).classList.add('hidden');
       });
@@ -185,7 +143,7 @@
       showContainer('errorContainer');
     }
 
-    // Detectar el tipo de acción al cargar la página
+    // Detectar el tipo de acción al cargar la página (SIN SPINNER)
     async function handleAuthCallback() {
       try {
         const urlParams = new URLSearchParams(window.location.hash.substring(1));
@@ -194,15 +152,18 @@
         const error = urlParams.get('error');
         const errorDescription = urlParams.get('error_description');
 
+        console.log('Parámetros detectados:', { accessToken: !!accessToken, type, error });
+
         // Si hay un error en la URL
         if (error) {
           showError(`Error: ${errorDescription || error}`);
           return;
         }
 
-        // Si no hay token de acceso, redirigir al login
+        // Si no hay token de acceso, mostrar formulario por defecto
         if (!accessToken) {
-          redirectToLogin();
+          console.log('No hay access token, mostrando formulario de reset');
+          showContainer('resetPasswordForm');
           return;
         }
 
@@ -226,14 +187,14 @@
           // Reset de contraseña - mostrar formulario
           showContainer('resetPasswordForm');
         } else {
-          // Caso por defecto - asumir que es confirmación de email
-          await client.auth.signOut();
-          showContainer('emailConfirmed');
+          // Caso por defecto - mostrar formulario de reset
+          showContainer('resetPasswordForm');
         }
 
       } catch (error) {
         console.error('Error en handleAuthCallback:', error);
-        showError('Error inesperado: ' + error.message);
+        // En caso de error, mostrar formulario por defecto
+        showContainer('resetPasswordForm');
       }
     }
 
