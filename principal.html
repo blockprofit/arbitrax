@@ -668,7 +668,7 @@
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
     }
 
-    #modalAyuda {
+#modalAyuda {
       bottom: 90px;
       right: 30px;
     }
@@ -1491,7 +1491,7 @@ async function cargarHistorialTickets() {
                 color: white;
                 resize: vertical;
               "></textarea>
-              <button onclick="responderTicket('${ticket.id}')" style="
+              <button onclick="responderTicket(${ticket.id})" style="
                 background: linear-gradient(135deg, #00c3ff, #00ffcc);
                 border: none;
                 padding: 8px 16px;
@@ -1533,9 +1533,12 @@ async function cargarHistorialTickets() {
 }
 
 async function responderTicket(ticketId) {
+  console.log('Intentando responder ticket ID:', ticketId); // Debug
+  
   const textarea = document.getElementById(`respuestaUsuario-${ticketId}`);
   
   if (!textarea) {
+    console.error('No se encontró textarea para ticket:', ticketId);
     mostrarNotificacion("Error: No se encontró el campo de respuesta", "error");
     return;
   }
@@ -1548,29 +1551,42 @@ async function responderTicket(ticketId) {
   }
 
   try {
-    const { error } = await client
+    // Convertir ticketId a número y validar
+    const ticketIdNum = parseInt(ticketId);
+    if (isNaN(ticketIdNum)) {
+      throw new Error('ID de ticket inválido');
+    }
+
+    console.log('Enviando actualización para ticket:', ticketIdNum); // Debug
+
+    const { data, error } = await client
       .from("tickets")
       .update({
         respuesta_usuario: respuesta,
         fecha_respuesta_usuario: new Date().toISOString(),
         estado: 'en_proceso'
       })
-      .eq("id", parseInt(ticketId));
+      .eq("id", ticketIdNum)
+      .select(); // Agregar select para ver qué se actualizó
 
     if (error) {
-      console.error('Error enviando respuesta:', error);
-      mostrarNotificacion("Error al enviar respuesta", "error");
+      console.error('Error de Supabase:', error);
+      mostrarNotificacion(`Error al enviar respuesta: ${error.message}`, "error");
       return;
     }
 
+    console.log('Respuesta actualizada exitosamente:', data); // Debug
     mostrarNotificacion("Respuesta enviada correctamente", "success");
     textarea.value = "";
     
-    await cargarHistorialTickets();
+    // Esperar un momento antes de recargar
+    setTimeout(async () => {
+      await cargarHistorialTickets();
+    }, 500);
     
   } catch (error) {
     console.error('Error en responderTicket:', error);
-    mostrarNotificacion("Error al enviar respuesta", "error");
+    mostrarNotificacion(`Error al enviar respuesta: ${error.message}`, "error");
   }
 }
 
@@ -1857,6 +1873,14 @@ function verificarElementosDOM() {
   });
 }
 
+// Función de debug para verificar IDs
+function debugTicketIds() {
+  const buttons = document.querySelectorAll('[onclick*="responderTicket"]');
+  buttons.forEach(button => {
+    console.log('Botón encontrado:', button.getAttribute('onclick'));
+  });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   validateSession();
   
@@ -1886,6 +1910,9 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Ejecutar verificación cuando el DOM esté listo
   setTimeout(verificarElementosDOM, 1000);
+  
+  // Llamar debug después de cargar tickets
+  setTimeout(debugTicketIds, 2000);
 });
 
 validateSession();
