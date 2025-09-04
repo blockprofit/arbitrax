@@ -1424,7 +1424,8 @@ async function cargarHistorialTickets() {
       return;
     }
 
-    let html = '';
+    // USAR innerHTML directamente sin template literals problemáticos
+    container.innerHTML = '';
     
     data.forEach(ticket => {
       const fechaCreacion = formatearFecha(ticket.fecha);
@@ -1432,106 +1433,138 @@ async function cargarHistorialTickets() {
       const fechaRespuestaUsuario = ticket.fecha_respuesta_usuario ? formatearFecha(ticket.fecha_respuesta_usuario) : null;
       const puedeResponder = ticket.estado === 'en_proceso' || ticket.estado === 'pendiente';
       
-      html += `
-        <div class="ticket-item-user">
-          <div class="ticket-header-user">
-            <div class="ticket-subject">${ticket.asunto}</div>
-            <div class="ticket-status-user status-${ticket.estado}">
-              ${ticket.estado.replace('_', ' ')}
-            </div>
+      // Crear elemento div
+      const ticketDiv = document.createElement('div');
+      ticketDiv.className = 'ticket-item-user';
+      
+      // Construir HTML de forma segura
+      let ticketHTML = `
+        <div class="ticket-header-user">
+          <div class="ticket-subject">${ticket.asunto}</div>
+          <div class="ticket-status-user status-${ticket.estado}">
+            ${ticket.estado.replace('_', ' ')}
           </div>
-          
-          <div class="ticket-date">
-            <i class="fas fa-calendar"></i> Enviado: ${fechaCreacion}
-          </div>
-          
-          <div class="ticket-message">
-            <strong>Tu consulta:</strong><br>
-            ${ticket.mensaje}
-          </div>
-          
-          ${ticket.respuesta_admin ? `
-            <div class="ticket-response">
-              <div class="ticket-response-header">
-                <i class="fas fa-reply"></i> Respuesta del administrador:
-              </div>
-              <div class="ticket-response-content">
-                ${ticket.respuesta_admin}
-              </div>
-              <div class="ticket-response-date">
-                Respondido: ${fechaRespuesta}
-              </div>
-            </div>
-          ` : ''}
-          
-          ${ticket.respuesta_usuario ? `
-            <div class="ticket-user-response">
-              <div class="ticket-user-response-header">
-                <i class="fas fa-user"></i> Tu respuesta:
-              </div>
-              <div class="ticket-user-response-content">
-                ${ticket.respuesta_usuario}
-              </div>
-              <div class="ticket-user-response-date">
-                Enviado: ${fechaRespuestaUsuario}
-              </div>
-            </div>
-          ` : ''}
-          
-          ${puedeResponder && ticket.respuesta_admin && !ticket.respuesta_usuario ? `
-            <div class="ticket-reply-section">
-              <textarea id="respuestaUsuario-${ticket.id}" placeholder="Escribe tu respuesta al administrador..." style="
-                width: 100%;
-                min-height: 80px;
-                margin: 10px 0;
-                padding: 10px;
-                border: 1px solid rgba(0, 195, 255, 0.3);
-                border-radius: 8px;
-                background: rgba(34, 34, 34, 0.8);
-                color: white;
-                resize: vertical;
-              "></textarea>
-              <button onclick="responderTicket(${ticket.id})" style="
-                background: linear-gradient(135deg, #00c3ff, #00ffcc);
-                border: none;
-                padding: 8px 16px;
-                color: black;
-                border-radius: 6px;
-                cursor: pointer;
-                font-weight: bold;
-                font-size: 0.9rem;
-                width: 100%;
-              ">
-                <i class="fas fa-reply"></i> Enviar Respuesta
-              </button>
-            </div>
-          ` : ''}
-          
-          ${ticket.estado === 'resuelto' ? `
-            <div style="
-              background: rgba(40, 167, 69, 0.1);
-              border: 1px solid #28a745;
-              border-radius: 8px;
-              padding: 10px;
-              margin-top: 10px;
-              text-align: center;
-              color: #28a745;
-            ">
-              <i class="fas fa-check-circle"></i> Este ticket ha sido marcado como resuelto
-            </div>
-          ` : ''}
+        </div>
+        
+        <div class="ticket-date">
+          <i class="fas fa-calendar"></i> Enviado: ${fechaCreacion}
+        </div>
+        
+        <div class="ticket-message">
+          <strong>Tu consulta:</strong><br>
+          ${ticket.mensaje}
         </div>
       `;
+      
+      // Agregar respuesta del admin si existe
+      if (ticket.respuesta_admin) {
+        ticketHTML += `
+          <div class="ticket-response">
+            <div class="ticket-response-header">
+              <i class="fas fa-reply"></i> Respuesta del administrador:
+            </div>
+            <div class="ticket-response-content">
+              ${ticket.respuesta_admin}
+            </div>
+            <div class="ticket-response-date">
+              Respondido: ${fechaRespuesta}
+            </div>
+          </div>
+        `;
+      }
+      
+      // Agregar respuesta del usuario si existe
+      if (ticket.respuesta_usuario) {
+        ticketHTML += `
+          <div class="ticket-user-response">
+            <div class="ticket-user-response-header">
+              <i class="fas fa-user"></i> Tu respuesta:
+            </div>
+            <div class="ticket-user-response-content">
+              ${ticket.respuesta_usuario}
+            </div>
+            <div class="ticket-user-response-date">
+              Enviado: ${fechaRespuestaUsuario}
+            </div>
+          </div>
+        `;
+      }
+      
+      // Agregar sección de respuesta si puede responder
+      if (puedeResponder && ticket.respuesta_admin && !ticket.respuesta_usuario) {
+        ticketHTML += `
+          <div class="ticket-reply-section">
+            <textarea id="respuestaUsuario-${ticket.id}" placeholder="Escribe tu respuesta al administrador..." style="
+              width: 100%;
+              min-height: 80px;
+              margin: 10px 0;
+              padding: 10px;
+              border: 1px solid rgba(0, 195, 255, 0.3);
+              border-radius: 8px;
+              background: rgba(34, 34, 34, 0.8);
+              color: white;
+              resize: vertical;
+            "></textarea>
+          </div>
+        `;
+      }
+      
+      // Agregar mensaje si está resuelto
+      if (ticket.estado === 'resuelto') {
+        ticketHTML += `
+          <div style="
+            background: rgba(40, 167, 69, 0.1);
+            border: 1px solid #28a745;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            text-align: center;
+            color: #28a745;
+          ">
+            <i class="fas fa-check-circle"></i> Este ticket ha sido marcado como resuelto
+          </div>
+        `;
+      }
+      
+      // Asignar HTML al elemento
+      ticketDiv.innerHTML = ticketHTML;
+      
+      // Agregar botón de respuesta usando JavaScript (no HTML inline)
+      if (puedeResponder && ticket.respuesta_admin && !ticket.respuesta_usuario) {
+        const button = document.createElement('button');
+        button.innerHTML = '<i class="fas fa-reply"></i> Enviar Respuesta';
+        button.style.cssText = `
+          background: linear-gradient(135deg, #00c3ff, #00ffcc);
+          border: none;
+          padding: 8px 16px;
+          color: black;
+          border-radius: 6px;
+          cursor: pointer;
+          font-weight: bold;
+          font-size: 0.9rem;
+          width: 100%;
+        `;
+        
+        // Agregar event listener en lugar de onclick inline
+        button.addEventListener('click', () => responderTicket(ticket.id));
+        
+        // Encontrar la sección de respuesta y agregar el botón
+        const replySection = ticketDiv.querySelector('.ticket-reply-section');
+        if (replySection) {
+          replySection.appendChild(button);
+        }
+      }
+      
+      // Agregar al container
+      container.appendChild(ticketDiv);
     });
-    
-    container.innerHTML = html;
     
   } catch (error) {
     console.error('Error en cargarHistorialTickets:', error);
     document.getElementById("listaTickets").innerHTML = '<div class="no-tickets">Error al cargar tickets.</div>';
   }
 }
-
+  
 async function responderTicket(ticketId) {
   console.log('Intentando responder ticket ID:', ticketId); // Debug
   
