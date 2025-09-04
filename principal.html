@@ -650,7 +650,7 @@
       right: 25px;
     }
 
-#modalAyuda, #modalNotificacion {
+    #modalAyuda, #modalNotificacion {
       display: none;
       position: fixed;
       background: linear-gradient(135deg, 
@@ -1135,50 +1135,58 @@ async function guardarPerfil() {
 async function actualizarGraficaProfesional() {
   try {
     const gananciasDiarias = [];
-    const fechaHoy = new Date();
     
     if (montoInvertido <= 0 || porcentajeSemanal <= 0) {
+      // Si no hay inversión, mostrar ceros
       for (let i = 0; i < 7; i++) {
         gananciasDiarias.push(0);
       }
     } else {
+      // Calcular ganancia diaria base del sistema
       const gananciaDiariaBase = (montoInvertido * porcentajeSemanal / 100) / 7;
       
-      const fechaInicio = new Date();
-      fechaInicio.setDate(fechaInicio.getDate() - 6);
-      
-      const { data: movimientos } = await client
-        .from("balances")
-        .select("saldo, updated_at")
-        .eq("usuario_id", currentUserId)
-        .gte("updated_at", fechaInicio.toISOString())
-        .order("updated_at", { ascending: true });
-      
-      for (let i = 0; i < 7; i++) {
+      // Obtener los últimos 7 días
+      for (let i = 6; i >= 0; i--) {
         const fecha = new Date();
-        fecha.setDate(fecha.getDate() - (6 - i));
+        fecha.setDate(fecha.getDate() - i);
         
         let gananciaDelDia = gananciaDiariaBase;
         
+        // Obtener recompensas adicionales de ese día (trivia, bonos, etc.)
         const { data: recompensasDelDia } = await client
           .from("recompensas")
           .select("monto")
           .eq("usuario_id", currentUserId)
           .eq("aprobada", true)
-          .gte("fecha", fecha.toISOString().split('T')[0])
-          .lt("fecha", new Date(fecha.getTime() + 24*60*60*1000).toISOString().split('T')[0]);
+          .gte("created_at", fecha.toISOString().split('T')[0])
+          .lt("created_at", new Date(fecha.getTime() + 24*60*60*1000).toISOString().split('T')[0]);
         
         if (recompensasDelDia && recompensasDelDia.length > 0) {
           const totalRecompensas = recompensasDelDia.reduce((sum, r) => sum + parseFloat(r.monto || 0), 0);
           gananciaDelDia += totalRecompensas;
         }
         
+        // Obtener retiros de ese día (reducen las ganancias mostradas)
+        const { data: retirosDelDia } = await client
+          .from("retiros")
+          .select("monto")
+          .eq("usuario_id", currentUserId)
+          .eq("estado", "aprobado")
+          .gte("created_at", fecha.toISOString().split('T')[0])
+          .lt("created_at", new Date(fecha.getTime() + 24*60*60*1000).toISOString().split('T')[0]);
+        
+        if (retirosDelDia && retirosDelDia.length > 0) {
+          const totalRetiros = retirosDelDia.reduce((sum, r) => sum + parseFloat(r.monto || 0), 0);
+          gananciaDelDia = Math.max(0, gananciaDelDia - totalRetiros); // No permitir valores negativos
+        }
+        
         gananciasDiarias.push(gananciaDelDia);
       }
     }
 
+    // Actualizar las barras con datos reales
     const bars = document.querySelectorAll('.professional-bar');
-    const maxValue = Math.max(...gananciasDiarias, 50);
+    const maxValue = Math.max(...gananciasDiarias, 50); // Mínimo 50 para visualización
     
     let totalSemana = 0;
     let mejorDiaValor = 0;
@@ -1194,6 +1202,7 @@ async function actualizarGraficaProfesional() {
       if (valor > mejorDiaValor) mejorDiaValor = valor;
     });
 
+    // Actualizar estadísticas reales
     const promedioDia = totalSemana / 7;
     
     document.getElementById('totalSemana').textContent = `$${totalSemana.toFixed(2)}`;
@@ -1202,6 +1211,7 @@ async function actualizarGraficaProfesional() {
 
   } catch (error) {
     console.error('Error actualizando gráfica:', error);
+    // Fallback con datos básicos
     actualizarGraficaConDatosActuales();
   }
 }
@@ -1294,7 +1304,7 @@ async function actualizarGananciasDinamicas() {
     ultimo_calculo: new Date(ultimoCalculo).toISOString()
   }).eq("id", currentUserId);
 
-if (error) {
+  if (error) {
     console.error("Error actualizando ganancia_acumulada o ultimo_calculo:", error);
   }
 }
@@ -1481,7 +1491,7 @@ async function cargarHistorialTickets() {
                 color: white;
                 resize: vertical;
               "></textarea>
-              <button onclick="responderTicket(${ticket.id})" style="
+              <button onclick="responderTicket('${ticket.id}')" style="
                 background: linear-gradient(135deg, #00c3ff, #00ffcc);
                 border: none;
                 padding: 8px 16px;
@@ -1524,6 +1534,12 @@ async function cargarHistorialTickets() {
 
 async function responderTicket(ticketId) {
   const textarea = document.getElementById(`respuestaUsuario-${ticketId}`);
+  
+  if (!textarea) {
+    mostrarNotificacion("Error: No se encontró el campo de respuesta", "error");
+    return;
+  }
+  
   const respuesta = textarea.value.trim();
   
   if (!respuesta) {
@@ -1539,7 +1555,7 @@ async function responderTicket(ticketId) {
         fecha_respuesta_usuario: new Date().toISOString(),
         estado: 'en_proceso'
       })
-      .eq("id", ticketId);
+      .eq("id", parseInt(ticketId));
 
     if (error) {
       console.error('Error enviando respuesta:', error);
@@ -1819,6 +1835,28 @@ additionalStyles.textContent = `
 `;
 document.head.appendChild(additionalStyles);
 
+// Manejar errores de carga de recursos
+window.addEventListener('error', function(e) {
+  if (e.target.tagName === 'IMG' || e.target.tagName === 'LINK') {
+    console.warn('Recurso no encontrado:', e.target.src || e.target.href);
+  }
+});
+
+// Verificar que todos los elementos existen antes de usarlos
+function verificarElementosDOM() {
+  const elementosRequeridos = [
+    'sidebar', 'modalAyuda', 'modalNotificacion', 
+    'emailAyuda', 'asuntoAyuda', 'mensajeAyuda',
+    'total-invertido', 'ganancias', 'proximo-pago', 'saldo-disponible'
+  ];
+  
+  elementosRequeridos.forEach(id => {
+    if (!document.getElementById(id)) {
+      console.warn(`Elemento con ID '${id}' no encontrado`);
+    }
+  });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   validateSession();
   
@@ -1845,6 +1883,9 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('.contenido-notificacion').addEventListener('click', function(event) {
     event.stopPropagation();
   });
+  
+  // Ejecutar verificación cuando el DOM esté listo
+  setTimeout(verificarElementosDOM, 1000);
 });
 
 validateSession();
