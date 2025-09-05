@@ -92,6 +92,25 @@
       border-left: 4px solid #00c3ff;
     }
 
+    /* Estilo especial para el botón de administrador */
+    .sidebar button.admin-btn {
+      background: linear-gradient(90deg, rgba(255, 215, 0, 0.2), transparent);
+      border-left: 3px solid #ffd700;
+      color: #ffd700;
+      font-weight: bold;
+    }
+
+    .sidebar button.admin-btn:hover {
+      background: linear-gradient(90deg, rgba(255, 215, 0, 0.3), transparent);
+      transform: translateX(8px);
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+    }
+
+    .sidebar button.admin-btn i {
+      color: #ffd700;
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+
     .sidebar button i {
       margin-right: 15px;
       width: 20px;
@@ -678,7 +697,7 @@
       right: 30px;
     }
 
-    .contenido-ayuda h3,
+.contenido-ayuda h3,
     .contenido-notificacion h3 {
       margin-top: 0;
       font-size: 1.3rem;
@@ -908,6 +927,7 @@
   <button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>
   <button onclick="window.location.href='preguntasfrecuentes.html'"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>
   <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-alt"></i> Términos y condiciones</button>
+  <button onclick="window.location.href='configuracion.html'" class="admin-btn" id="adminConfigBtn" style="display: none;"><i class="fas fa-cogs"></i> Configuración</button>
   <button onclick="logout()"><i class="fas fa-power-off"></i> Cerrar sesión</button>
 </div>
 
@@ -1006,7 +1026,7 @@
     </div>
   </div>
 
-  <div id="perfil" class="section">
+<div id="perfil" class="section">
     <div class="perfil-header">
       <h2 class="perfil-title">
         <i class="fas fa-user-circle"></i>
@@ -1070,6 +1090,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUserId = null;
 let currentEmail = null;
+let isAdmin = false;
 
 let montoInvertido = 0;
 let porcentajeSemanal = 0;
@@ -1077,12 +1098,172 @@ let gananciaAcumulada = 0;
 let saldoDisponible = 0;
 let ultimoCalculo = null;
 
+// Verificar si es administrador y mostrar configuraciones
+async function verificarAdmin() {
+  if (currentUserId === 'c1d123c2-2023-4130-baf4-1fa7d61768dc') {
+    isAdmin = true;
+    document.getElementById('adminConfigBtn').style.display = 'flex';
+    console.log('Usuario administrador detectado');
+  } else {
+    isAdmin = false;
+    document.getElementById('adminConfigBtn').style.display = 'none';
+  }
+}
+
+// Verificar acceso a funciones según configuración
+async function verificarAccesoFuncion(nombreFuncion) {
+  try {
+    // Si es admin, siempre permitir acceso
+    if (isAdmin) return true;
+    
+    const { data: config } = await client
+      .from('configuracion_plataforma')
+      .select('*')
+      .order('id', { ascending: false })
+      .limit(1);
+    
+    if (!config || config.length === 0) return true;
+    
+    const configuracion = config[0];
+    
+    // Verificar pausa total
+    if (configuracion.pausa_total) {
+      alert('La plataforma está en mantenimiento. Intenta más tarde.');
+      return false;
+    }
+    
+    // Verificar función específica
+    if (nombreFuncion === 'trivia' && !configuracion.funcion_trivia) {
+      alert('La función Trivia no está disponible temporalmente.');
+      return false;
+    }
+    
+    if (nombreFuncion === 'mystery' && !configuracion.funcion_mystery) {
+      alert('La función Mystery Box no está disponible temporalmente.');
+      return false;
+    }
+    
+    if (nombreFuncion === 'sorteo' && !configuracion.funcion_sorteo) {
+      alert('La función Sorteo no está disponible temporalmente.');
+      return false;
+    }
+    
+    if (nombreFuncion === 'inversion' && !configuracion.funcion_inversion) {
+      alert('La función Inversión no está disponible temporalmente.');
+      return false;
+    }
+    
+    if (nombreFuncion === 'deposito' && !configuracion.funcion_deposito) {
+      alert('La función Depósito no está disponible temporalmente.');
+      return false;
+    }
+    
+    if (nombreFuncion === 'retiro' && !configuracion.funcion_retiro) {
+      alert('La función Retiro no está disponible temporalmente.');
+      return false;
+    }
+    
+    if (nombreFuncion === 'referidos' && !configuracion.funcion_referidos) {
+      alert('La función Referidos no está disponible temporalmente.');
+      return false;
+    }
+    
+    if (nombreFuncion === 'minipool' && !configuracion.funcion_minipool) {
+      alert('La función Mini Pool no está disponible temporalmente.');
+      return false;
+    }
+    
+    if (nombreFuncion === 'operaciones' && !configuracion.funcion_operaciones) {
+      alert('La función Operaciones no está disponible temporalmente.');
+      return false;
+    }
+    
+    // Verificar requisito de referidos para funciones especiales
+    if (configuracion.control_referidos && ['trivia', 'mystery', 'sorteo'].includes(nombreFuncion)) {
+      const { data: referidos, count } = await client
+        .from('referidos')
+        .select('*', { count: 'exact' })
+        .eq('referido_por', currentUserId)
+        .eq('aprobado', true);
+      
+      const cantidadReferidos = count || 0;
+      
+      if (cantidadReferidos < configuracion.minimo_referidos) {
+        alert(`Necesitas ${configuracion.minimo_referidos} referidos aprobados para acceder a esta función. Actualmente tienes ${cantidadReferidos}.`);
+        return false;
+      }
+    }
+    
+    // Verificar pausa por ganancias
+    if (configuracion.pausa_ganancias) {
+      const { data: userData } = await client
+        .from('profiles')
+        .select('ganancia_acumulada, monto_confirmado')
+        .eq('id', currentUserId)
+        .single();
+      
+      if (userData && userData.monto_confirmado > 0) {
+        const porcentajeGanancia = (userData.ganancia_acumulada / userData.monto_confirmado) * 100;
+        
+        if (porcentajeGanancia >= configuracion.limite_ganancia) {
+          alert(`Has alcanzado el límite máximo de ganancias (${configuracion.limite_ganancia}%). Contacta al administrador.`);
+          return false;
+        }
+      }
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error verificando acceso:', error);
+    return true; // En caso de error, permitir acceso
+  }
+}
+
+// Interceptar navegación a páginas controladas
+function navegarConVerificacion(url, funcion) {
+  verificarAccesoFuncion(funcion).then(puedeAcceder => {
+    if (puedeAcceder) {
+      window.location.href = url;
+    }
+  });
+}
+
+// Modificar los botones del sidebar para usar verificación
+function modificarBotonesSidebar() {
+  // Obtener todos los botones del sidebar
+  const botonesOriginales = [
+    { selector: 'button[onclick="window.location.href=\'inversion.html\'"]', funcion: 'inversion' },
+    { selector: 'button[onclick="window.location.href=\'deposito.html\'"]', funcion: 'deposito' },
+    { selector: 'button[onclick="window.location.href=\'retiro.html\'"]', funcion: 'retiro' },
+    { selector: 'button[onclick="window.location.href=\'referidos.html\'"]', funcion: 'referidos' },
+    { selector: 'button[onclick="window.location.href=\'trivia.html\'"]', funcion: 'trivia' },
+    { selector: 'button[onclick="window.location.href=\'minipool.html\'"]', funcion: 'minipool' },
+    { selector: 'button[onclick="window.location.href=\'mysterybox.html\'"]', funcion: 'mystery' },
+    { selector: 'button[onclick="window.location.href=\'sorteo.html\'"]', funcion: 'sorteo' }
+  ];
+  
+  botonesOriginales.forEach(({ selector, funcion }) => {
+    const boton = document.querySelector(selector);
+    if (boton) {
+      const url = boton.getAttribute('onclick').match(/'(.+)'/)[1];
+      boton.removeAttribute('onclick');
+      boton.addEventListener('click', () => navegarConVerificacion(url, funcion));
+    }
+  });
+}
+
 async function validateSession() {
   const { data: { session } } = await client.auth.getSession();
   if (!session) return window.location.href = "index.html";
   currentUserId = session.user.id;
   currentEmail = session.user.email;
   document.getElementById("emailAyuda").value = currentEmail;
+
+  // Verificar si es admin PRIMERO
+  await verificarAdmin();
+  
+  // Modificar botones del sidebar para usar verificaciones
+  modificarBotonesSidebar();
 
   await cargarPerfil();
   cargarHistorialTickets();
@@ -1490,6 +1671,23 @@ async function cargarHistorialTickets() {
         `;
       }
       
+// Agregar respuesta del usuario si existe
+      if (ticket.respuesta_usuario) {
+        ticketHTML += `
+          <div class="ticket-user-response">
+            <div class="ticket-user-response-header">
+              <i class="fas fa-user"></i> Tu respuesta:
+            </div>
+            <div class="ticket-user-response-content">
+              ${ticket.respuesta_usuario}
+            </div>
+            <div class="ticket-user-response-date">
+              Enviado: ${fechaRespuestaUsuario}
+            </div>
+          </div>
+        `;
+      }
+      
       // Agregar sección de respuesta si puede responder
       if (puedeResponder && ticket.respuesta_admin && !ticket.respuesta_usuario) {
         ticketHTML += `
@@ -1508,7 +1706,7 @@ async function cargarHistorialTickets() {
           </div>
         `;
       }
-      
+
       // Agregar mensaje si está resuelto
       if (ticket.estado === 'resuelto') {
         ticketHTML += `
@@ -1564,7 +1762,7 @@ async function cargarHistorialTickets() {
     document.getElementById("listaTickets").innerHTML = '<div class="no-tickets">Error al cargar tickets.</div>';
   }
 }
-  
+
 async function responderTicket(ticketId) {
   console.log('Intentando responder ticket ID:', ticketId); // Debug
   
