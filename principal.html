@@ -92,25 +92,6 @@
       border-left: 4px solid #00c3ff;
     }
 
-    /* Estilo especial para el botón de administrador */
-    .sidebar button.admin-btn {
-      background: linear-gradient(90deg, rgba(255, 215, 0, 0.2), transparent);
-      border-left: 3px solid #ffd700;
-      color: #ffd700;
-      font-weight: bold;
-    }
-
-    .sidebar button.admin-btn:hover {
-      background: linear-gradient(90deg, rgba(255, 215, 0, 0.3), transparent);
-      transform: translateX(8px);
-      box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
-    }
-
-    .sidebar button.admin-btn i {
-      color: #ffd700;
-      text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-    }
-
     .sidebar button i {
       margin-right: 15px;
       width: 20px;
@@ -326,7 +307,7 @@
       pointer-events: none;
     }
 
-    .chart-header {
+.chart-header {
       text-align: center;
       margin-bottom: 30px;
       position: relative;
@@ -687,7 +668,7 @@
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
     }
 
-#modalAyuda {
+    #modalAyuda {
       bottom: 90px;
       right: 30px;
     }
@@ -697,7 +678,7 @@
       right: 30px;
     }
 
-.contenido-ayuda h3,
+    .contenido-ayuda h3,
     .contenido-notificacion h3 {
       margin-top: 0;
       font-size: 1.3rem;
@@ -908,7 +889,15 @@
       padding: 10px;
       margin-top: 10px;
     }
+
+    .no-tickets {
+      text-align: center;
+      padding: 20px;
+      color: rgba(255, 255, 255, 0.6);
+      font-style: italic;
+    }
   </style>
+
 </head>
 
 <body>
@@ -927,7 +916,6 @@
   <button onclick="window.location.href='sorteo.html'"><i class="fas fa-gift"></i> Sorteo</button>
   <button onclick="window.location.href='preguntasfrecuentes.html'"><i class="fas fa-question-circle"></i> Preguntas frecuentes</button>
   <button onclick="window.location.href='terminosycondiciones.html'"><i class="fas fa-file-alt"></i> Términos y condiciones</button>
-  <button onclick="window.location.href='configuracion.html'" class="admin-btn" id="adminConfigBtn" style="display: none;"><i class="fas fa-cogs"></i> Configuración</button>
   <button onclick="logout()"><i class="fas fa-power-off"></i> Cerrar sesión</button>
 </div>
 
@@ -1026,7 +1014,7 @@
     </div>
   </div>
 
-<div id="perfil" class="section">
+  <div id="perfil" class="section">
     <div class="perfil-header">
       <h2 class="perfil-title">
         <i class="fas fa-user-circle"></i>
@@ -1090,7 +1078,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUserId = null;
 let currentEmail = null;
-let isAdmin = false;
 
 let montoInvertido = 0;
 let porcentajeSemanal = 0;
@@ -1098,175 +1085,20 @@ let gananciaAcumulada = 0;
 let saldoDisponible = 0;
 let ultimoCalculo = null;
 
-// Verificar si es administrador y mostrar configuraciones
-async function verificarAdmin() {
-  if (currentUserId === 'c1d123c2-2023-4130-baf4-1fa7d61768dc') {
-    isAdmin = true;
-    document.getElementById('adminConfigBtn').style.display = 'flex';
-    console.log('Usuario administrador detectado');
-  } else {
-    isAdmin = false;
-    document.getElementById('adminConfigBtn').style.display = 'none';
-  }
-}
-
-// Verificar acceso a funciones según configuración
-async function verificarAccesoFuncion(nombreFuncion) {
-  try {
-    // Si es admin, siempre permitir acceso
-    if (isAdmin) return true;
-    
-    const { data: config } = await client
-      .from('configuracion_plataforma')
-      .select('*')
-      .order('id', { ascending: false })
-      .limit(1);
-    
-    if (!config || config.length === 0) return true;
-    
-    const configuracion = config[0];
-    
-    // Verificar pausa total
-    if (configuracion.pausa_total) {
-      alert('La plataforma está en mantenimiento. Intenta más tarde.');
-      return false;
-    }
-    
-    // Verificar función específica
-    if (nombreFuncion === 'trivia' && !configuracion.funcion_trivia) {
-      alert('La función Trivia no está disponible temporalmente.');
-      return false;
-    }
-    
-    if (nombreFuncion === 'mystery' && !configuracion.funcion_mystery) {
-      alert('La función Mystery Box no está disponible temporalmente.');
-      return false;
-    }
-    
-    if (nombreFuncion === 'sorteo' && !configuracion.funcion_sorteo) {
-      alert('La función Sorteo no está disponible temporalmente.');
-      return false;
-    }
-    
-    if (nombreFuncion === 'inversion' && !configuracion.funcion_inversion) {
-      alert('La función Inversión no está disponible temporalmente.');
-      return false;
-    }
-    
-    if (nombreFuncion === 'deposito' && !configuracion.funcion_deposito) {
-      alert('La función Depósito no está disponible temporalmente.');
-      return false;
-    }
-    
-    if (nombreFuncion === 'retiro' && !configuracion.funcion_retiro) {
-      alert('La función Retiro no está disponible temporalmente.');
-      return false;
-    }
-    
-    if (nombreFuncion === 'referidos' && !configuracion.funcion_referidos) {
-      alert('La función Referidos no está disponible temporalmente.');
-      return false;
-    }
-    
-    if (nombreFuncion === 'minipool' && !configuracion.funcion_minipool) {
-      alert('La función Mini Pool no está disponible temporalmente.');
-      return false;
-    }
-    
-    if (nombreFuncion === 'operaciones' && !configuracion.funcion_operaciones) {
-      alert('La función Operaciones no está disponible temporalmente.');
-      return false;
-    }
-    
-    // Verificar requisito de referidos para funciones especiales
-    if (configuracion.control_referidos && ['trivia', 'mystery', 'sorteo'].includes(nombreFuncion)) {
-      const { data: referidos, count } = await client
-        .from('referidos')
-        .select('*', { count: 'exact' })
-        .eq('referido_por', currentUserId)
-        .eq('aprobado', true);
-      
-      const cantidadReferidos = count || 0;
-      
-      if (cantidadReferidos < configuracion.minimo_referidos) {
-        alert(`Necesitas ${configuracion.minimo_referidos} referidos aprobados para acceder a esta función. Actualmente tienes ${cantidadReferidos}.`);
-        return false;
-      }
-    }
-    
-    // Verificar pausa por ganancias
-    if (configuracion.pausa_ganancias) {
-      const { data: userData } = await client
-        .from('profiles')
-        .select('ganancia_acumulada, monto_confirmado')
-        .eq('id', currentUserId)
-        .single();
-      
-      if (userData && userData.monto_confirmado > 0) {
-        const porcentajeGanancia = (userData.ganancia_acumulada / userData.monto_confirmado) * 100;
-        
-        if (porcentajeGanancia >= configuracion.limite_ganancia) {
-          alert(`Has alcanzado el límite máximo de ganancias (${configuracion.limite_ganancia}%). Contacta al administrador.`);
-          return false;
-        }
-      }
-    }
-    
-    return true;
-  } catch (error) {
-    console.error('Error verificando acceso:', error);
-    return true; // En caso de error, permitir acceso
-  }
-}
-
-// Interceptar navegación a páginas controladas
-function navegarConVerificacion(url, funcion) {
-  verificarAccesoFuncion(funcion).then(puedeAcceder => {
-    if (puedeAcceder) {
-      window.location.href = url;
-    }
-  });
-}
-
-// Modificar los botones del sidebar para usar verificación
-function modificarBotonesSidebar() {
-  // Obtener todos los botones del sidebar
-  const botonesOriginales = [
-    { selector: 'button[onclick="window.location.href=\'inversion.html\'"]', funcion: 'inversion' },
-    { selector: 'button[onclick="window.location.href=\'deposito.html\'"]', funcion: 'deposito' },
-    { selector: 'button[onclick="window.location.href=\'retiro.html\'"]', funcion: 'retiro' },
-    { selector: 'button[onclick="window.location.href=\'referidos.html\'"]', funcion: 'referidos' },
-    { selector: 'button[onclick="window.location.href=\'trivia.html\'"]', funcion: 'trivia' },
-    { selector: 'button[onclick="window.location.href=\'minipool.html\'"]', funcion: 'minipool' },
-    { selector: 'button[onclick="window.location.href=\'mysterybox.html\'"]', funcion: 'mystery' },
-    { selector: 'button[onclick="window.location.href=\'sorteo.html\'"]', funcion: 'sorteo' }
-  ];
-  
-  botonesOriginales.forEach(({ selector, funcion }) => {
-    const boton = document.querySelector(selector);
-    if (boton) {
-      const url = boton.getAttribute('onclick').match(/'(.+)'/)[1];
-      boton.removeAttribute('onclick');
-      boton.addEventListener('click', () => navegarConVerificacion(url, funcion));
-    }
-  });
-}
-
 async function validateSession() {
   const { data: { session } } = await client.auth.getSession();
   if (!session) return window.location.href = "index.html";
   currentUserId = session.user.id;
   currentEmail = session.user.email;
-  document.getElementById("emailAyuda").value = currentEmail;
-
-  // Verificar si es admin PRIMERO
-  await verificarAdmin();
   
-  // Modificar botones del sidebar para usar verificaciones
-  modificarBotonesSidebar();
+  // Validar que el elemento existe antes de asignar valor
+  const emailInput = document.getElementById("emailAyuda");
+  if (emailInput) {
+    emailInput.value = currentEmail;
+  }
 
   await cargarPerfil();
-  cargarHistorialTickets();
+  await cargarHistorialTickets();
   await obtenerSaldoDisponible();
   await cargarDatosFinancierosDinamicos();
   actualizarGananciasDinamicas();
@@ -1278,39 +1110,64 @@ async function validateSession() {
 }
 
 async function cargarPerfil() {
-  const { data, error } = await client.from("profiles").select("*").eq("id", currentUserId).single();
-  if (!error && data) {
-    document.getElementById("nombre").value = data.nombre || "";
-    document.getElementById("apellido").value = data.apellido || "";
-    document.getElementById("dni").value = data.dni || "";
-    document.getElementById("celular").value = data.celular || "";
-    document.getElementById("cbu").value = data.cbu || "";
-    document.getElementById("email").value = data.email || currentEmail;
-    
-    if (data.nombre) {
-      document.getElementById("welcomeTitle").innerHTML = `
-        <i class="fas fa-user-circle"></i>
-        Bienvenido ${data.nombre}
-      `;
+  try {
+    const { data, error } = await client.from("profiles").select("*").eq("id", currentUserId).single();
+    if (!error && data) {
+      const nombreInput = document.getElementById("nombre");
+      const apellidoInput = document.getElementById("apellido");
+      const dniInput = document.getElementById("dni");
+      const celularInput = document.getElementById("celular");
+      const cbuInput = document.getElementById("cbu");
+      const emailInput = document.getElementById("email");
+      const welcomeTitle = document.getElementById("welcomeTitle");
+      
+      if (nombreInput) nombreInput.value = data.nombre || "";
+      if (apellidoInput) apellidoInput.value = data.apellido || "";
+      if (dniInput) dniInput.value = data.dni || "";
+      if (celularInput) celularInput.value = data.celular || "";
+      if (cbuInput) cbuInput.value = data.cbu || "";
+      if (emailInput) emailInput.value = data.email || currentEmail;
+      
+      if (data.nombre && welcomeTitle) {
+        welcomeTitle.innerHTML = `
+          <i class="fas fa-user-circle"></i>
+          Bienvenido ${data.nombre}
+        `;
+      }
+    } else {
+      const emailInput = document.getElementById("email");
+      if (emailInput) emailInput.value = currentEmail;
     }
-  } else {
-    document.getElementById("email").value = currentEmail;
+  } catch (error) {
+    console.error('Error cargando perfil:', error);
   }
 }
 
 async function guardarPerfil() {
-  const perfil = {
-    id: currentUserId,
-    email: currentEmail,
-    nombre: document.getElementById("nombre").value,
-    apellido: document.getElementById("apellido").value,
-    dni: document.getElementById("dni").value,
-    celular: document.getElementById("celular").value,
-    cbu: document.getElementById("cbu").value
-  };
-  await client.from("profiles").upsert(perfil, { onConflict: 'id' });
-  await cargarPerfil();
-  showSection("welcome");
+  try {
+    const perfil = {
+      id: currentUserId,
+      email: currentEmail,
+      nombre: document.getElementById("nombre")?.value || "",
+      apellido: document.getElementById("apellido")?.value || "",
+      dni: document.getElementById("dni")?.value || "",
+      celular: document.getElementById("celular")?.value || "",
+      cbu: document.getElementById("cbu")?.value || ""
+    };
+    
+    const { error } = await client.from("profiles").upsert(perfil, { onConflict: 'id' });
+    if (error) {
+      console.error('Error guardando perfil:', error);
+      mostrarNotificacion("Error al guardar el perfil", "error");
+    } else {
+      mostrarNotificacion("Perfil guardado correctamente", "success");
+      await cargarPerfil();
+      showSection("welcome");
+    }
+  } catch (error) {
+    console.error('Error en guardarPerfil:', error);
+    mostrarNotificacion("Error al guardar el perfil", "error");
+  }
 }
 
 async function actualizarGraficaProfesional() {
@@ -1318,56 +1175,58 @@ async function actualizarGraficaProfesional() {
     const gananciasDiarias = [];
     
     if (montoInvertido <= 0 || porcentajeSemanal <= 0) {
-      // Si no hay inversión, mostrar ceros
       for (let i = 0; i < 7; i++) {
         gananciasDiarias.push(0);
       }
     } else {
-      // Calcular ganancia diaria base del sistema
       const gananciaDiariaBase = (montoInvertido * porcentajeSemanal / 100) / 7;
       
-      // Obtener los últimos 7 días
       for (let i = 6; i >= 0; i--) {
         const fecha = new Date();
         fecha.setDate(fecha.getDate() - i);
         
         let gananciaDelDia = gananciaDiariaBase;
         
-        // Obtener recompensas adicionales de ese día (trivia, bonos, etc.)
-        const { data: recompensasDelDia } = await client
-          .from("recompensas")
-          .select("monto")
-          .eq("usuario_id", currentUserId)
-          .eq("aprobada", true)
-          .gte("created_at", fecha.toISOString().split('T')[0])
-          .lt("created_at", new Date(fecha.getTime() + 24*60*60*1000).toISOString().split('T')[0]);
-        
-        if (recompensasDelDia && recompensasDelDia.length > 0) {
-          const totalRecompensas = recompensasDelDia.reduce((sum, r) => sum + parseFloat(r.monto || 0), 0);
-          gananciaDelDia += totalRecompensas;
+        try {
+          const { data: recompensasDelDia } = await client
+            .from("recompensas")
+            .select("monto")
+            .eq("usuario_id", currentUserId)
+            .eq("aprobada", true)
+            .gte("created_at", fecha.toISOString().split('T')[0])
+            .lt("created_at", new Date(fecha.getTime() + 24*60*60*1000).toISOString().split('T')[0]);
+          
+          if (recompensasDelDia && recompensasDelDia.length > 0) {
+            const totalRecompensas = recompensasDelDia.reduce((sum, r) => sum + parseFloat(r.monto || 0), 0);
+            gananciaDelDia += totalRecompensas;
+          }
+        } catch (err) {
+          console.warn('Error obteniendo recompensas:', err);
         }
         
-        // Obtener retiros de ese día (reducen las ganancias mostradas)
-        const { data: retirosDelDia } = await client
-          .from("retiros")
-          .select("monto")
-          .eq("usuario_id", currentUserId)
-          .eq("estado", "aprobado")
-          .gte("created_at", fecha.toISOString().split('T')[0])
-          .lt("created_at", new Date(fecha.getTime() + 24*60*60*1000).toISOString().split('T')[0]);
-        
-        if (retirosDelDia && retirosDelDia.length > 0) {
-          const totalRetiros = retirosDelDia.reduce((sum, r) => sum + parseFloat(r.monto || 0), 0);
-          gananciaDelDia = Math.max(0, gananciaDelDia - totalRetiros); // No permitir valores negativos
+        try {
+          const { data: retirosDelDia } = await client
+            .from("retiros")
+            .select("monto")
+            .eq("usuario_id", currentUserId)
+            .eq("estado", "aprobado")
+            .gte("created_at", fecha.toISOString().split('T')[0])
+            .lt("created_at", new Date(fecha.getTime() + 24*60*60*1000).toISOString().split('T')[0]);
+          
+          if (retirosDelDia && retirosDelDia.length > 0) {
+            const totalRetiros = retirosDelDia.reduce((sum, r) => sum + parseFloat(r.monto || 0), 0);
+            gananciaDelDia = Math.max(0, gananciaDelDia - totalRetiros);
+          }
+        } catch (err) {
+          console.warn('Error obteniendo retiros:', err);
         }
         
         gananciasDiarias.push(gananciaDelDia);
       }
     }
 
-    // Actualizar las barras con datos reales
     const bars = document.querySelectorAll('.professional-bar');
-    const maxValue = Math.max(...gananciasDiarias, 50); // Mínimo 50 para visualización
+    const maxValue = Math.max(...gananciasDiarias, 50);
     
     let totalSemana = 0;
     let mejorDiaValor = 0;
@@ -1377,22 +1236,25 @@ async function actualizarGraficaProfesional() {
       const altura = Math.max((valor / maxValue) * 180, 10);
       
       bar.style.height = `${altura}px`;
-      bar.querySelector('.bar-value-pro').textContent = `$${valor.toFixed(2)}`;
+      const barValue = bar.querySelector('.bar-value-pro');
+      if (barValue) barValue.textContent = `$${valor.toFixed(2)}`;
       
       totalSemana += valor;
       if (valor > mejorDiaValor) mejorDiaValor = valor;
     });
 
-    // Actualizar estadísticas reales
     const promedioDia = totalSemana / 7;
     
-    document.getElementById('totalSemana').textContent = `$${totalSemana.toFixed(2)}`;
-    document.getElementById('promedioDia').textContent = `$${promedioDia.toFixed(2)}`;
-    document.getElementById('mejorDia').textContent = `$${mejorDiaValor.toFixed(2)}`;
+    const totalSemanaEl = document.getElementById('totalSemana');
+    const promedioDiaEl = document.getElementById('promedioDia');
+    const mejorDiaEl = document.getElementById('mejorDia');
+    
+    if (totalSemanaEl) totalSemanaEl.textContent = `$${totalSemana.toFixed(2)}`;
+    if (promedioDiaEl) promedioDiaEl.textContent = `$${promedioDia.toFixed(2)}`;
+    if (mejorDiaEl) mejorDiaEl.textContent = `$${mejorDiaValor.toFixed(2)}`;
 
   } catch (error) {
     console.error('Error actualizando gráfica:', error);
-    // Fallback con datos básicos
     actualizarGraficaConDatosActuales();
   }
 }
@@ -1414,102 +1276,148 @@ function actualizarGraficaConDatosActuales() {
     const altura = valor > 0 ? Math.max((valor / (gananciaDiaria * 1.4)) * 180, 15) : 15;
     
     bar.style.height = `${altura}px`;
-    bar.querySelector('.bar-value-pro').textContent = `$${valor.toFixed(2)}`;
+    const barValue = bar.querySelector('.bar-value-pro');
+    if (barValue) barValue.textContent = `$${valor.toFixed(2)}`;
     
     totalSemana += valor;
     if (valor > mejorDiaValor) mejorDiaValor = valor;
   });
 
-  const promedioDia = totalSemana / 7;
+const promedioDia = totalSemana / 7;
   
-  document.getElementById('totalSemana').textContent = `$${totalSemana.toFixed(2)}`;
-  document.getElementById('promedioDia').textContent = `$${promedioDia.toFixed(2)}`;
-  document.getElementById('mejorDia').textContent = `$${mejorDiaValor.toFixed(2)}`;
+  const totalSemanaEl = document.getElementById('totalSemana');
+  const promedioDiaEl = document.getElementById('promedioDia');
+  const mejorDiaEl = document.getElementById('mejorDia');
+  
+  if (totalSemanaEl) totalSemanaEl.textContent = `$${totalSemana.toFixed(2)}`;
+  if (promedioDiaEl) promedioDiaEl.textContent = `$${promedioDia.toFixed(2)}`;
+  if (mejorDiaEl) mejorDiaEl.textContent = `$${mejorDiaValor.toFixed(2)}`;
 }
 
 async function obtenerSaldoDisponible() {
-  const { data: balanceData, error: balanceError } = await client
-    .from("balances")
-    .select("saldo")
-    .eq("usuario_id", currentUserId)
-    .single();
+  try {
+    const { data: balanceData, error: balanceError } = await client
+      .from("balances")
+      .select("saldo")
+      .eq("usuario_id", currentUserId)
+      .single();
 
-  if (!balanceError && balanceData && balanceData.saldo !== undefined && balanceData.saldo !== null) {
-    saldoDisponible = parseFloat(balanceData.saldo);
-  } else {
+    if (!balanceError && balanceData && balanceData.saldo !== undefined && balanceData.saldo !== null) {
+      saldoDisponible = parseFloat(balanceData.saldo);
+    } else {
+      saldoDisponible = 0;
+    }
+
+    const saldoEl = document.getElementById("saldo-disponible");
+    if (saldoEl) saldoEl.textContent = `$${saldoDisponible.toFixed(2)}`;
+  } catch (error) {
+    console.error('Error obteniendo saldo:', error);
     saldoDisponible = 0;
+    const saldoEl = document.getElementById("saldo-disponible");
+    if (saldoEl) saldoEl.textContent = "$0.00";
   }
-
-  document.getElementById("saldo-disponible").textContent = `$${saldoDisponible.toFixed(2)}`;
 }
 
 async function cargarDatosFinancierosDinamicos() {
-  const { data, error } = await client.from("profiles").select("monto_confirmado, porcentaje, ganancia_acumulada, ultimo_calculo").eq("id", currentUserId).single();
-  if (error || !data) return;
+  try {
+    const { data, error } = await client
+      .from("profiles")
+      .select("monto_confirmado, porcentaje, ganancia_acumulada, ultimo_calculo")
+      .eq("id", currentUserId)
+      .single();
+    
+    if (error || !data) return;
 
-  montoInvertido = parseFloat(data.monto_confirmado) || 0;
-  porcentajeSemanal = parseFloat(data.porcentaje) || 0;
-  gananciaAcumulada = parseFloat(data.ganancia_acumulada) || 0;
+    montoInvertido = parseFloat(data.monto_confirmado) || 0;
+    porcentajeSemanal = parseFloat(data.porcentaje) || 0;
+    gananciaAcumulada = parseFloat(data.ganancia_acumulada) || 0;
 
-  if (data.ultimo_calculo) {
-    ultimoCalculo = new Date(data.ultimo_calculo).getTime();
-  } else {
-    ultimoCalculo = Date.now();
+    if (data.ultimo_calculo) {
+      ultimoCalculo = new Date(data.ultimo_calculo).getTime();
+    } else {
+      ultimoCalculo = Date.now();
+    }
+
+    const totalInvertidoEl = document.getElementById("total-invertido");
+    const gananciasEl = document.getElementById("ganancias");
+    
+    if (totalInvertidoEl) totalInvertidoEl.textContent = `$${montoInvertido.toFixed(2)}`;
+    if (gananciasEl) gananciasEl.textContent = `$${gananciaAcumulada.toFixed(2)}`;
+  } catch (error) {
+    console.error('Error cargando datos financieros:', error);
   }
-
-  document.getElementById("total-invertido").textContent = `$${montoInvertido.toFixed(2)}`;
-  document.getElementById("ganancias").textContent = `$${gananciaAcumulada.toFixed(2)}`;
 }
 
 async function actualizarGananciasDinamicas() {
-  if (montoInvertido <= 0 || porcentajeSemanal <= 0) {
-    document.getElementById("ganancias").textContent = "$0.00";
-    document.getElementById("proximo-pago").textContent = `$${saldoDisponible.toFixed(2)}`;
-    return;
-  }
+  try {
+    if (montoInvertido <= 0 || porcentajeSemanal <= 0) {
+      const gananciasEl = document.getElementById("ganancias");
+      const proximoPagoEl = document.getElementById("proximo-pago");
+      
+      if (gananciasEl) gananciasEl.textContent = "$0.00";
+      if (proximoPagoEl) proximoPagoEl.textContent = `$${saldoDisponible.toFixed(2)}`;
+      return;
+    }
 
-  const ahora = Date.now();
-  const minutosTranscurridos = (ahora - ultimoCalculo) / 60000;
-  ultimoCalculo = ahora;
+    const ahora = Date.now();
+    const minutosTranscurridos = (ahora - ultimoCalculo) / 60000;
+    ultimoCalculo = ahora;
 
-  const porcentajePorMinuto = porcentajeSemanal / (7 * 24 * 60);
-  gananciaAcumulada += montoInvertido * (porcentajePorMinuto / 100) * minutosTranscurridos;
+    const porcentajePorMinuto = porcentajeSemanal / (7 * 24 * 60);
+    gananciaAcumulada += montoInvertido * (porcentajePorMinuto / 100) * minutosTranscurridos;
 
-  document.getElementById("ganancias").textContent = `$${gananciaAcumulada.toFixed(2)}`;
-  
-  const proximoPagoTotal = gananciaAcumulada + saldoDisponible;
-  document.getElementById("proximo-pago").textContent = `$${proximoPagoTotal.toFixed(2)}`;
+    const gananciasEl = document.getElementById("ganancias");
+    const proximoPagoEl = document.getElementById("proximo-pago");
+    
+    if (gananciasEl) gananciasEl.textContent = `$${gananciaAcumulada.toFixed(2)}`;
+    
+    const proximoPagoTotal = gananciaAcumulada + saldoDisponible;
+    if (proximoPagoEl) proximoPagoEl.textContent = `$${proximoPagoTotal.toFixed(2)}`;
 
-  const { error } = await client.from("profiles").update({
-    ganancia_acumulada: gananciaAcumulada,
-    ultimo_calculo: new Date(ultimoCalculo).toISOString()
-  }).eq("id", currentUserId);
+    const { error } = await client.from("profiles").update({
+      ganancia_acumulada: gananciaAcumulada,
+      ultimo_calculo: new Date(ultimoCalculo).toISOString()
+    }).eq("id", currentUserId);
 
-  if (error) {
-    console.error("Error actualizando ganancia_acumulada o ultimo_calculo:", error);
+    if (error) {
+      console.error("Error actualizando ganancia_acumulada o ultimo_calculo:", error);
+    }
+  } catch (error) {
+    console.error('Error en actualizarGananciasDinamicas:', error);
   }
 }
 
-function toggleSidebar() {  
-  document.getElementById("sidebar").classList.toggle("active");  
-}  
+function toggleSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  if (sidebar) {
+    sidebar.classList.toggle("active");
+  }
+}
 
 function closeSidebar() {
-  document.getElementById("sidebar").classList.remove("active");
+  const sidebar = document.getElementById("sidebar");
+  if (sidebar) {
+    sidebar.classList.remove("active");
+  }
 }
 
 function showSection(id) {
   document.querySelectorAll(".section").forEach(el => el.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
+  const targetSection = document.getElementById(id);
+  if (targetSection) {
+    targetSection.classList.add("active");
+  }
 
   document.querySelectorAll(".sidebar button").forEach(btn => btn.classList.remove("active"));
   const allButtons = document.querySelectorAll(".sidebar button");
-  if (id === "welcome") allButtons[0].classList.add("active");
-  if (id === "perfil") allButtons[1].classList.add("active");
+  if (id === "welcome" && allButtons[0]) allButtons[0].classList.add("active");
+  if (id === "perfil" && allButtons[1]) allButtons[1].classList.add("active");
 }
 
 function toggleAyuda() {
   const modal = document.getElementById("modalAyuda");
+  if (!modal) return;
+  
   const isVisible = modal.style.display === "block";
   modal.style.display = isVisible ? "none" : "block";
   
@@ -1520,6 +1428,8 @@ function toggleAyuda() {
 
 function toggleNotificacion() {
   const modal = document.getElementById("modalNotificacion");
+  if (!modal) return;
+  
   const isVisible = modal.style.display === "block";
 
   if (!isVisible) {
@@ -1536,19 +1446,33 @@ function toggleNotificacion() {
 }
 
 async function logout() {
-  if (currentUserId) {
-    await client.from("profiles").update({
-      ultima_salida: new Date().toISOString()
-    }).eq("id", currentUserId);
+  try {
+    if (currentUserId) {
+      await client.from("profiles").update({
+        ultima_salida: new Date().toISOString()
+      }).eq("id", currentUserId);
+    }
+    await client.auth.signOut();
+    window.location.href = "index.html";
+  } catch (error) {
+    console.error('Error en logout:', error);
+    window.location.href = "index.html";
   }
-  await client.auth.signOut();
-  window.location.href = "index.html";
 }
 
 async function enviarTicket() {
-  const email = document.getElementById("emailAyuda").value.trim();
-  const asunto = document.getElementById("asuntoAyuda").value.trim();
-  const mensaje = document.getElementById("mensajeAyuda").value.trim();
+  const emailInput = document.getElementById("emailAyuda");
+  const asuntoInput = document.getElementById("asuntoAyuda");
+  const mensajeInput = document.getElementById("mensajeAyuda");
+  
+  if (!emailInput || !asuntoInput || !mensajeInput) {
+    mostrarNotificacion("Error: Elementos del formulario no encontrados", "error");
+    return;
+  }
+  
+  const email = emailInput.value.trim();
+  const asunto = asuntoInput.value.trim();
+  const mensaje = mensajeInput.value.trim();
   
   if (!email || !asunto || !mensaje) {
     mostrarNotificacion("Por favor completa todos los campos", "error");
@@ -1571,8 +1495,8 @@ async function enviarTicket() {
       return;
     }
 
-    document.getElementById("asuntoAyuda").value = "";
-    document.getElementById("mensajeAyuda").value = "";
+    asuntoInput.value = "";
+    mensajeInput.value = "";
     
     mostrarNotificacion("Ticket enviado correctamente", "success");
     
@@ -1599,13 +1523,14 @@ async function cargarHistorialTickets() {
     }
 
     const container = document.getElementById("listaTickets");
+    if (!container) return;
     
     if (!data || data.length === 0) {
       container.innerHTML = '<div class="no-tickets">No tienes tickets de soporte aún.</div>';
       return;
     }
 
-    // USAR innerHTML directamente sin template literals problemáticos
+    // Limpiar el container
     container.innerHTML = '';
     
     data.forEach(ticket => {
@@ -1621,7 +1546,7 @@ async function cargarHistorialTickets() {
       // Construir HTML de forma segura
       let ticketHTML = `
         <div class="ticket-header-user">
-          <div class="ticket-subject">${ticket.asunto}</div>
+          <div class="ticket-subject">${escapeHtml(ticket.asunto)}</div>
           <div class="ticket-status-user status-${ticket.estado}">
             ${ticket.estado.replace('_', ' ')}
           </div>
@@ -1633,7 +1558,7 @@ async function cargarHistorialTickets() {
         
         <div class="ticket-message">
           <strong>Tu consulta:</strong><br>
-          ${ticket.mensaje}
+          ${escapeHtml(ticket.mensaje)}
         </div>
       `;
       
@@ -1645,7 +1570,7 @@ async function cargarHistorialTickets() {
               <i class="fas fa-reply"></i> Respuesta del administrador:
             </div>
             <div class="ticket-response-content">
-              ${ticket.respuesta_admin}
+              ${escapeHtml(ticket.respuesta_admin)}
             </div>
             <div class="ticket-response-date">
               Respondido: ${fechaRespuesta}
@@ -1662,24 +1587,7 @@ async function cargarHistorialTickets() {
               <i class="fas fa-user"></i> Tu respuesta:
             </div>
             <div class="ticket-user-response-content">
-              ${ticket.respuesta_usuario}
-            </div>
-            <div class="ticket-user-response-date">
-              Enviado: ${fechaRespuestaUsuario}
-            </div>
-          </div>
-        `;
-      }
-      
-// Agregar respuesta del usuario si existe
-      if (ticket.respuesta_usuario) {
-        ticketHTML += `
-          <div class="ticket-user-response">
-            <div class="ticket-user-response-header">
-              <i class="fas fa-user"></i> Tu respuesta:
-            </div>
-            <div class="ticket-user-response-content">
-              ${ticket.respuesta_usuario}
+              ${escapeHtml(ticket.respuesta_usuario)}
             </div>
             <div class="ticket-user-response-date">
               Enviado: ${fechaRespuestaUsuario}
@@ -1702,11 +1610,12 @@ async function cargarHistorialTickets() {
               background: rgba(34, 34, 34, 0.8);
               color: white;
               resize: vertical;
+              box-sizing: border-box;
             "></textarea>
           </div>
         `;
       }
-
+      
       // Agregar mensaje si está resuelto
       if (ticket.estado === 'resuelto') {
         ticketHTML += `
@@ -1741,6 +1650,8 @@ async function cargarHistorialTickets() {
           font-weight: bold;
           font-size: 0.9rem;
           width: 100%;
+          margin-top: 10px;
+          transition: all 0.3s ease;
         `;
         
         // Agregar event listener en lugar de onclick inline
@@ -1759,12 +1670,15 @@ async function cargarHistorialTickets() {
     
   } catch (error) {
     console.error('Error en cargarHistorialTickets:', error);
-    document.getElementById("listaTickets").innerHTML = '<div class="no-tickets">Error al cargar tickets.</div>';
+    const container = document.getElementById("listaTickets");
+    if (container) {
+      container.innerHTML = '<div class="no-tickets">Error al cargar tickets.</div>';
+    }
   }
 }
 
 async function responderTicket(ticketId) {
-  console.log('Intentando responder ticket ID:', ticketId); // Debug
+  console.log('Intentando responder ticket ID:', ticketId);
   
   const textarea = document.getElementById(`respuestaUsuario-${ticketId}`);
   
@@ -1773,8 +1687,8 @@ async function responderTicket(ticketId) {
     mostrarNotificacion("Error: No se encontró el campo de respuesta", "error");
     return;
   }
-  
-  const respuesta = textarea.value.trim();
+
+const respuesta = textarea.value.trim();
   
   if (!respuesta) {
     mostrarNotificacion("Por favor escribe una respuesta", "error");
@@ -1782,13 +1696,12 @@ async function responderTicket(ticketId) {
   }
 
   try {
-    // Convertir ticketId a número y validar
     const ticketIdNum = parseInt(ticketId);
     if (isNaN(ticketIdNum)) {
       throw new Error('ID de ticket inválido');
     }
 
-    console.log('Enviando actualización para ticket:', ticketIdNum); // Debug
+    console.log('Enviando actualización para ticket:', ticketIdNum);
 
     const { data, error } = await client
       .from("tickets")
@@ -1798,7 +1711,7 @@ async function responderTicket(ticketId) {
         estado: 'en_proceso'
       })
       .eq("id", ticketIdNum)
-      .select(); // Agregar select para ver qué se actualizó
+      .select();
 
     if (error) {
       console.error('Error de Supabase:', error);
@@ -1806,11 +1719,10 @@ async function responderTicket(ticketId) {
       return;
     }
 
-    console.log('Respuesta actualizada exitosamente:', data); // Debug
+    console.log('Respuesta actualizada exitosamente:', data);
     mostrarNotificacion("Respuesta enviada correctamente", "success");
     textarea.value = "";
     
-    // Esperar un momento antes de recargar
     setTimeout(async () => {
       await cargarHistorialTickets();
     }, 500);
@@ -1822,14 +1734,30 @@ async function responderTicket(ticketId) {
 }
 
 function formatearFecha(fecha) {
-  const date = new Date(fecha);
-  return date.toLocaleDateString('es-AR', {
-    day: '2-digit',
-    month: '2-digit', 
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+  try {
+    const date = new Date(fecha);
+    return date.toLocaleDateString('es-AR', {
+      day: '2-digit',
+      month: '2-digit', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch (error) {
+    console.error('Error formateando fecha:', error);
+    return 'Fecha inválida';
+  }
+}
+
+function escapeHtml(text) {
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return text.replace(/[&<>"']/g, function(m) { return map[m]; });
 }
 
 function mostrarNotificacion(mensaje, tipo = 'success') {
@@ -1842,7 +1770,7 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
   div.className = 'notification-toast';
   div.innerHTML = `
     <i class="fas fa-${tipo === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
-    <span>${mensaje}</span>
+    <span>${escapeHtml(mensaje)}</span>
   `;
   
   div.style.cssText = `
@@ -1903,6 +1831,8 @@ async function verificarNuevasRespuestas() {
 function actualizarIconoNotificaciones(hayNuevas = false) {
   const iconoNotif = document.getElementById('botNotificacion');
   
+  if (!iconoNotif) return;
+  
   if (hayNuevas) {
     if (!iconoNotif.querySelector('.notification-badge')) {
       const badge = document.createElement('div');
@@ -1954,6 +1884,7 @@ async function cargarNotificaciones() {
       .limit(5);
 
     const contenidoNotif = document.querySelector('.contenido-notificacion');
+    if (!contenidoNotif) return;
     
     if (error || !data || data.length === 0) {
       contenidoNotif.innerHTML = `
@@ -1984,13 +1915,13 @@ async function cargarNotificaciones() {
           font-size: 0.9rem;
         ">
           <div style="color: #00c3ff; font-weight: bold; margin-bottom: 5px;">
-            <i class="fas fa-reply"></i> Respuesta a: ${notif.asunto}
+            <i class="fas fa-reply"></i> Respuesta a: ${escapeHtml(notif.asunto)}
           </div>
           <div style="color: rgba(255,255,255,0.8); font-size: 0.8rem; margin-bottom: 5px;">
             ${fechaRespuesta}
           </div>
           <div style="color: rgba(255,255,255,0.9);">
-            ${notif.respuesta_admin.substring(0, 100)}${notif.respuesta_admin.length > 100 ? '...' : ''}
+            ${escapeHtml(notif.respuesta_admin.substring(0, 100))}${notif.respuesta_admin.length > 100 ? '...' : ''}
           </div>
           <div style="margin-top: 5px;">
             <span class="ticket-status-user status-${notif.estado}">
@@ -2027,6 +1958,7 @@ async function cargarNotificaciones() {
   }
 }
 
+// Estilos adicionales para las animaciones
 const additionalStyles = document.createElement('style');
 additionalStyles.textContent = `
   @keyframes fadeInOut {
@@ -2082,71 +2014,151 @@ additionalStyles.textContent = `
 `;
 document.head.appendChild(additionalStyles);
 
-// Manejar errores de carga de recursos
+// Manejar errores de carga de recursos de forma silenciosa
 window.addEventListener('error', function(e) {
-  if (e.target.tagName === 'IMG' || e.target.tagName === 'LINK') {
-    console.warn('Recurso no encontrado:', e.target.src || e.target.href);
+  if (e.target && (e.target.tagName === 'IMG' || e.target.tagName === 'LINK')) {
+    // Manejar errores de recursos faltantes sin mostrar en consola
+    e.preventDefault();
+    return false;
   }
-});
+}, true);
 
-// Verificar que todos los elementos existen antes de usarlos
+// Verificar que todos los elementos DOM existen antes de usarlos
 function verificarElementosDOM() {
   const elementosRequeridos = [
     'sidebar', 'modalAyuda', 'modalNotificacion', 
     'emailAyuda', 'asuntoAyuda', 'mensajeAyuda',
-    'total-invertido', 'ganancias', 'proximo-pago', 'saldo-disponible'
+    'total-invertido', 'ganancias', 'proximo-pago', 'saldo-disponible',
+    'listaTickets', 'totalSemana', 'promedioDia', 'mejorDia'
   ];
+  
+  const elementosFaltantes = [];
   
   elementosRequeridos.forEach(id => {
     if (!document.getElementById(id)) {
-      console.warn(`Elemento con ID '${id}' no encontrado`);
+      elementosFaltantes.push(id);
     }
   });
+  
+  if (elementosFaltantes.length > 0) {
+    console.warn('Elementos faltantes en el DOM:', elementosFaltantes);
+  }
 }
 
-// Función de debug para verificar IDs
-function debugTicketIds() {
-  const buttons = document.querySelectorAll('[onclick*="responderTicket"]');
-  buttons.forEach(button => {
-    console.log('Botón encontrado:', button.getAttribute('onclick'));
-  });
+// Función para prevenir errores de Supabase con validaciones adicionales
+function validarConexionSupabase() {
+  if (!client) {
+    console.error('Cliente de Supabase no inicializado');
+    return false;
+  }
+  
+  if (!currentUserId) {
+    console.warn('Usuario no autenticado');
+    return false;
+  }
+  
+  return true;
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  validateSession();
-  
-  setInterval(async () => {
-    await verificarNuevasRespuestas();
-  }, 60000);
-  
+// Wrapper para funciones async con manejo de errores
+async function ejecutarConManejadorErrores(funcionAsync, nombreFuncion) {
+  try {
+    if (!validarConexionSupabase()) {
+      return;
+    }
+    await funcionAsync();
+  } catch (error) {
+    console.error(`Error en ${nombreFuncion}:`, error);
+  }
+}
+
+// Event listeners seguros
+function inicializarEventListeners() {
+  // Click fuera de modales para cerrar
   window.addEventListener('click', function(event) {
     const modalAyuda = document.getElementById('modalAyuda');
     const modalNotificacion = document.getElementById('modalNotificacion');
     
-    if (event.target === modalAyuda) {
+    if (modalAyuda && event.target === modalAyuda) {
       modalAyuda.style.display = 'none';
     }
-    if (event.target === modalNotificacion) {
+    if (modalNotificacion && event.target === modalNotificacion) {
       modalNotificacion.style.display = 'none';
     }
   });
   
-  document.querySelector('.contenido-ayuda').addEventListener('click', function(event) {
-    event.stopPropagation();
+  // Prevenir cierre al hacer click dentro del contenido
+  const contenidoAyuda = document.querySelector('.contenido-ayuda');
+  const contenidoNotificacion = document.querySelector('.contenido-notificacion');
+  
+  if (contenidoAyuda) {
+    contenidoAyuda.addEventListener('click', function(event) {
+      event.stopPropagation();
+    });
+  }
+  
+  if (contenidoNotificacion) {
+    contenidoNotificacion.addEventListener('click', function(event) {
+      event.stopPropagation();
+    });
+  }
+  
+  // Manejar errores de red
+  window.addEventListener('online', function() {
+    console.log('Conexión restaurada');
   });
   
-  document.querySelector('.contenido-notificacion').addEventListener('click', function(event) {
-    event.stopPropagation();
+  window.addEventListener('offline', function() {
+    console.warn('Sin conexión a internet');
+    mostrarNotificacion('Sin conexión a internet', 'error');
   });
-  
-  // Ejecutar verificación cuando el DOM esté listo
-  setTimeout(verificarElementosDOM, 1000);
-  
-  // Llamar debug después de cargar tickets
-  setTimeout(debugTicketIds, 2000);
+}
+
+// Función de inicialización principal
+async function inicializar() {
+  try {
+    // Verificar elementos DOM
+    verificarElementosDOM();
+    
+    // Inicializar event listeners
+    inicializarEventListeners();
+    
+    // Validar sesión y cargar datos
+    await validateSession();
+    
+    // Configurar intervalos para actualizaciones automáticas
+    setInterval(() => {
+      ejecutarConManejadorErrores(verificarNuevasRespuestas, 'verificarNuevasRespuestas');
+    }, 60000);
+    
+    // Intervalo adicional para mantener la sesión activa
+    setInterval(() => {
+      ejecutarConManejadorErrores(async () => {
+        const { data: { session } } = await client.auth.getSession();
+        if (!session) {
+          console.warn('Sesión expirada, redirigiendo...');
+          window.location.href = "index.html";
+        }
+      }, 'verificarSesion');
+    }, 300000); // Cada 5 minutos
+    
+  } catch (error) {
+    console.error('Error en inicialización:', error);
+    mostrarNotificacion('Error al inicializar la aplicación', 'error');
+  }
+}
+
+// Inicializar cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
+  inicializar();
 });
 
-validateSession();
+// Fallback por si DOMContentLoaded ya se ejecutó
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', inicializar);
+} else {
+  inicializar();
+}
 
 </script>
 </body>
