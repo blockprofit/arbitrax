@@ -329,7 +329,7 @@
       transform: rotateX(-130deg);
     }
 
-    .chest-lock {
+.chest-lock {
       position: absolute;
       bottom: 30px;
       left: 50%;
@@ -479,7 +479,7 @@
       box-shadow: 0 0 20px #FFD700;
     }
 
-.open-button {
+    .open-button {
       background: linear-gradient(135deg, #00c3ff, #00ffcc);
       color: black;
       padding: 18px 35px;
@@ -508,7 +508,7 @@
       transition: left 0.6s ease;
     }
 
-.open-button:hover::before {
+    .open-button:hover::before {
       left: 100%;
     }
 
@@ -881,8 +881,6 @@
 </div>
 
 <div class="sidebar" id="sidebar">
-  <button onclick="window.location.href='principal.html#welcome'"><i class="fas fa-home"></i> Inicio</button>
-  <button onclick="window.location.href='principal.html#perfil'"><i class="fas fa-user"></i> Perfil</button>
   <button onclick="window.location.href='inversion.html'"><i class="fas fa-chart-line"></i> Nivel de inversión</button>
   <button onclick="window.location.href='deposito.html'"><i class="fas fa-wallet"></i> Depósito</button>
   <button onclick="window.location.href='retiro.html'"><i class="fas fa-hand-holding-usd"></i> Retiro</button>
@@ -987,10 +985,13 @@ let mysteryBoxConfig = {
   minipool_remaining: 0,
   empty_remaining: 0,
   total_available: 0,
-  cajas_disponibles: 0 // CONTADOR PRINCIPAL CRÍTICO
-};
+  cajas_disponibles: 0, // CONTADOR PRINCIPAL CRÍTICO
+  config_id: null // NUEVO: ID específico de la configuración
+};.location.href='principal.html#welcome'"><i class="fas fa-home"></i> Inicio</button>
+  <button onclick="window.location.href='principal.html#perfil'"><i class="fas fa-user"></i> Perfil</button>
+  <button onclick="window
 
-// FUNCIÓN CRÍTICA CORREGIDA: Cargar configuración con verificación estricta
+// FUNCIÓN CRÍTICA CORREGIDA: Cargar configuración con ID específico
 async function cargarConfiguracionMysteryBox() {
   try {
     console.log('Cargando configuración de Mystery Box desde admin...');
@@ -1001,7 +1002,7 @@ async function cargarConfiguracionMysteryBox() {
       .eq('is_active', true)
       .order('created_at', { ascending: false })
       .limit(1)
-      .maybeSingle();
+      .single(); // CORRECCIÓN CRÍTICA: usar .single() en lugar de .maybeSingle()
 
     if (error) {
       console.error('Error cargando configuración:', error);
@@ -1018,18 +1019,15 @@ async function cargarConfiguracionMysteryBox() {
         minipool_remaining: data.minipool_remaining || 0,
         empty_remaining: data.empty_remaining || 0,
         total_available: (data.cash_remaining || 0) + (data.trivia_remaining || 0) + (data.minipool_remaining || 0) + (data.empty_remaining || 0),
-        // CRÍTICO: Cargar contador principal correctamente
-        cajas_disponibles: data.cajas_disponibles || 0
+        cajas_disponibles: data.cajas_disponibles || 0,
+        config_id: data.id // NUEVO: Guardar el ID específico de la configuración
       };
       
-      console.log('Configuración cargada desde admin:', {
+      console.log('Configuración cargada (ID:', data.id, '):', {
         costo: mysteryBoxConfig.cost,
         premios_disponibles: mysteryBoxConfig.total_available,
         cajas_disponibles: mysteryBoxConfig.cajas_disponibles,
-        efectivo_disponible: mysteryBoxConfig.cash_remaining,
-        trivia_disponible: mysteryBoxConfig.trivia_remaining,
-        minipool_disponible: mysteryBoxConfig.minipool_remaining,
-        vacias_disponibles: mysteryBoxConfig.empty_remaining
+        config_id: mysteryBoxConfig.config_id
       });
 
       updateUI();
@@ -1178,6 +1176,197 @@ function updateUI() {
   }
 }
 
+// FUNCIÓN CORREGIDA: Consumir premio + decrementar AMBOS contadores usando ID específico
+async function consumirPremioDelInventario(prize) {
+  try {
+    console.log('Consumiendo premio del inventario:', prize.type);
+    
+    let updateField = '';
+    let newValue = 0;
+    
+    switch (prize.type) {
+      case 'cash':
+        updateField = 'cash_remaining';
+        newValue = Math.max(0, mysteryBoxConfig.cash_remaining - 1);
+        mysteryBoxConfig.cash_remaining = newValue;
+        break;
+      case 'trivia_entry':
+        updateField = 'trivia_remaining';
+        newValue = Math.max(0, mysteryBoxConfig.trivia_remaining - 1);
+        mysteryBoxConfig.trivia_remaining = newValue;
+        break;
+      case 'minipool_entry':
+        updateField = 'minipool_remaining';
+        newValue = Math.max(0, mysteryBoxConfig.minipool_remaining - 1);
+        mysteryBoxConfig.minipool_remaining = newValue;
+        break;
+      case 'empty':
+        updateField = 'empty_remaining';
+        newValue = Math.max(0, mysteryBoxConfig.empty_remaining - 1);
+        mysteryBoxConfig.empty_remaining = newValue;
+        break;
+      default:
+        console.warn('Tipo de premio desconocido:', prize.type);
+        return;
+    }
+    
+    // CORRECCIÓN CRÍTICA: Decrementar AMBOS contadores
+    const newCajasDisponibles = Math.max(0, mysteryBoxConfig.cajas_disponibles - 1);
+    
+    console.log(`Actualizando registro ID ${mysteryBoxConfig.config_id}:`, {
+      [updateField]: newValue,
+      cajas_disponibles: newCajasDisponibles
+    });
+    
+    // CORRECCIÓN CRÍTICA: Actualizar por ID específico, NO por is_active
+    const { error } = await supabaseClient
+      .from('mystery_box_config')
+      .update({ 
+        [updateField]: newValue,
+        cajas_disponibles: newCajasDisponibles
+      })
+      .eq('id', mysteryBoxConfig.config_id); // USAR ID ESPECÍFICO
+
+    if (error) {
+      console.error('Error actualizando inventario:', error);
+      throw error;
+    }
+    
+    // Actualizar configuración local
+    mysteryBoxConfig.cajas_disponibles = newCajasDisponibles;
+    mysteryBoxConfig.total_available = mysteryBoxConfig.cash_remaining + 
+                                      mysteryBoxConfig.trivia_remaining + 
+                                      mysteryBoxConfig.minipool_remaining + 
+                                      mysteryBoxConfig.empty_remaining;
+    
+    console.log('Inventario actualizado correctamente en registro ID:', mysteryBoxConfig.config_id);
+    
+  } catch (error) {
+    console.error('Error consumiendo premio del inventario:', error);
+    throw error;
+  }
+}
+
+// Función para generar premio basado en inventario limitado
+function generateRandomPrizeFromInventory() {
+  console.log('Generando premio desde inventario:', mysteryBoxConfig);
+  
+  const availablePrizes = [];
+  
+  // Agregar premios disponibles según stock
+  for (let i = 0; i < mysteryBoxConfig.cash_remaining; i++) {
+    availablePrizes.push({
+      type: 'cash',
+      icon: '💰',
+      title: '¡Premio en Efectivo!',
+      description: `Has ganado $${mysteryBoxConfig.cash_amount.toLocaleString()} ARS`,
+      value: mysteryBoxConfig.cash_amount
+    });
+  }
+  
+  for (let i = 0; i < mysteryBoxConfig.trivia_remaining; i++) {
+    availablePrizes.push({
+      type: 'trivia_entry',
+      icon: '🎯',
+      title: '¡Entrada Gratis!',
+      description: 'Entrada gratis a Trivia',
+      value: 0
+    });
+  }
+  
+  for (let i = 0; i < mysteryBoxConfig.minipool_remaining; i++) {
+    availablePrizes.push({
+      type: 'minipool_entry',
+      icon: '🏊‍♂️',
+      title: '¡Minipool Gratis!',
+      description: 'Entrada gratis a Minipool',
+      value: 0
+    });
+  }
+  
+  for (let i = 0; i < mysteryBoxConfig.empty_remaining; i++) {
+    availablePrizes.push({
+      type: 'empty',
+      icon: '😔',
+      title: 'Caja Vacía',
+      description: '¡Mejor suerte la próxima vez!',
+      value: 0
+    });
+  }
+  
+  if (availablePrizes.length === 0) {
+    return {
+      type: 'empty',
+      icon: '😔',
+      title: 'Sin Premios',
+      description: 'No hay premios disponibles',
+      value: 0
+    };
+  }
+  
+  // Seleccionar premio aleatorio del inventario
+  const randomIndex = Math.floor(Math.random() * availablePrizes.length);
+  const selectedPrize = availablePrizes[randomIndex];
+  
+  console.log('Premio seleccionado:', selectedPrize);
+  return selectedPrize;
+}
+
+// Función para verificar usuario
+async function verificarUsuario() {
+  const { data: { user }, error } = await supabaseClient.auth.getUser();
+  
+  if (error || !user) {
+    mostrarError('No estás autenticado. Por favor, inicia sesión.');
+    setTimeout(() => {
+      window.location.href = 'index.html';
+    }, 3000);
+    return;
+  }
+
+  const { data: profile, error: profileError } = await supabaseClient
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
+  if (profileError || !profile) {
+    mostrarError('Error al obtener datos del usuario.');
+    return;
+  }
+
+  usuarioActual = {
+    id: user.id,
+    email: user.email,
+    nombre: profile.username || profile.email || 'Usuario'
+  };
+}
+
+// Función para cargar saldo
+async function cargarSaldoUsuario() {
+  try {
+    const { data: balance, error } = await supabaseClient
+      .from('balances')
+      .select('saldo')
+      .eq('usuario_id', usuarioActual.id)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error al cargar saldo:', error);
+      userBalance = 0;
+    } else {
+      userBalance = balance?.saldo || 0;
+    }
+
+    document.getElementById('userBalance').textContent = formatCurrency(userBalance);
+    
+  } catch (error) {
+    console.error('Error cargando saldo:', error);
+    userBalance = 0;
+    document.getElementById('userBalance').textContent = formatCurrency(0);
+  }
+}
+
 // FUNCIÓN PRINCIPAL CRÍTICA CON SOLUCIÓN FINAL: abrirCaja con recarga INMEDIATA después de compra
 async function abrirCaja() {
   if (isOpening) {
@@ -1312,199 +1501,6 @@ async function abrirCaja() {
   }
 }
 
-// FUNCIÓN CORREGIDA: Consumir premio + decrementar AMBOS contadores
-async function consumirPremioDelInventario(prize) {
-  try {
-    console.log('Consumiendo premio del inventario:', prize.type);
-    
-    let updateField = '';
-    let newValue = 0;
-    
-    switch (prize.type) {
-      case 'cash':
-        updateField = 'cash_remaining';
-        newValue = Math.max(0, mysteryBoxConfig.cash_remaining - 1);
-        mysteryBoxConfig.cash_remaining = newValue;
-        break;
-      case 'trivia_entry':
-        updateField = 'trivia_remaining';
-        newValue = Math.max(0, mysteryBoxConfig.trivia_remaining - 1);
-        mysteryBoxConfig.trivia_remaining = newValue;
-        break;
-      case 'minipool_entry':
-        updateField = 'minipool_remaining';
-        newValue = Math.max(0, mysteryBoxConfig.minipool_remaining - 1);
-        mysteryBoxConfig.minipool_remaining = newValue;
-        break;
-      case 'empty':
-        updateField = 'empty_remaining';
-        newValue = Math.max(0, mysteryBoxConfig.empty_remaining - 1);
-        mysteryBoxConfig.empty_remaining = newValue;
-        break;
-      default:
-        console.warn('Tipo de premio desconocido:', prize.type);
-        return;
-    }
-    
-    // CORRECCIÓN CRÍTICA: Decrementar AMBOS contadores
-    const newCajasDisponibles = Math.max(0, mysteryBoxConfig.cajas_disponibles - 1);
-    
-    console.log(`Actualizando: ${updateField} = ${newValue}, cajas_disponibles = ${newCajasDisponibles}`);
-    
-    // Actualizar en la base de datos - AMBOS campos
-    const { error } = await supabaseClient
-      .from('mystery_box_config')
-      .update({ 
-        [updateField]: newValue,
-        cajas_disponibles: newCajasDisponibles // CRÍTICO: Decrementar contador principal
-      })
-      .eq('is_active', true);
-
-    if (error) {
-      console.error('Error actualizando inventario:', error);
-      throw error;
-    }
-    
-    // Actualizar configuración local
-    mysteryBoxConfig.cajas_disponibles = newCajasDisponibles;
-    mysteryBoxConfig.total_available = mysteryBoxConfig.cash_remaining + 
-                                      mysteryBoxConfig.trivia_remaining + 
-                                      mysteryBoxConfig.minipool_remaining + 
-                                      mysteryBoxConfig.empty_remaining;
-    
-    console.log('Inventario actualizado:', {
-      campo_actualizado: updateField,
-      nuevo_valor: newValue,
-      cajas_disponibles: mysteryBoxConfig.cajas_disponibles,
-      total_disponible: mysteryBoxConfig.total_available
-    });
-    
-  } catch (error) {
-    console.error('Error consumiendo premio del inventario:', error);
-    throw error;
-  }
-}
-
-// Función para generar premio basado en inventario limitado
-function generateRandomPrizeFromInventory() {
-  console.log('Generando premio desde inventario:', mysteryBoxConfig);
-  
-  const availablePrizes = [];
-  
-  // Agregar premios disponibles según stock
-  for (let i = 0; i < mysteryBoxConfig.cash_remaining; i++) {
-    availablePrizes.push({
-      type: 'cash',
-      icon: '💰',
-      title: '¡Premio en Efectivo!',
-      description: `Has ganado $${mysteryBoxConfig.cash_amount.toLocaleString()} ARS`,
-      value: mysteryBoxConfig.cash_amount
-    });
-  }
-  
-  for (let i = 0; i < mysteryBoxConfig.trivia_remaining; i++) {
-    availablePrizes.push({
-      type: 'trivia_entry',
-      icon: '🎯',
-      title: '¡Entrada Gratis!',
-      description: 'Entrada gratis a Trivia',
-      value: 0
-    });
-  }
-  
-  for (let i = 0; i < mysteryBoxConfig.minipool_remaining; i++) {
-    availablePrizes.push({
-      type: 'minipool_entry',
-      icon: '🏊‍♂️',
-      title: '¡Minipool Gratis!',
-      description: 'Entrada gratis a Minipool',
-      value: 0
-    });
-  }
-  
-  for (let i = 0; i < mysteryBoxConfig.empty_remaining; i++) {
-    availablePrizes.push({
-      type: 'empty',
-      icon: '😔',
-      title: 'Caja Vacía',
-      description: '¡Mejor suerte la próxima vez!',
-      value: 0
-    });
-  }
-  
-  if (availablePrizes.length === 0) {
-    return {
-      type: 'empty',
-      icon: '😔',
-      title: 'Sin Premios',
-      description: 'No hay premios disponibles',
-      value: 0
-    };
-  }
-  
-  // Seleccionar premio aleatorio del inventario
-  const randomIndex = Math.floor(Math.random() * availablePrizes.length);
-  const selectedPrize = availablePrizes[randomIndex];
-  
-  console.log('Premio seleccionado:', selectedPrize);
-  return selectedPrize;
-}
-
-// Función para verificar usuario
-async function verificarUsuario() {
-  const { data: { user }, error } = await supabaseClient.auth.getUser();
-  
-  if (error || !user) {
-    mostrarError('No estás autenticado. Por favor, inicia sesión.');
-    setTimeout(() => {
-      window.location.href = 'index.html';
-    }, 3000);
-    return;
-  }
-
-  const { data: profile, error: profileError } = await supabaseClient
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single();
-
-  if (profileError || !profile) {
-    mostrarError('Error al obtener datos del usuario.');
-    return;
-  }
-
-  usuarioActual = {
-    id: user.id,
-    email: user.email,
-    nombre: profile.username || profile.email || 'Usuario'
-  };
-}
-
-// Función para cargar saldo
-async function cargarSaldoUsuario() {
-  try {
-    const { data: balance, error } = await supabaseClient
-      .from('balances')
-      .select('saldo')
-      .eq('usuario_id', usuarioActual.id)
-      .maybeSingle();
-
-    if (error) {
-      console.error('Error al cargar saldo:', error);
-      userBalance = 0;
-    } else {
-      userBalance = balance?.saldo || 0;
-    }
-
-    document.getElementById('userBalance').textContent = `$${userBalance.toLocaleString()}`;
-    
-  } catch (error) {
-    console.error('Error cargando saldo:', error);
-    userBalance = 0;
-    document.getElementById('userBalance').textContent = '$0';
-  }
-}
-
 // Función para descontar saldo
 async function descontarSaldo(precio) {
   try {
@@ -1520,7 +1516,7 @@ async function descontarSaldo(precio) {
     }
 
     userBalance = nuevoSaldo;
-    document.getElementById('userBalance').textContent = `$${userBalance.toLocaleString()}`;
+    document.getElementById('userBalance').textContent = formatCurrency(userBalance);
     
     return true;
   } catch (error) {
@@ -1544,7 +1540,7 @@ async function agregarPremioAlSaldo(premio) {
     }
 
     userBalance = nuevoSaldo;
-    document.getElementById('userBalance').textContent = `$${userBalance.toLocaleString()}`;
+    document.getElementById('userBalance').textContent = formatCurrency(userBalance);
     
     return true;
   } catch (error) {
@@ -1628,6 +1624,38 @@ async function registerPrizeWon(prize) {
   }
 }
 
+// Función para formatear moneda
+function formatCurrency(amount) {
+  return new Intl.NumberFormat('es-AR', {
+    style: 'currency',
+    currency: 'ARS',
+    minimumFractionDigits: 0
+  }).format(amount);
+}
+
+// Función para mostrar errores
+function mostrarError(message) {
+  const errorDiv = document.getElementById('errorMessage');
+  errorDiv.textContent = message;
+  errorDiv.style.display = 'block';
+  setTimeout(() => {
+    errorDiv.style.display = 'none';
+  }, 8000);
+}
+
+// Función para mostrar mensajes de éxito
+function mostrarExito(message) {
+  const stockWarnings = document.getElementById('stockWarnings');
+  const successDiv = document.createElement('div');
+  successDiv.className = 'success-message';
+  successDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+  stockWarnings.appendChild(successDiv);
+  
+  setTimeout(() => {
+    successDiv.remove();
+  }, 5000);
+}
+
 // Función para crear explosión de luz
 function createLightExplosion() {
   const lightExplosion = document.getElementById('lightExplosion');
@@ -1641,7 +1669,7 @@ function createLightExplosion() {
     lightExplosion.appendChild(ray);
   }
 
-lightExplosion.classList.add('active');
+  lightExplosion.classList.add('active');
 }
 
 // Función para crear explosión de partículas
@@ -1715,39 +1743,7 @@ function createFloatingCoins() {
   }
 }
 
-// Función para formatear moneda
-function formatCurrency(amount) {
-  return new Intl.NumberFormat('es-AR', {
-    style: 'currency',
-    currency: 'ARS',
-    minimumFractionDigits: 0
-  }).format(amount);
-}
-
-// Función para mostrar errores
-function mostrarError(message) {
-  const errorDiv = document.getElementById('errorMessage');
-  errorDiv.textContent = message;
-  errorDiv.style.display = 'block';
-  setTimeout(() => {
-    errorDiv.style.display = 'none';
-  }, 8000);
-}
-
-// Función para mostrar mensajes de éxito
-function mostrarExito(message) {
-  const stockWarnings = document.getElementById('stockWarnings');
-  const successDiv = document.createElement('div');
-  successDiv.className = 'success-message';
-  successDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
-  stockWarnings.appendChild(successDiv);
-  
-  setTimeout(() => {
-    successDiv.remove();
-  }, 5000);
-}
-
-// FUNCIÓN RESETEAR COFRE CORREGIDA
+// FUNCIÓN RESETEAR COFRE CORREGIDA CON RECARGA CRÍTICA
 function resetChest() {
   console.log('Reseteando cofre...');
   
@@ -1809,7 +1805,7 @@ async function logout() {
   window.location.href = "index.html";
 }
 
-// FUNCIÓN INICIALIZAR CORREGIDA
+// FUNCIÓN INICIALIZAR CORREGIDA CON SINCRONIZACIÓN MEJORADA
 async function initializePage() {
   try {
     console.log('Iniciando Mystery Box con contador principal de cajas...');
@@ -1881,49 +1877,59 @@ async function initializePage() {
 document.addEventListener('DOMContentLoaded', initializePage);
 
 // Event listener para el cofre con VERIFICACIÓN CRÍTICA
-document.getElementById('treasureChest').addEventListener('click', (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-  console.log('🖱️ Click en cofre detectado');
-  
-  // VERIFICACIÓN CRÍTICA INMEDIATA: Estado actual del sistema
-  if (mysteryBoxConfig.cajas_disponibles <= 0) {
-    console.log('🚨 CLICK BLOQUEADO: Sistema pausado - cajas_disponibles = 0');
-    mostrarError('🚨 El sistema está pausado - No hay cajas disponibles');
-    updateStockIndicators(); // Mostrar estado pausado
-    updateUI(); // Actualizar botón
-    return;
+document.addEventListener('DOMContentLoaded', function() {
+  const treasureChest = document.getElementById('treasureChest');
+  if (treasureChest) {
+    treasureChest.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('🖱️ Click en cofre detectado');
+      
+      // VERIFICACIÓN CRÍTICA INMEDIATA: Estado actual del sistema
+      if (mysteryBoxConfig.cajas_disponibles <= 0) {
+        console.log('🚨 CLICK BLOQUEADO: Sistema pausado - cajas_disponibles = 0');
+        mostrarError('🚨 El sistema está pausado - No hay cajas disponibles');
+        updateStockIndicators(); // Mostrar estado pausado
+        updateUI(); // Actualizar botón
+        return;
+      }
+      
+      if (isOpening) {
+        console.log('⚠️ Click ignorado: Ya está procesando una compra');
+        return;
+      }
+      
+      abrirCaja();
+    });
   }
-  
-  if (isOpening) {
-    console.log('⚠️ Click ignorado: Ya está procesando una compra');
-    return;
-  }
-  
-  abrirCaja();
 });
 
 // Event listener para el botón con VERIFICACIÓN CRÍTICA
-document.getElementById('openButton').addEventListener('click', (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-  console.log('🖱️ Click en botón detectado');
-  
-  // VERIFICACIÓN CRÍTICA INMEDIATA: Estado actual del sistema
-  if (mysteryBoxConfig.cajas_disponibles <= 0) {
-    console.log('🚨 CLICK BLOQUEADO: Sistema pausado - cajas_disponibles = 0');
-    mostrarError('🚨 El sistema está pausado - No hay cajas disponibles');
-    updateStockIndicators(); // Mostrar estado pausado
-    updateUI(); // Actualizar botón
-    return;
+document.addEventListener('DOMContentLoaded', function() {
+  const openButton = document.getElementById('openButton');
+  if (openButton) {
+    openButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('🖱️ Click en botón detectado');
+      
+      // VERIFICACIÓN CRÍTICA INMEDIATA: Estado actual del sistema
+      if (mysteryBoxConfig.cajas_disponibles <= 0) {
+        console.log('🚨 CLICK BLOQUEADO: Sistema pausado - cajas_disponibles = 0');
+        mostrarError('🚨 El sistema está pausado - No hay cajas disponibles');
+        updateStockIndicators(); // Mostrar estado pausado
+        updateUI(); // Actualizar botón
+        return;
+      }
+      
+      if (isOpening) {
+        console.log('⚠️ Click ignorado: Ya está procesando una compra');
+        return;
+      }
+      
+      abrirCaja();
+    });
   }
-  
-  if (isOpening) {
-    console.log('⚠️ Click ignorado: Ya está procesando una compra');
-    return;
-  }
-  
-  abrirCaja();
 });
 
 console.log('🎁 Mystery Box Usuario - SOLUCIÓN FINAL APLICADA');
@@ -1935,6 +1941,7 @@ console.log('  - ✅ Bloqueo INMEDIATO en event listeners');
 console.log('  - ✅ Detección automática de cambios de estado');
 console.log('  - ✅ Mensajes automáticos de sistema pausado/reactivado');
 console.log('  - ✅ SOLUCIÓN DEFINITIVA al problema del contador');
+console.log('  - ✅ Actualización por ID específico en lugar de is_active');
 
 </script>
 </body>
